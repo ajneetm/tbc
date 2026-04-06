@@ -1,0 +1,51 @@
+import React from "react";
+
+function SecondHand() {
+  return (
+    <svg
+      width="336"
+      height="336"
+      viewBox="0 0 336 336"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="167.143"
+        y="34"
+        width="2.14013"
+        height="134"
+        rx="1.07006"
+        fill="#ffffff"
+      />
+      <rect x="165.001" y="168" width="6" height="17" rx="2" fill="#ffffff" />
+      <path
+        d="M176.997 167.834C176.997 162.941 173.031 158.974 168.137 158.974C163.244 158.974 159.277 162.941 159.277 167.834C159.277 172.728 163.244 176.694 168.137 176.694C173.031 176.694 176.997 172.728 176.997 167.834Z"
+        fill="white"
+      />
+      <path
+        d="M168.092 174.13C171.56 174.13 174.372 171.318 174.372 167.85C174.372 164.382 171.56 161.57 168.092 161.57C164.623 161.57 161.812 164.382 161.812 167.85C161.812 171.318 164.623 174.13 168.092 174.13Z"
+        fill="url(#paint0_radial_4050_61963)"
+      />
+      <defs>
+        <radialGradient
+          id="paint0_radial_4050_61963"
+          cx="0"
+          cy="0"
+          r="1"
+          gradientUnits="userSpaceOnUse"
+          gradientTransform="translate(169.942 167.3) scale(7.85001 7.85)"
+        >
+          <stop stopColor="#E3E2E2" />
+          <stop offset="0.35" stopColor="#A4A4A4" />
+          <stop offset="0.64" stopColor="#757676" />
+          <stop offset="0.79" stopColor="#646565" />
+          <stop offset="0.91" stopColor="#666767" />
+          <stop offset="0.99" stopColor="#707171" />
+          <stop offset="1" stopColor="#727373" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
+
+export default SecondHand;

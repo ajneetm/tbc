@@ -1,0 +1,24 @@
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #printableArea,
+  #printableArea *,
+  #report-area,
+  #report-area * {
+    visibility: visible;
+  }
+
+  #printableArea {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+  }
+
+  #printableArea > div:last-child {
+    flex: 0 1 10%;
+  }
+}

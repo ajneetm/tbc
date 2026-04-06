@@ -1,0 +1,54 @@
+<svg width="43" height="43" viewBox="0 0 43 43" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <!-- Group the SVG elements to apply the spin effect -->
+    <g>
+
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(1 0 0 -1 20 13.0898)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(1 0 0 -1 20 2.62793)" fill="black"/>
+<circle cx="0.615385" cy="0.615385" r="0.615385" transform="matrix(1 0 0 -1 20.6152 6.93555)" fill="black"/>
+<circle cx="21.2308" cy="30.3206" r="1.23077" fill="black"/>
+<circle cx="21.2308" cy="40.7825" r="1.23077" fill="black"/>
+<circle cx="21.2306" cy="35.8595" r="0.615385" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(0.866025 -0.5 -0.5 -0.866025 16.4617 15.3579)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(0.866025 -0.5 -0.5 -0.866025 11.2307 6.29834)" fill="black"/>
+<circle cx="0.615385" cy="0.615385" r="0.615385" transform="matrix(0.866025 -0.5 -0.5 -0.866025 13.9177 9.72119)" fill="black"/>
+<circle cx="26.1427" cy="29.6648" r="1.23077" transform="rotate(-30 26.1427 29.6648)" fill="black"/>
+<circle cx="31.3736" cy="38.7244" r="1.23077" transform="rotate(-30 31.3736 38.7244)" fill="black"/>
+<circle cx="28.9119" cy="34.4611" r="0.615385" transform="rotate(-30 28.9119 34.4611)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(0.5 -0.866025 -0.866025 -0.5 13.1919 18.6274)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(0.5 -0.866025 -0.866025 -0.5 4.13184 13.397)" fill="black"/>
+<circle cx="0.615385" cy="0.615385" r="0.615385" transform="matrix(0.5 -0.866025 -0.866025 -0.5 8.17041 15.0171)" fill="black"/>
+<circle cx="28.7294" cy="26.1774" r="1.23077" transform="rotate(-60 28.7294 26.1774)" fill="black"/>
+<circle cx="37.7894" cy="31.4079" r="1.23077" transform="rotate(-60 37.7894 31.4079)" fill="black"/>
+<circle cx="33.5259" cy="28.9466" r="0.615385" transform="rotate(-60 33.5259 28.9466)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(-2.58096e-08 -1 -1 2.58096e-08 12.9229 22.1665)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(-2.58096e-08 -1 -1 2.58096e-08 2.46143 22.1665)" fill="black"/>
+<circle cx="0.615385" cy="0.615385" r="0.615385" transform="matrix(-2.58096e-08 -1 -1 2.58096e-08 6.76904 21.5513)" fill="black"/>
+<circle cx="30.1536" cy="20.9357" r="1.23077" transform="rotate(-90 30.1536 20.9357)" fill="black"/>
+<circle cx="40.615" cy="20.9357" r="1.23077" transform="rotate(-90 40.615 20.9357)" fill="black"/>
+<circle cx="35.692" cy="20.9359" r="0.615385" transform="rotate(-90 35.692 20.9359)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(-0.5 -0.866025 -0.866025 0.5 15.1917 25.7051)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(-0.5 -0.866025 -0.866025 0.5 6.13159 30.9355)" fill="black"/>
+<circle cx="0.615385" cy="0.615385" r="0.615385" transform="matrix(-0.5 -0.866025 -0.866025 0.5 9.55444 28.249)" fill="black"/>
+<circle cx="29.4983" cy="16.0233" r="1.23077" transform="rotate(-120 29.4983 16.0233)" fill="black"/>
+<circle cx="38.5584" cy="10.7929" r="1.23077" transform="rotate(-120 38.5584 10.7929)" fill="black"/>
+<circle cx="34.2946" cy="13.2536" r="0.615385" transform="rotate(-120 34.2946 13.2536)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(-0.866025 -0.5 -0.5 0.866025 18.4614 28.9751)" fill="black"/>
+<circle cx="1.23077" cy="1.23077" r="1.23077" transform="matrix(-0.866025 -0.5 -0.5 0.866025 13.2305 38.0347)" fill="black"/>
+<circle cx="0.615385" cy="0.615385" r="0.615385" transform="matrix(-0.866025 -0.5 -0.5 0.866025 14.8516 33.9966)" fill="black"/>
+<circle cx="26.0107" cy="13.4374" r="1.23077" transform="rotate(-150 26.0107 13.4374)" fill="black"/>
+<circle cx="31.2416" cy="4.37782" r="1.23077" transform="rotate(-150 31.2416 4.37782)" fill="black"/>
+<circle cx="28.7799" cy="8.6413" r="0.615385" transform="rotate(-150 28.7799 8.6413)" fill="black"/>
+    </g>
+
+    <!-- Add the animateTransform for rotation -->
+    <animateTransform 
+      attributeName="transform"
+      type="rotate"
+      from="0 21 21.5"
+      to="360 21 21.5"
+      dur="12s"
+      repeatCount="indefinite"
+    />
+  </g>
+</svg>

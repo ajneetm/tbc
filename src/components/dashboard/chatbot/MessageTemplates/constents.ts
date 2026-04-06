@@ -1,0 +1,6 @@
+
+export const PRINT_RESULT_AREA = "printableArea";
+export const SESSION_STORAGE_SCORE_KEY = "SESSION_STORAGE_SCORE_KEY";
+export const SURVEY_TYPE = "SURVEY_TYPE";
+export const SURVEY_START_MESSAGE = "SURVEY_START_MESSAGE";
+export const SURVEY_SCORE = "SURVEY_SCORE";

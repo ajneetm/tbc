@@ -1,0 +1,38 @@
+.minutes-container,
+.hours-container,
+.seconds-container,
+.clock {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
+
+@keyframes reverse_rotate {
+  100% {
+    transform: rotateZ(-360deg);
+  }
+}
+
+.hours-container {
+  animation: rotate 43200s infinite linear;
+}
+
+.minutes-container {
+  animation: rotate 3600s infinite linear;
+}
+.seconds-container {
+  animation: rotate 60s infinite linear;
+  z-index: 3;
+}
+
+.reverse-spin {
+  animation: reverse_rotate 60s infinite linear;
+}

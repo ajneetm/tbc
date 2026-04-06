@@ -1,0 +1,15 @@
+@keyframes lighting {
+  0% {
+    filter: brightness(1) drop-shadow(0 0 10px #4a6cf7);
+  }
+  50% {
+    filter: brightness(1.5) drop-shadow(0 0 25px #4a6cf7);
+  }
+  100% {
+    filter: brightness(1) drop-shadow(0 0 0 #4a6cf7);
+  }
+}
+
+.animate-lighting {
+  animation: lighting 2s infinite;
+}

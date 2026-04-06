@@ -1,0 +1,317 @@
+{
+  "navbar": {
+    "overview": "Overview",
+    "services": "Services",
+    "programs": "Programs",
+    "test": "Test",
+    "accreditation": "Accreditation",
+    "contact": "Contact",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
+  },
+  "home": {
+    "metadata": {
+      "title": "The Business Clock",
+      "description": "Discover your competitive advantages with The Business Clock as you embark on a journey toward business excellence.",
+      "siteName": "The Business Clock"
+    },
+    "hero": {
+      "title": "The Business Clock",
+      "subtitle": "Your Competitive Tool Towards Business Excellence",
+      "description": "Discover your competitive advantages with The Business Clock as you embark on a journey toward business excellence.",
+      "button": "Explore Programs",
+      "link": "Download Brochure",
+      "clients": "Trusted by the best",
+      "cta": "Find Your Businuss Gap"
+    },
+    "overview": {
+      "title": "Overview",
+      "description": "The Business Clock, innovated by Ajnee, is an integrated management system designed to mentor businesses and entrepreneurs. By providing a structured roadmap, it empowers companies to enhance their competitive efficiency and achieve sustainable success. Whether penetrating the market or optimizing operations, The Business Clock ensures effective management and growth through thoughtful planning, seamless execution, and strategic evaluation.",
+      "readMore": "Read More...",
+      "videoIframeTitle": "YouTube video player"
+    },
+    "services": {
+      "title": "Services",
+      "description": "The Business Clock Redefines Growth, Unlocks Long-Term Success",
+      "button": "Explore Programs",
+      "viewDetails": "View Details"
+    },
+    "stakeholder": {
+      "title": "Stakeholders",
+      "description": "Innovated by Ajnee Business Hub and delivered in collaboration with their trusted UK partner, Loida British, the Business Clock offers CPD-certified training and tailored solutions designed to empower individuals and businesses to excel.",
+      "button": "Explore Programs"
+    },
+    "brands": {
+      "title": "Accreditation",
+      "descriptionLink": "CPD-accredited",
+      "descriptionStart": "The Business Clock proudly features the Seizing Business Opportunities and Leveraging Chances session, which is",
+      "descriptionEnd": "and offers globally recognized credentials to enhance professional growth. Accreditation for the remaining sessions is underway, ensuring they align with the highest international standards and provide equal value and recognition."
+    },
+    "geography": {
+      "titleStart": "No matter where you are,",
+      "titleMiddle": "The Business Clock",
+      "titleEnd": "is your trusted competitive tool towards business excellence."
+    },
+    "contact": {
+      "smallTitle": "CONTACT",
+      "title": "Looking for More Information? Let's Connect!",
+      "subtitle": "We're here to assist with any inquiries or information you need. Share your details, and we'll get back to you soon.",
+      "form": {
+        "name": {
+          "label": "Name",
+          "placeholder": "Enter your name"
+        },
+        "company": {
+          "placeholder": "Company (Optional)"
+        },
+        "email": {
+          "placeholder": "Enter your email"
+        },
+        "phone": {
+          "placeholder": "Phone number"
+        },
+        "message": {
+          "placeholder": "Tell me about your project"
+        },
+        "button": "Send Message"
+      }
+    }
+  },
+  "chat-bot": {
+    "title": "Mr. DING your AI Assistant!",
+    "newChat": "New Chat",
+    "inputPlaceholder": "Message",
+    "comingSoon": "Coming Soon",
+    "firstMessage": "Hello{name}, How can I help?",
+    "businessClockQuestion": "How The Business Clock can be helpful?"
+  },
+  "assessment": {
+    "survey": {
+      "newSurveryButton": "New Survey"
+    },
+    "form": {
+      "title": "Test Form",
+      "description": "Please fill out the form below to start the test.",
+      "button": "Save",
+      "fields": {
+        "name": {
+          "label": "Name",
+          "placeholder": "Jhon Doe",
+          "min": "Name must be at least 3 characters",
+          "max": "Name must be less than 255 characters"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "k4P4o@example.com",
+          "invalid": "Invalid email address"
+        },
+        "phone": {
+          "label": "Phone",
+          "placeholder": "Phone number",
+          "invalid": "Phone number must be between 7 and 15 digits and contain only numbers"
+        },
+        "language": {
+          "label": "Language",
+          "placeholder": "English",
+          "options": {
+            "en": "English",
+            "ar": "Arabic"
+          }
+        },
+        "surveyType": {
+          "label": "Survey Type",
+          "placeholder": "Select Survey Type",
+          "options": {
+            "explorers": "Explorers Survey",
+            "entrepreneurs": "Survey for Entrepreneurs",
+            "companies": "Survey for existing projects and companies"
+          }
+        },
+        "age": {
+          "label": "Age",
+          "placeholder": "Enter your age",
+          "required": "Age is required for explorers"
+        },
+        "businessType": {
+          "label": "Type of activity",
+          "placeholder": "Enter your type of activity",
+          "required": "Business type is required for entrepreneurs"
+        },
+        "capital": {
+          "label": "Capital",
+          "placeholder": "Enter your capital",
+          "required": "Capital is required for companies"
+        },
+        "projectAge": {
+          "label": "Project age",
+          "placeholder": "Enter your project age",
+          "required": "Project age is required for companies"
+        },
+        "staffCount": {
+          "label": "Number of Employees",
+          "placeholder": "Enter your number of employees",
+          "required": "Number of employees is required for companies"
+        }
+      }
+    },
+    "title": "Assessment",
+    "description": "Please fill out the form below to start the test.",
+    "button": "Start Test"
+  },
+  "auth": {
+    "signin": {
+      "pageTitle": "Sign in",
+      "pageDescription": "Sign in to your account to continue.",
+      "title": "Sign in to your Account",
+      "signup": "Don't have an account yet?",
+      "signupLink": "Sign up",
+      "signinButton": "Sign In Now",
+      "validation": {
+        "invalid": "Invalid username or password",
+        "success": "Logged in successfully"
+      },
+      "form": {
+        "username": {
+          "label": "Username",
+          "placeholder": "johndoe",
+          "min": "Username must be at least 3 characters",
+          "max": "Username must be less than 255 characters"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "**********",
+          "min": "Password must be at least 8 characters"
+        }
+      }
+    },
+    "signup": {
+      "pageTitle": "Sign up",
+      "pageDescription": "Create your account to continue.",
+      "title": "Create your Account",
+      "signin": "Already have an account?",
+      "signinLink": "Sign in",
+      "signupButton": "Sign Up Now",
+      "form": {
+        "first_name": {
+          "label": "First Name",
+          "placeholder": "John",
+          "min": "First name must be at least 3 characters",
+          "max": "First name must be less than 255 characters",
+          "required": "First name is required"
+        },
+        "last_name": {
+          "label": "Last Name",
+          "placeholder": "Doe",
+          "min": "Last name must be at least 3 characters",
+          "max": "Last name must be less than 255 characters",
+          "required": "Last name is required"
+        },
+        "username": {
+          "label": "Username",
+          "placeholder": "johndoe",
+          "min": "Username must be at least 3 characters",
+          "max": "Username must be less than 255 characters",
+          "required": "Username is required"
+        },
+        "email": {
+          "label": "Email",
+          "placeholder": "jhonandrio@domain.com",
+          "invalid": "Invalid email address",
+          "required": "Email is required"
+        },
+        "password": {
+          "label": "Password",
+          "placeholder": "**********",
+          "min": "Password must be at least 8 characters",
+          "invalid": "Password must be at least 8 characters and contain uppercase and lowercase letters, a number, and a special character.",
+          "required": "Password is required"
+        },
+        "rePassword": {
+          "label": "Retype Password",
+          "placeholder": "**********",
+          "min": "Password must be at least 8 characters",
+          "required": "Retype password is required",
+          "invalid": "Passwords do not match"
+        },
+        "validation": {
+          "success": "User has been registered."
+        }
+      }
+    },
+    "forgetPassword": {
+      "pageTitle": "Forgot Password",
+      "pageDescription": "Forgot your password? No problem. Just enter your email address and we'll send you a link to reset your password.",
+      "title": "Forgot Password",
+      "description": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+      "button": "Send Reset Link",
+      "form": {
+        "email": {
+          "label": "Email",
+          "placeholder": "Enter your email",
+          "invalid": "Invalid email address",
+          "notFound": "User not found.",
+          "required": "Email is required"
+        }
+      }
+    },
+    "resetPassword": {
+      "pageTitle": "Reset Password",
+      "pageDescription": "Reset your password",
+      "title": "Update Password",
+      "description": "Enter your new password",
+      "button": "Save Password",
+      "form": {
+        "password": {
+          "label": "Password",
+          "placeholder": "**********",
+          "min": "Password must be at least 8 characters",
+          "required": "Password is required",
+          "invalid": "Password must be at least 8 characters and contain uppercase and lowercase letters, a number, and a special character."
+        }
+      }
+    }
+  },
+  "service": {
+    "title": "Services",
+    "callToAction": {
+      "title": "Join Us",
+      "button": "Get a call back"
+    }
+  },
+  "programs": {
+    "comingSoon": "Coming Soon",
+    "available": "Available",
+    "viewDetails": "View Details"
+  },
+  "overview": {
+    "pageTitle": "Overview Page",
+    "pageDescription": "Overview Page",
+    "overview": {
+      "title": "Overview",
+      "description": "The Business Clock, innovated by Ajnee, is an integrated management system designed to mentor businesses and entrepreneurs. By providing a structured roadmap, it empowers companies to enhance their competitive efficiency and achieve sustainable success. Whether penetrating the market or optimizing operations, The Business Clock ensures effective management and growth through thoughtful planning, seamless execution, and strategic evaluation."
+    },
+    "ding-model": {
+      "title": "Ding Model",
+      "description": "DING offers a clear and practical approach to business functions. The system is built around four indispensable pillars that form the foundation of any successful business:",
+      "footer": "The 12 Functional Hours Each pillar is divided into three functional hours, creating a total of 12 actionable steps. These steps serve as practical, easy-to-use models that guide businesses through every stage of their journey, ensuring consistent growth and excellence. The Business Clock is more than a framework—it’s a powerful tool designed to help businesses unlock their potential, refine strategies, and achieve measurable results with confidence and precision.",
+      "cards": {
+        "draft": {
+          "title": "Draft",
+          "description": "Engage in critical thinking and logical market analysis to identify optimal solutions. Devise strategies for market penetration and plan operations with precision."
+        },
+        "incorporate": {
+          "title": "Incorporate",
+          "description": "Focus on preparation, planning, and decision-making, including defining your business identity, legal structure, resources, and infrastructure needs."
+        },
+        "navigate": {
+          "title": "Navigate",
+          "description": "Manage and operate your business efficiently, leveraging marketing efforts to boost sales and establish sustainability in the market."
+        },
+        "generate": {
+          "title": "Generate",
+          "description": "Harvest the results of your efforts by generating revenue and analyzing performance. Assess returns at every stage to ensure ongoing improvement and success."
+        }
+      }
+    }
+  }
+}
