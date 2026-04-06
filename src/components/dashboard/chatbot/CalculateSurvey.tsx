@@ -16,12 +16,6 @@ import { v4 as uuid } from "uuid";
 
 const SESSION_SURVEY_DATA = "SESSION_SURVEY_DATA";
 
-const surveyTypeLabel: Record<string, string> = {
-  explorers: "Explorers (مستكشف)",
-  entrepreneurs: "Entrepreneurs (رائد أعمال)",
-  companies: "Companies (شركة)",
-};
-
 function CalculateSurvey() {
   const [isLoading, setIsLoading] = useState(false);
   const {
@@ -77,46 +71,6 @@ function CalculateSurvey() {
       .then((r) => r.json())
       .then((d) => console.log("[Sheets]", d))
       .catch((err) => console.error("[Sheets] error:", err));
-
-    // Send email via Web3Forms
-    const web3key = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
-    if (web3key && web3key !== "YOUR_ACCESS_KEY_HERE") {
-      fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          access_key: web3key,
-          subject: `[Business Clock] تقييم جديد - ${name} (${percentage}%)`,
-          from_name: "Business Clock",
-          name,
-          email,
-          message: `
-الاسم: ${name}
-الإيميل: ${email}
-الهاتف: ${phone}
-نوع التقييم: ${surveyTypeLabel[surveyType] || surveyType}
-اللغة: ${language === "ar" ? "عربي" : "English"}
-${age ? `العمر: ${age}` : ""}
-${businessType ? `نوع العمل: ${businessType}` : ""}
-${capital ? `رأس المال: ${capital}` : ""}
-${projectAge ? `عمر المشروع: ${projectAge} سنة` : ""}
-${staffCount ? `عدد الموظفين: ${staffCount}` : ""}
-
-النتيجة: ${totalScore} / 360
-النسبة: ${percentage}%
-
-تفاصيل الإجابات:
-${answers.map((a, i) => `${i + 1}. ${a.question} → ${a.answerId} (${a.score})`).join("\n")}
-          `.trim(),
-        }),
-      })
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.success) console.log("[Email] Sent");
-          else console.error("[Email] Error:", d);
-        })
-        .catch((err) => console.error("[Email] Network error:", err));
-    }
 
     dispatch(updateSurveyFlow({ status: "idle", activeSurveyId }));
     setIsLoading(false);
