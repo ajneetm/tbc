@@ -56,7 +56,7 @@ export default function HeroImageClock({ containerRef }: HeroImageClockProps) {
   const clockStyle = useMemo(() => ({
     width: `${clockDimensions.width}px`,
     height: `${clockDimensions.height}px`,
-    userSelect: "none",
+    userSelect: "none" as const,
   }), [clockDimensions.width, clockDimensions.height]);
 
   return (
