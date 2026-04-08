@@ -584,7 +584,7 @@ const explorersSurvey = [
   {
     id: "explorers-17",
     question: "17 / 24. Utilizing multiple channels to market any product",
-    question_ar: "استخدام وسائل متعددة لتسويق أي منتج ١٧ / ٢٤",
+    question_ar: "استطيع اقناع الاخرين بأسلوب جذاب ١٧ / ٢٤",
     modalId: "explorers-modal-9",
     rate: 0.8,
   },

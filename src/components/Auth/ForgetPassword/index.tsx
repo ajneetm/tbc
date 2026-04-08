@@ -1,56 +1,49 @@
 "use client";
-import axios from "axios";
 import { useState } from "react";
-import toast from "react-hot-toast";
-import { integrations, messages } from "../../../../integrations.config";
-import z from "zod";
 import { useTranslations } from "next-intl";
-
-const forgetPasswordSchema = z.object({
-  email: z.string({required_error: "form.email.required"}).email("form.email.invalid"),
-});
+import { supabase } from "@/lib/supabase";
 
 const ForgetPassword = () => {
-  const [data, setData] = useState({
-    email: "",
-  });
   const t = useTranslations("auth.forgetPassword");
-  const handleSubmit = async (e: any) => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    if (!integrations?.isAuthEnabled) {
-      toast.error(messages?.auth);
-      return;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    if (error) {
+      setError("حدث خطأ، تأكد من البريد الإلكتروني وحاول مرة أخرى");
+    } else {
+      setSent(true);
     }
-
-    const result = await forgetPasswordSchema.safeParseAsync(data);
-
-    if (!result.success) {
-      const firstError = result.error.issues[0];
-      console.log(firstError);
-      toast.error(t(firstError.message as any));
-      return;
-    }
-
-    try {
-      const res = await axios.post("/api/forget-password/reset", data);
-
-      if (res.status === 404) {
-        toast.error(t("form.email.notFound"));
-        return;
-      }
-
-      if (res.status === 200) {
-        toast.success(res.data);
-        setData({ email: "" });
-      }
-
-      setData({ email: "" });
-    } catch (error: any) {
-      console.log(error);
-      toast.error(error.response.data);
-    }
+    setLoading(false);
   };
+
+  if (sent) {
+    return (
+      <section className="pt-[120px] lg:pt-[240px]">
+        <div className="px-4 xl:container">
+          <div className="border-b pb-24">
+            <div className="mx-auto max-w-[750px] rounded border bg-white px-6 py-10 sm:p-[70px] text-center">
+              <div className="text-5xl mb-4">📧</div>
+              <h2 className="text-xl font-bold mb-2">تحقق من بريدك الإلكتروني</h2>
+              <p className="text-body-color">
+                أرسلنا رابط إعادة تعيين كلمة المرور على <strong>{email}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="pt-[120px] lg:pt-[240px]">
@@ -61,29 +54,29 @@ const ForgetPassword = () => {
               <h1 className="font-heading mb-3 text-2xl font-medium text-black sm:text-3xl lg:text-2xl xl:text-[40px] xl:leading-tight">
                 {t("title")}
               </h1>
-
               <p className="text-center text-body-color md:px-20">
                 {t("description")}
               </p>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div className="flex flex-col gap-2 pb-7 lg:justify-between lg:pb-12">
+              <div className="flex flex-col gap-4 pb-7 lg:pb-12">
                 <input
                   type="email"
                   placeholder={t("form.email.placeholder")}
-                  name="email"
-                  value={data.email}
-                  onChange={(e) => setData({ ...data, email: e.target.value })}
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                  required
+                  dir="ltr"
                   className="placeholder-dark-text w-full border-b bg-transparent py-5 text-base font-medium text-dark outline-none focus:border-primary"
                 />
-
+                {error && <p className="text-sm text-red-500 bg-red-50 rounded px-3 py-2">{error}</p>}
                 <button
-                  aria-label="reset password"
-                  className="inline-flex items-center justify-center rounded bg-primary px-14 py-[14px] text-sm font-semibold text-white"
                   type="submit"
+                  disabled={loading}
+                  className="inline-flex items-center justify-center rounded bg-primary px-14 py-[14px] text-sm font-semibold text-white disabled:opacity-50"
                 >
-                  {t("button")}
+                  {loading ? "..." : t("button")}
                 </button>
               </div>
             </form>

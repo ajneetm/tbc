@@ -17,24 +17,15 @@ import {
 import { surveyTypeValues } from "@/store/chatbot/SurveyFlowTypes";
 import { useDispatch } from "@/store/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { triggerSurveySequence } from "../chatbot/helpers/survey";
+import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
+import { useEffect } from "react";
 
 const assessmentSchema = z
   .object({
-    name: z
-      .string()
-      .min(3, "assessment.form.fields.name.min")
-      .max(255, "assessment.form.fields.name.max"),
-    email: z.string().email("assessment.form.fields.email.invalid"),
-    phone: z
-      .string()
-      .regex(
-        /^[0-9+]{7,15}$/,
-        "assessment.form.fields.phone.invalid",
-      ),
     language: z.union([z.literal("en"), z.literal("ar")]),
     surveyType: z.enum(surveyTypeValues),
     age: z.string().optional(),
@@ -78,6 +69,9 @@ const assessmentSchema = z
 const AssessmentForm = () => {
   const dispatch = useDispatch();
   const t = useTranslations("assessment");
+  const { user } = useSupabaseAuth();
+  const locale = useLocale() as "en" | "ar";
+
   const resetController = (excludedInitialPrompts: ExcludedInitialPrompts) => {
     dispatch(updateExcludedInitialPrompts(excludedInitialPrompts));
     dispatch(updateChatTrailing("none"));
@@ -86,15 +80,11 @@ const AssessmentForm = () => {
     resetController("survey");
     triggerSurveySequence(dispatch, false, lang)();
   };
-  
 
   const form = useForm<z.infer<typeof assessmentSchema>>({
     resolver: zodResolver(assessmentSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      language: "en",
+      language: locale,
       surveyType: "explorers",
       age: "",
       businessType: "",
@@ -104,24 +94,18 @@ const AssessmentForm = () => {
     },
   });
 
+  // Sync language field with site locale
+  useEffect(() => {
+    form.setValue("language", locale);
+  }, [locale, form]);
+
   function onSubmit(values: z.infer<typeof assessmentSchema>) {
-    const {
-      name,
-      email,
-      phone,
-      language,
-      surveyType,
-      age,
-      businessType,
-      capital,
-      projectAge,
-      staffCount,
-    } = values;
+    const { language, surveyType, age, businessType, capital, projectAge, staffCount } = values;
     dispatch(
       saveAssessmentData({
-        name,
-        email,
-        phone,
+        name: user?.user_metadata?.full_name || "",
+        email: user?.email || "",
+        phone: user?.user_metadata?.phone || "",
         language,
         isAssessmentStarted: true,
         surveyType,
@@ -137,113 +121,16 @@ const AssessmentForm = () => {
 
   return (
     <div className="mx-auto mt-5 max-w-[800px] rounded-lg bg-white p-5 shadow-lg md:mt-10">
-      <h1 className="mb-3 text-2xl font-medium text-black  sm:text-3xl lg:text-2xl xl:text-[40px] xl:leading-tight">
+      <h1 className="mb-3 text-2xl font-medium text-black sm:text-3xl lg:text-2xl xl:text-[40px] xl:leading-tight">
         {t("form.title")}
       </h1>
       <p className="mb-5 text-base font-normal text-gray-600">
         {t("form.description")}
       </p>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="-mx-4 flex flex-wrap">
-            <div className="w-full px-4 sm:w-1/2">
-              <div className="mb-5 md:mb-10">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.fields.name.label")}</FormLabel>
-                      <FormControl>
-                        <input
-                          {...field}
-                          placeholder={t("form.fields.name.placeholder")}
-                          className="placeholder-dark-text w-full border-b bg-transparent py-2 text-base  font-medium text-dark outline-none focus:border-primary md:py-5   "
-                        />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="relative w-full px-4 sm:w-1/2">
-              <div className="mb-5 md:mb-10">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.fields.email.label")}</FormLabel>
-                      <FormControl>
-                        <input
-                          {...field}
-                          placeholder={t("form.fields.email.placeholder")}
-                          className="placeholder-dark-text w-full border-b bg-transparent py-2 text-base  font-medium text-dark outline-none focus:border-primary md:py-5   "
-                        />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="relative w-full px-4 sm:w-1/2">
-              <div className="mb-5 md:mb-10">
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.fields.phone.label")}</FormLabel>
-                      <FormControl>
-                        <input
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(
-                              e.target.value.replace(/[^0-9]/g, ""),
-                            );
-                          }}
-                          placeholder={t("form.fields.phone.placeholder")}
-                          className="placeholder-dark-text w-full border-b bg-transparent py-2 text-base  font-medium text-dark outline-none focus:border-primary md:py-5   "
-                        />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
-
-            <div className="relative w-full px-4 sm:w-1/2">
-              <div className="mb-5 md:mb-10">
-                <FormField
-                  control={form.control}
-                  name="language"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.fields.language.label")}</FormLabel>
-                      <FormControl>
-                        <select
-                          {...field}
-                          className="placeholder-dark-text w-full border-b bg-transparent py-2 text-base  font-medium text-dark outline-none focus:border-primary md:py-5   "
-                        >
-                          <option value="en">{t("form.fields.language.options.en")}</option>
-                          <option value="ar">{t("form.fields.language.options.ar")}</option>
-                        </select>
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            </div>
 
             <div className="relative w-full px-4 sm:w-1/2">
               <div className="mb-5 md:mb-10">

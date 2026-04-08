@@ -13,6 +13,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { v4 as uuid } from "uuid";
+import { supabase } from "@/lib/supabase";
+import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 
 const SESSION_SURVEY_DATA = "SESSION_SURVEY_DATA";
 
@@ -28,6 +30,7 @@ function CalculateSurvey() {
     language, email, name, phone, surveyType,
     age, businessType, capital, projectAge, staffCount,
   } = useSelector((state) => state.assessmentForm);
+  const { user } = useSupabaseAuth();
   const { push } = useRouter();
 
   const answers = submittedAnswers[activeSurveyId || ""] || [];
@@ -50,7 +53,7 @@ function CalculateSurvey() {
       }));
     }
 
-    // Save to Google Sheets via secure API route (URL never exposed to browser)
+    // Save to Google Sheets
     fetch("/api/save-survey", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -67,10 +70,36 @@ function CalculateSurvey() {
           modalId: a.modalId,
         })),
       }),
-    })
-      .then((r) => r.json())
-      .then((d) => console.log("[Sheets]", d))
-      .catch((err) => console.error("[Sheets] error:", err));
+    }).catch((err) => console.error("[Sheets] error:", err));
+
+    // Save to Supabase
+    if (user) {
+      supabase.from("survey_results").insert({
+        user_id: user.id,
+        email: email || user.email,
+        name,
+        phone,
+        survey_type: surveyType,
+        language,
+        age,
+        business_type: businessType,
+        capital,
+        project_age: projectAge,
+        staff_count: staffCount,
+        total_score: Number(totalScore),
+        percentage: Number(percentage),
+        answers: answers.map((a) => ({
+          question: a.question,
+          answerId: a.answerId,
+          score: a.score,
+          rate: a.rate,
+          modalId: a.modalId,
+        })),
+        modal_scores: modalScore,
+      }).then(({ error }) => {
+        if (error) console.error("[Supabase]", error);
+      });
+    }
 
     dispatch(updateSurveyFlow({ status: "idle", activeSurveyId }));
     setIsLoading(false);

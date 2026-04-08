@@ -2,7 +2,7 @@
 
 import { navbarData } from "@/static-data/navbar";
 import { onScroll } from "@/utils/scrollActive";
-import { signOut, useSession } from "next-auth/react";
+import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,7 +15,7 @@ export default function Navbar() {
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [dropdownToggler, setDropdownToggler] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
-  const { status } = useSession();
+  const { user, signOut } = useSupabaseAuth();
   const pathUrl = usePathname();
 
   const navigationHandler = () => {
@@ -154,11 +154,24 @@ export default function Navbar() {
                         )}
                       </li>
                     ))}
-                    <li className="block p-2 font-semibold text-red-500 sm:hidden ">
-                      <Link href="/auth/signin" className="">
-                        {t("signIn")}
-                      </Link>
-                    </li>
+                    {!user ? (
+                      <li className="block p-2 font-semibold text-red-500 sm:hidden">
+                        <Link href="/auth/signin">{t("signIn")}</Link>
+                      </li>
+                    ) : (
+                      <>
+                        <li className="block p-2 sm:hidden">
+                          <Link href="/dashboard/profile" className="font-semibold text-primary">
+                            {currentLocale === "ar" ? "لوحة التحكم" : "Dashboard"}
+                          </Link>
+                        </li>
+                        <li className="block p-2 sm:hidden">
+                          <button onClick={() => signOut()} className="font-semibold text-gray-600">
+                            {t("signOut")}
+                          </button>
+                        </li>
+                      </>
+                    )}
                     <button
                     className="p-2 lg:hidden"
                       onClick={() => {
@@ -174,21 +187,29 @@ export default function Navbar() {
                 <LanguageDropdown />
               </div>
 
-              <div className={`hidden items-center justify-end gap-4  sm:flex  lg:pr-0 ${currentLocale === "en" ? "pr-16" : "pl-16"}`}>
-                {status === "unauthenticated" ? (
+              <div className={`hidden items-center justify-end gap-4 sm:flex lg:pr-0 ${currentLocale === "en" ? "pr-16" : "pl-16"}`}>
+                {!user ? (
                   <Link
                     href="/auth/signin"
-                    className="t w-[120px] rounded-full bg-red-500 px-8 py-2 text-center text-base font-bold text-white transition duration-300 ease-in-out hover:bg-opacity-90 hover:shadow-signUp whitespace-nowrap flex items-center justify-center"
+                    className="w-[120px] rounded-full bg-red-500 px-8 py-2 text-center text-base font-bold text-white transition duration-300 ease-in-out hover:bg-opacity-90 hover:shadow-signUp whitespace-nowrap flex items-center justify-center"
                   >
                     {t("signIn")}
                   </Link>
                 ) : (
-                  <button
-                    onClick={() => signOut()}
-                    className="t rounded-full bg-primary px-8 py-2 text-center text-base font-bold text-white transition duration-300 ease-in-out hover:bg-opacity-90 hover:shadow-signUp whitespace-nowrap flex items-center justify-center"
-                  >
-                    {t("signOut")}
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href="/dashboard/profile"
+                      className="rounded-full bg-primary px-6 py-2 text-sm font-bold text-white transition hover:bg-opacity-90 whitespace-nowrap"
+                    >
+                      {currentLocale === "ar" ? "لوحة التحكم" : "Dashboard"}
+                    </Link>
+                    <button
+                      onClick={() => signOut()}
+                      className="rounded-full border border-gray-300 px-6 py-2 text-sm font-bold text-gray-700 transition hover:bg-gray-100 whitespace-nowrap"
+                    >
+                      {t("signOut")}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

@@ -14,9 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const ResetPasswordPage = async (props: { params: Promise<{ token: string }> }) => {
-  const params = await props.params;
-  return <ResetPassword token={params.token} />;
+const ResetPasswordPage = async () => {
+  return <ResetPassword />;
 };
 
 export default ResetPasswordPage;

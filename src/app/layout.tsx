@@ -1,7 +1,7 @@
 import "@/styles/globals.css";
 import { cn } from "@/utils/cn";
 import { Inter, Tajawal } from "next/font/google";
-import AuthProvider from "./context/AuthContext";
+
 import { StoreProviders } from "@/store/providers";
 import { getLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -37,9 +37,7 @@ export default async function RootLayout({
         style={{ fontFamily: locale === "ar" ? tajawal.style.fontFamily : inter.style.fontFamily }}
       >
         <NextIntlClientProvider>
-          <AuthProvider>
-            <StoreProviders>{children}</StoreProviders>
-          </AuthProvider>
+          <StoreProviders>{children}</StoreProviders>
         </NextIntlClientProvider>
       </body>
     </html>

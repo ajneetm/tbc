@@ -3,18 +3,18 @@
 import React, { memo } from "react";
 import MessageContainer from "./MessageTemplates/MessageContainer";
 import TextMessage from "./MessageTemplates/TextMessage";
-import { useSession } from "next-auth/react";
-import { v4 as uuid } from "uuid";
+import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 import { useTranslations } from "next-intl";
 
 function WelcomeMessage() {
-  const session = useSession();
+  const { user } = useSupabaseAuth();
   const t = useTranslations("chat-bot");
+  const firstName = user?.user_metadata?.first_name || "";
   return (
     <MessageContainer msgSender="chatbot">
       <TextMessage
         id="welcome-message-id"
-        message={`${t("firstMessage", { name: session.data?.user?.first_name ? ` ${session.data?.user?.first_name}` : "" })}`}
+        message={`${t("firstMessage", { name: firstName ? ` ${firstName}` : "" })}`}
         msgSender="chatbot"
       />
     </MessageContainer>

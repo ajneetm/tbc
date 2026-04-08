@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import "@/styles/globals.css";
 import NextTopLoader from "nextjs-toploader";
 import ToasterContext from "../context/ToastContext";
-
+import { SupabaseAuthProvider } from "../context/SupabaseAuthContext";
 
 export default function RootLayout({
   children,
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <SupabaseAuthProvider>
       <NextTopLoader
         color="#006BFF"
         crawlSpeed={300}
@@ -20,13 +20,11 @@ export default function RootLayout({
         shadow="none"
         zIndex={9999999}
       />
-
-          <ToasterContext />
-          <Navbar />
-          {children}
-          <ChatPot />
-          <Footer />
-
-    </>
+      <ToasterContext />
+      <Navbar />
+      {children}
+      <ChatPot />
+      <Footer />
+    </SupabaseAuthProvider>
   );
 }

@@ -9,9 +9,7 @@ import {
   SURVEY_SCORE,
   SURVEY_TYPE,
 } from "@/components/dashboard/chatbot/MessageTemplates/constents";
-import { remark } from "remark";
-import html from "remark-html";
-import { geminiGenerate } from "@/app/libs/api/chat";
+import { generateReportText } from "./generateReportText";
 
 const SESSION_SURVEY_DATA = "SESSION_SURVEY_DATA";
 
@@ -97,7 +95,6 @@ const businessAreaMappings: Record<string, Record<string, string>> = {
 export default function ReportPage() {
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
-  const [isGenerating, setIsGenerating] = useState(true);
   const { push } = useRouter();
 
   useEffect(() => {
@@ -145,100 +142,22 @@ export default function ReportPage() {
 
     setSurvey(surveyData);
 
-    // Build area names for AI prompt
-    const mappings = businessAreaMappings[language];
-    const sorted = [...modalScore].sort((a, b) => b.modalScore - a.modalScore);
-    const total = sorted.length;
-    const thirdSize = Math.ceil(total / 3);
-    const strengths = sorted
-      .slice(0, thirdSize)
-      .map((i) => mappings[i.modalId] || i.modalId);
-    const weaknesses = sorted
-      .slice(-thirdSize)
-      .map((i) => mappings[i.modalId] || i.modalId);
-    const percentage = ((Number(totalScore) / 360) * 100).toFixed(1);
-
-    // Generate AI analysis
-    generateAiAnalysis({
-      name: formData.name || "",
-      totalScore,
-      percentage,
-      strengths,
-      weaknesses,
+    // Generate report text from template
+    const reportText = generateReportText({
+      surveyType: surveyType || formData.surveyType || "explorers",
+      totalScore: Number(totalScore),
+      modalScores: modalScore.map((i) => ({ modalId: i.modalId, score: i.modalScore })),
       language,
-      surveyType: surveyType || "",
-    }).then(setAiAnalysis).finally(() => setIsGenerating(false));
+    });
+    if (reportText) setAiAnalysis(reportText.replace(/\n/g, "<br/>"));
   }, [push]);
 
   if (!survey) return null;
 
   return (
     <div>
-      {isGenerating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80">
-          <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="text-gray-600">
-              {survey.type?.includes("ar")
-                ? "جاري توليد التحليل..."
-                : "Generating AI analysis..."}
-            </p>
-          </div>
-        </div>
-      )}
       <SurveyReport survey={survey} aiAnalysis={aiAnalysis} />
     </div>
   );
 }
 
-async function generateAiAnalysis({
-  name,
-  totalScore,
-  percentage,
-  strengths,
-  weaknesses,
-  language,
-  surveyType,
-}: {
-  name: string;
-  totalScore: string;
-  percentage: string;
-  strengths: string[];
-  weaknesses: string[];
-  language: "ar" | "en";
-  surveyType: string;
-}): Promise<string> {
-  const prompt =
-    language === "ar"
-      ? `أنت مستشار أعمال خبير في إطار "ساعة الأعمال". قم بكتابة تحليل مهني موجز (3-4 فقرات) لنتائج تقييم الأعمال للمشارك ${name || "المشارك"}.
-
-النتائج:
-- المجموع الكلي: ${totalScore}/360 (${percentage}%)
-- نوع التقييم: ${surveyType}
-- نقاط القوة الرئيسية: ${strengths.slice(0, 4).join("، ")}
-- المجالات التي تحتاج تطوير: ${weaknesses.slice(0, 4).join("، ")}
-
-اكتب التحليل بأسلوب مهني ومشجع، مع تسليط الضوء على نقاط القوة وتقديم توصيات عملية للتطوير. لا تذكر الأرقام والدرجات مباشرة.`
-      : `You are a business consultant expert in "The Business Clock" framework. Write a concise professional analysis (3-4 paragraphs) for the business assessment results of ${name || "the participant"}.
-
-Results:
-- Total score: ${totalScore}/360 (${percentage}%)
-- Assessment type: ${surveyType}
-- Key strengths: ${strengths.slice(0, 4).join(", ")}
-- Areas for development: ${weaknesses.slice(0, 4).join(", ")}
-
-Write the analysis in a professional and encouraging tone, highlighting strengths and providing practical development recommendations. Do not mention raw scores or numbers directly.`;
-
-  try {
-    const systemPrompt =
-      language === "ar"
-        ? "أنت مستشار أعمال خبير متخصص في تحليل نتائج تقييمات الأعمال وتقديم توصيات مهنية."
-        : "You are an expert business consultant specializing in analyzing business assessment results and providing professional recommendations.";
-
-    const text = await geminiGenerate(prompt, systemPrompt);
-    const processed = await remark().use(html).process(text);
-    return processed.toString();
-  } catch {
-    return "";
-  }
-}

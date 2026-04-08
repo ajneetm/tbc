@@ -3,7 +3,7 @@
 import { Survey } from "@/app/libs/api/survey";
 import { useSelector } from "@/store/hooks";
 import Image from "next/image";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import {
   PolarAngleAxis,
   PolarRadiusAxis,
@@ -17,13 +17,9 @@ import {
   greetings2,
   paragraph1Messages,
   aspectsHeaders,
-  paragraph2Messages,
   paragraph3Messages,
   paragraph4Messages,
   printStyles,
-  regardsMessages,
-  signedMessages,
-  signedMessages2
 } from "./constants";
 
 function SurveyReport({ survey, aiAnalysis }: { survey: Survey; aiAnalysis?: string }) {
@@ -32,18 +28,6 @@ function SurveyReport({ survey, aiAnalysis }: { survey: Survey; aiAnalysis?: str
 
   const today = new Date();
   const formattedDate = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
-
-  useEffect(() => {
-    if (data.length) {
-      const originalTitle = document.title;
-
-      setTimeout(() => {
-        document.title = name || "Report";
-        window.print();
-        document.title = originalTitle;
-      }, 1000);
-    }
-  }, []);
 
   const modalRatio = ((Number(score) / 360) * 100).toFixed(2);
   const chartData = useMemo(() => {
@@ -224,10 +208,6 @@ function SurveyReport({ survey, aiAnalysis }: { survey: Survey; aiAnalysis?: str
                 )}
                 <p>{paragraph3Messages[language]}</p>
                 <p>{paragraph4Messages[language]}</p>
-
-                <p className="!mt-4">{regardsMessages[language]}</p>
-                <p className="!mt-6 font-bold">{signedMessages[language]}</p>
-                <p className="!mt-1 font-bold">{signedMessages2[language]}</p>
               </div>
 
               <div className="min-w-auto z-10 -me-[150px] flex flex-col items-center justify-center gap-10">
@@ -347,6 +327,14 @@ function SurveyReport({ survey, aiAnalysis }: { survey: Survey; aiAnalysis?: str
           </div>
         </div>
       </section>
+      <div className="flex justify-center py-6 print:hidden">
+        <button
+          onClick={() => window.print()}
+          className="rounded-lg bg-black px-8 py-3 text-white font-medium hover:bg-gray-800 transition-colors"
+        >
+          {language === "ar" ? "طباعة التقرير" : "Print Report"}
+        </button>
+      </div>
     </>
   );
 }

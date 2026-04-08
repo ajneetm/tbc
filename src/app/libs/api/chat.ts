@@ -152,13 +152,21 @@ export const geminiGenerate = async (
     body.systemInstruction = { parts: [{ text: systemPrompt }] };
   }
 
-  const response = await fetch(getGeminiUrl(false), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
-  if (!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
-  const data = await response.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  try {
+    const response = await fetch(getGeminiUrl(false), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) throw new Error(`Gemini request failed: ${response.status}`);
+    const data = await response.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  } finally {
+    clearTimeout(timeout);
+  }
 };
