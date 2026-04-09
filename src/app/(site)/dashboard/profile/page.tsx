@@ -24,6 +24,10 @@ export default function ProfilePage() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    if (!loading && !user) {
+      push("/auth/signin");
+      return;
+    }
     setMounted(true);
     // Load last report from sessionStorage
     const modalScoreRaw = sessionStorage.getItem(SESSION_STORAGE_SCORE_KEY);

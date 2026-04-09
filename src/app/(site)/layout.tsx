@@ -23,7 +23,7 @@ export default function RootLayout({
       <ToasterContext />
       <Navbar />
       {children}
-      <ChatPot />
+      {/* <ChatPot /> */}
       <Footer />
     </SupabaseAuthProvider>
   );

@@ -19,12 +19,27 @@ export default function Signin() {
     setError("");
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      setLoading(false);
+      return;
+    }
+
+    const userEmail = data.user?.email?.toLowerCase() || "";
+
+    // Check if trainer (active)
+    const { data: trainer } = await supabase
+      .from("trainers")
+      .select("status")
+      .ilike("email", userEmail)
+      .single();
+
+    if (trainer?.status === "active") {
+      router.push("/trainer");
     } else {
-      router.push("/dashboard/profile");
+      router.push("/user");
     }
     setLoading(false);
   };
