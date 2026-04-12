@@ -60,8 +60,8 @@ export default function UserDashboard() {
         phone: meta.phone || "",
       });
 
-      const [wsRes, certsRes, resultsRes, quizRes, progressRes, discountsRes] = await Promise.all([
-        supabase.from("workshop_enrollments").select("workshop_id, workshops(id, name, description, category, duration, created_at)").ilike("user_email", email),
+      const [enrollRes, certsRes, resultsRes, quizRes, progressRes, discountsRes] = await Promise.all([
+        supabase.from("workshop_enrollments").select("workshop_id").ilike("user_email", email),
         supabase.from("certificates").select("*").ilike("trainee_email", email).order("issued_at", { ascending: false }),
         supabase.from("survey_results").select("*").ilike("email", email).order("created_at", { ascending: false }),
         supabase.from("quiz_settings").select("current_day").eq("id", 1).single(),
@@ -69,7 +69,14 @@ export default function UserDashboard() {
         supabase.from("discounts").select("*").order("created_at", { ascending: false }),
       ]);
 
-      if (wsRes.data) setWorkshops(wsRes.data.map((r: any) => r.workshops).filter(Boolean));
+      const workshopIds = enrollRes.data?.map((r: any) => r.workshop_id).filter(Boolean) || [];
+      if (workshopIds.length > 0) {
+        const { data: wsData } = await supabase
+          .from("workshops")
+          .select("id, name, description, category, duration, created_at")
+          .in("id", workshopIds);
+        setWorkshops(wsData || []);
+      }
       if (certsRes.data) setCertificates(certsRes.data);
       if (resultsRes.data) setSurveyResults(resultsRes.data);
       if (quizRes.data) setQuizCurrentDay(quizRes.data.current_day);
