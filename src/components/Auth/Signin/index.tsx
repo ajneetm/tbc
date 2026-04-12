@@ -2,12 +2,14 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 export default function Signin() {
   const t = useTranslations("auth.signin");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [visiblePassword, setVisiblePassword] = useState(false);
@@ -36,7 +38,9 @@ export default function Signin() {
       .ilike("email", userEmail)
       .single();
 
-    if (trainer?.status === "active") {
+    if (redirectTo) {
+      router.push(redirectTo);
+    } else if (trainer?.status === "active") {
       router.push("/trainer");
     } else {
       router.push("/user");

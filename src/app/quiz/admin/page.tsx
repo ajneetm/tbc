@@ -58,6 +58,9 @@ export default function AdminPage() {
   const [newWorkshop, setNewWorkshop] = useState({ name: "", description: "", category: "", duration: "" });
   const [workshopLoading, setWorkshopLoading] = useState(false);
   const [showAddWorkshop, setShowAddWorkshop] = useState(false);
+  const [editingWorkshop, setEditingWorkshop] = useState(false);
+  const [editWorkshopData, setEditWorkshopData] = useState({ name: "", description: "", category: "", duration: "" });
+  const [copiedLink, setCopiedLink] = useState(false);
   const [newMaterial, setNewMaterial] = useState({ name: "", url: "", content_type: "file" });
   const [materialLoading, setMaterialLoading] = useState(false);
   const [newEnrollEmail, setNewEnrollEmail] = useState("");
@@ -232,7 +235,7 @@ export default function AdminPage() {
   };
 
   const deleteWorkshop = async (id: string) => {
-    if (!confirm("حذف الورشة وجميع بياناتها؟")) return;
+    if (!confirm("حذف الدورة وجميع بياناتها؟")) return;
     await Promise.all([
       supabase.from("workshop_materials").delete().eq("workshop_id", id),
       supabase.from("workshop_enrollments").delete().eq("workshop_id", id),
@@ -240,6 +243,30 @@ export default function AdminPage() {
     await supabase.from("workshops").delete().eq("id", id);
     setSelectedWorkshop(null);
     fetchAll();
+  };
+
+  const startEditWorkshop = (w: any) => {
+    setEditWorkshopData({ name: w.name, description: w.description || "", category: w.category || "", duration: w.duration || "" });
+    setEditingWorkshop(true);
+  };
+
+  const saveEditWorkshop = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { data } = await supabase.from("workshops")
+      .update({ name: editWorkshopData.name, description: editWorkshopData.description || null, category: editWorkshopData.category || null, duration: editWorkshopData.duration || null })
+      .eq("id", selectedWorkshop.id)
+      .select().single();
+    if (data) setSelectedWorkshop(data);
+    setEditingWorkshop(false);
+    showWsMsg("تم حفظ التعديلات ✓");
+    fetchAll();
+  };
+
+  const copyRegLink = (workshopId: string) => {
+    const link = `${window.location.origin}/register/course/${workshopId}`;
+    navigator.clipboard.writeText(link);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
   };
 
   const addMaterial = async (e: React.FormEvent) => {
@@ -920,21 +947,51 @@ export default function AdminPage() {
 
                 {/* Course info card */}
                 <div className="bg-white rounded-xl border border-gray-200 p-5">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <h2 className="font-bold text-lg">{selectedWorkshop.name}</h2>
-                      {selectedWorkshop.description && <p className="text-gray-400 text-sm mt-0.5">{selectedWorkshop.description}</p>}
-                      <div className="flex gap-3 mt-2 flex-wrap">
-                        {selectedWorkshop.category && (
-                          <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">{selectedWorkshop.category}</span>
-                        )}
-                        {selectedWorkshop.duration && (
-                          <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">⏱ {selectedWorkshop.duration}</span>
-                        )}
+                  {editingWorkshop ? (
+                    <form onSubmit={saveEditWorkshop} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input required placeholder="اسم الدورة *" value={editWorkshopData.name}
+                        onChange={(e) => setEditWorkshopData(p => ({ ...p, name: e.target.value }))}
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                      <input placeholder="الفئة" value={editWorkshopData.category}
+                        onChange={(e) => setEditWorkshopData(p => ({ ...p, category: e.target.value }))}
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                      <input placeholder="المدة" value={editWorkshopData.duration}
+                        onChange={(e) => setEditWorkshopData(p => ({ ...p, duration: e.target.value }))}
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                      <textarea placeholder="الوصف" value={editWorkshopData.description}
+                        onChange={(e) => setEditWorkshopData(p => ({ ...p, description: e.target.value }))}
+                        rows={1} className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black resize-none" />
+                      <div className="sm:col-span-2 flex gap-2">
+                        <button type="submit" className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800">حفظ</button>
+                        <button type="button" onClick={() => setEditingWorkshop(false)} className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200">إلغاء</button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <h2 className="font-bold text-lg">{selectedWorkshop.name}</h2>
+                        {selectedWorkshop.description && <p className="text-gray-400 text-sm mt-0.5">{selectedWorkshop.description}</p>}
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          {selectedWorkshop.category && <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">{selectedWorkshop.category}</span>}
+                          {selectedWorkshop.duration && <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">⏱ {selectedWorkshop.duration}</span>}
+                        </div>
+                        {/* Registration link */}
+                        <div className="mt-3 flex items-center gap-2 p-2.5 bg-gray-50 rounded-lg border border-dashed border-gray-300 max-w-md">
+                          <span className="text-xs text-gray-400 flex-1 truncate" dir="ltr">
+                            {typeof window !== "undefined" ? `${window.location.origin}/register/course/${selectedWorkshop.id}` : "..."}
+                          </span>
+                          <button onClick={() => copyRegLink(selectedWorkshop.id)}
+                            className={`text-xs px-2.5 py-1 rounded-lg font-medium flex-shrink-0 transition ${copiedLink ? "bg-green-100 text-green-700" : "bg-black text-white hover:bg-gray-800"}`}>
+                            {copiedLink ? "✓ تم النسخ" : "نسخ الرابط"}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0 mr-4">
+                        <button onClick={() => startEditWorkshop(selectedWorkshop)} className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium transition">تعديل</button>
+                        <button onClick={() => deleteWorkshop(selectedWorkshop.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">حذف</button>
                       </div>
                     </div>
-                    <button onClick={() => deleteWorkshop(selectedWorkshop.id)} className="text-xs text-red-500 hover:text-red-700 font-medium flex-shrink-0 mr-4">حذف الدورة</button>
-                  </div>
+                  )}
                 </div>
 
                 {workshopMsg.text && (
