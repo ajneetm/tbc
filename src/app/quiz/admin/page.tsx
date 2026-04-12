@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 
 const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase());
 
-type Tab = "overview" | "users" | "surveys" | "quiz-control" | "programs" | "trainers";
+type Tab = "overview" | "users" | "surveys" | "quiz-control" | "trainers" | "workshops" | "discounts";
 
 const surveyTypeLabel = (t: string) =>
   t === "explorers" ? "مستكشف" : t === "entrepreneurs" ? "رائد أعمال" : "صاحب شركة/مدير تنفيذي";
@@ -21,7 +21,6 @@ export default function AdminPage() {
   const [siteUsers, setSiteUsers] = useState<any[]>([]);
   const [surveyResults, setSurveyResults] = useState<any[]>([]);
   const [quizProgress, setQuizProgress] = useState<any[]>([]);
-  const [programs, setPrograms] = useState<any[]>([]);
   const [trainers, setTrainers] = useState<any[]>([]);
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
   const [loadingData, setLoadingData] = useState(false);
@@ -38,15 +37,31 @@ export default function AdminPage() {
   const [showAddUser, setShowAddUser] = useState(false);
   const [impersonating, setImpersonating] = useState<string | null>(null);
 
-  // Programs
-  const [newProgram, setNewProgram] = useState({ name: "", description: "", category: "", duration: "", material_url: "" });
-  const [programLoading, setProgramLoading] = useState(false);
-  const [showAddProgram, setShowAddProgram] = useState(false);
-
   // Trainers
   const [newTrainer, setNewTrainer] = useState({ name: "", email: "", phone: "", specialty: "", bio: "" });
   const [trainerLoading, setTrainerLoading] = useState(false);
   const [showAddTrainer, setShowAddTrainer] = useState(false);
+
+  // Discounts
+  const [discounts, setDiscounts] = useState<any[]>([]);
+  const [newDiscount, setNewDiscount] = useState({ title: "", description: "", code: "", discount_percent: "", expires_at: "" });
+  const [discountLoading, setDiscountLoading] = useState(false);
+  const [showAddDiscount, setShowAddDiscount] = useState(false);
+  const [discountMsg, setDiscountMsg] = useState({ text: "", ok: true });
+
+  // Courses (الدورات)
+  const [workshops, setWorkshops] = useState<any[]>([]);
+  const [selectedWorkshop, setSelectedWorkshop] = useState<any>(null);
+  const [workshopMaterials, setWorkshopMaterials] = useState<any[]>([]);
+  const [workshopEnrollments, setWorkshopEnrollments] = useState<any[]>([]);
+  const [newWorkshop, setNewWorkshop] = useState({ name: "", description: "", category: "", duration: "" });
+  const [workshopLoading, setWorkshopLoading] = useState(false);
+  const [showAddWorkshop, setShowAddWorkshop] = useState(false);
+  const [newMaterial, setNewMaterial] = useState({ name: "", url: "", content_type: "file" });
+  const [materialLoading, setMaterialLoading] = useState(false);
+  const [newEnrollEmail, setNewEnrollEmail] = useState("");
+  const [enrollLoading, setEnrollLoading] = useState(false);
+  const [workshopMsg, setWorkshopMsg] = useState({ text: "", ok: true });
 
   // ── Auth check ──
   useEffect(() => {
@@ -63,20 +78,22 @@ export default function AdminPage() {
 
   const fetchAll = async () => {
     setLoadingData(true);
-    const [usersRes, surveysRes, progressRes, settingsRes, programsRes, trainersRes] = await Promise.all([
+    const [usersRes, surveysRes, progressRes, settingsRes, trainersRes, workshopsRes, discountsRes] = await Promise.all([
       fetch("/api/admin/users").then((r) => r.json()).catch(() => ({ users: [] })),
       supabase.from("survey_results").select("*").order("created_at", { ascending: false }),
       supabase.from("quiz_progress").select("*").order("updated_at", { ascending: false }),
       supabase.from("quiz_settings").select("current_day").eq("id", 1).single(),
-      supabase.from("programs").select("*").order("created_at", { ascending: false }),
       supabase.from("trainers").select("*").order("created_at", { ascending: false }),
+      supabase.from("workshops").select("*").order("created_at", { ascending: false }),
+      supabase.from("discounts").select("*").order("created_at", { ascending: false }),
     ]);
     if (usersRes.users) setSiteUsers(usersRes.users);
     if (surveysRes.data) setSurveyResults(surveysRes.data);
     if (progressRes.data) setQuizProgress(progressRes.data);
     if (settingsRes.data) setQuizCurrentDay(settingsRes.data.current_day);
-    if (programsRes.data) setPrograms(programsRes.data);
     if (trainersRes.data) setTrainers(trainersRes.data);
+    if (workshopsRes.data) setWorkshops(workshopsRes.data);
+    if (discountsRes.data) setDiscounts(discountsRes.data);
     setLoadingData(false);
   };
 
@@ -119,27 +136,6 @@ export default function AdminPage() {
     else alert("فشل إنشاء الرابط");
   };
 
-  // ── Programs ──
-  const addProgram = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setProgramLoading(true);
-    await supabase.from("programs").insert(newProgram);
-    setNewProgram({ name: "", description: "", category: "", duration: "", material_url: "" });
-    setShowAddProgram(false);
-    setProgramLoading(false);
-    fetchAll();
-  };
-
-  const deleteProgram = async (id: string) => {
-    if (!confirm("حذف البرنامج؟")) return;
-    await supabase.from("programs").delete().eq("id", id);
-    fetchAll();
-  };
-
-  const toggleProgramStatus = async (id: string, status: string) => {
-    await supabase.from("programs").update({ status: status === "active" ? "inactive" : "active" }).eq("id", id);
-    fetchAll();
-  };
 
   // ── Trainers ──
   const addTrainer = async (e: React.FormEvent) => {
@@ -172,6 +168,118 @@ export default function AdminPage() {
     if (!confirm("رفض ومسح طلب المدرب؟")) return;
     await supabase.from("trainers").delete().eq("id", id);
     fetchAll();
+  };
+
+  // ── Discounts ──
+  const showDiscountMsg = (text: string, ok = true) => {
+    setDiscountMsg({ text, ok });
+    setTimeout(() => setDiscountMsg({ text: "", ok: true }), 3500);
+  };
+
+  const addDiscount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDiscountLoading(true);
+    const payload: any = {
+      title: newDiscount.title,
+      description: newDiscount.description || null,
+      code: newDiscount.code || null,
+      discount_percent: newDiscount.discount_percent ? parseInt(newDiscount.discount_percent) : null,
+      expires_at: newDiscount.expires_at || null,
+    };
+    const { error } = await supabase.from("discounts").insert(payload);
+    if (error) showDiscountMsg("فشل الحفظ", false);
+    else { showDiscountMsg("تم إضافة الخصم ✓"); setNewDiscount({ title: "", description: "", code: "", discount_percent: "", expires_at: "" }); setShowAddDiscount(false); fetchAll(); }
+    setDiscountLoading(false);
+  };
+
+  const deleteDiscount = async (id: string) => {
+    if (!confirm("حذف هذا الخصم؟")) return;
+    await supabase.from("discounts").delete().eq("id", id);
+    fetchAll();
+  };
+
+  // ── Workshops ──
+  const fetchWorkshopDetails = async (workshop: any) => {
+    setSelectedWorkshop(workshop);
+    const [matsRes, enrollsRes] = await Promise.all([
+      supabase.from("workshop_materials").select("*").eq("workshop_id", workshop.id).order("created_at", { ascending: false }),
+      supabase.from("workshop_enrollments").select("*").eq("workshop_id", workshop.id).order("created_at", { ascending: false }),
+    ]);
+    if (matsRes.data) setWorkshopMaterials(matsRes.data);
+    if (enrollsRes.data) setWorkshopEnrollments(enrollsRes.data);
+  };
+
+  const showWsMsg = (text: string, ok = true) => {
+    setWorkshopMsg({ text, ok });
+    setTimeout(() => setWorkshopMsg({ text: "", ok: true }), 3500);
+  };
+
+  const addWorkshop = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newWorkshop.name.trim()) return;
+    setWorkshopLoading(true);
+    await supabase.from("workshops").insert({
+      name: newWorkshop.name,
+      description: newWorkshop.description || null,
+      category: newWorkshop.category || null,
+      duration: newWorkshop.duration || null,
+    });
+    setNewWorkshop({ name: "", description: "", category: "", duration: "" });
+    setShowAddWorkshop(false);
+    setWorkshopLoading(false);
+    fetchAll();
+  };
+
+  const deleteWorkshop = async (id: string) => {
+    if (!confirm("حذف الورشة وجميع بياناتها؟")) return;
+    await Promise.all([
+      supabase.from("workshop_materials").delete().eq("workshop_id", id),
+      supabase.from("workshop_enrollments").delete().eq("workshop_id", id),
+    ]);
+    await supabase.from("workshops").delete().eq("id", id);
+    setSelectedWorkshop(null);
+    fetchAll();
+  };
+
+  const addMaterial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newMaterial.name.trim() || !newMaterial.url.trim()) return;
+    setMaterialLoading(true);
+    const { error } = await supabase.from("workshop_materials").insert({
+      workshop_id: selectedWorkshop.id,
+      name: newMaterial.name,
+      url: newMaterial.url,
+      content_type: newMaterial.content_type,
+    });
+    if (error) showWsMsg("فشل الإضافة", false);
+    else { showWsMsg("تم الإضافة ✓"); setNewMaterial({ name: "", url: "", content_type: "file" }); await fetchWorkshopDetails(selectedWorkshop); }
+    setMaterialLoading(false);
+  };
+
+  const deleteMaterial = async (id: string) => {
+    await supabase.from("workshop_materials").delete().eq("id", id);
+    await fetchWorkshopDetails(selectedWorkshop);
+  };
+
+  const addEnrollment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = newEnrollEmail.trim().toLowerCase();
+    if (!email) return;
+    setEnrollLoading(true);
+    const already = workshopEnrollments.some((en) => en.user_email?.toLowerCase() === email);
+    if (already) { showWsMsg("هذا الإيميل مسجّل مسبقاً", false); setEnrollLoading(false); return; }
+    const { error } = await supabase.from("workshop_enrollments").insert({
+      workshop_id: selectedWorkshop.id,
+      user_email: email,
+    });
+    if (error) showWsMsg("فشل التسجيل", false);
+    else { showWsMsg("تم التسجيل ✓"); setNewEnrollEmail(""); await fetchWorkshopDetails(selectedWorkshop); }
+    setEnrollLoading(false);
+  };
+
+  const deleteEnrollment = async (id: string) => {
+    await supabase.from("workshop_enrollments").delete().eq("id", id);
+    await fetchWorkshopDetails(selectedWorkshop);
   };
 
   // ── Excel ──
@@ -214,9 +322,10 @@ export default function AdminPage() {
     { key: "overview",     label: "نظرة عامة",       icon: "📊" },
     { key: "surveys",      label: "الاختبارات",       icon: "📋" },
     { key: "users",        label: "المستخدمون",       icon: "👥" },
-    { key: "programs",     label: "الدورات المتاحة",  icon: "🎓" },
     { key: "trainers",     label: "المدربون",         icon: "🧑‍💼" },
     { key: "quiz-control", label: "الاختبار اليومي",  icon: "📅" },
+    { key: "workshops",    label: "الدورات",          icon: "🎓" },
+    { key: "discounts",   label: "الخصومات",         icon: "🎁" },
   ];
 
   const activeTabObj = tabs.find(t => t.key === activeTab)!;
@@ -228,7 +337,11 @@ export default function AdminPage() {
       <aside className="w-64 flex-shrink-0 bg-black flex flex-col h-full overflow-y-auto">
 
         {/* Brand */}
-        <div className="px-5 py-6 border-b border-white/10">
+        <div className="px-5 py-5 border-b border-white/10">
+          <a href="/" className="flex items-center gap-2 text-gray-400 hover:text-white text-xs mb-4 transition">
+            <span>←</span>
+            <span>الصفحة الرئيسية</span>
+          </a>
           <p className="text-white font-bold text-sm leading-tight">لوحة تحكم المدير</p>
           <p className="text-gray-400 text-xs mt-1">أجني لدعم الأعمال</p>
         </div>
@@ -525,92 +638,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ── Programs ── */}
-        {activeTab === "programs" && (
-          <div className="space-y-5">
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold">الدورات المتاحة</h2>
-                <button onClick={() => setShowAddProgram(v => !v)} className="text-sm px-4 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors">
-                  {showAddProgram ? "إغلاق" : "+ إضافة برنامج"}
-                </button>
-              </div>
-              {showAddProgram && (
-                <form onSubmit={addProgram} className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 p-4 bg-gray-50 rounded-xl">
-                  <input required placeholder="اسم الدورة *" value={newProgram.name} onChange={(e) => setNewProgram(p => ({ ...p, name: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
-                  <select value={newProgram.category} onChange={(e) => setNewProgram(p => ({ ...p, category: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black bg-white">
-                    <option value="">اختر البرنامج</option>
-                    <option value="هارموني">هارموني</option>
-                    <option value="ساعة العمل">ساعة العمل</option>
-                    <option value="المسار المهني">المسار المهني</option>
-                  </select>
-                  <input placeholder="المدة (مثال: 3 أشهر)" value={newProgram.duration} onChange={(e) => setNewProgram(p => ({ ...p, duration: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
-                  <input placeholder="رابط الملزمة (اختياري)" type="url" dir="ltr" value={newProgram.material_url} onChange={(e) => setNewProgram(p => ({ ...p, material_url: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
-                  <textarea placeholder="الوصف" value={newProgram.description} onChange={(e) => setNewProgram(p => ({ ...p, description: e.target.value }))}
-                    rows={2} className="sm:col-span-2 border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black resize-none" />
-                  <div className="sm:col-span-2">
-                    <button type="submit" disabled={programLoading} className="px-6 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
-                      {programLoading ? "جاري الحفظ..." : "حفظ الدورة"}
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="px-5 py-3 border-b border-gray-100">
-                <h2 className="font-bold">قائمة البرامج ({programs.length})</h2>
-              </div>
-              {programs.length === 0 ? (
-                <p className="text-center text-gray-400 py-12 text-sm">لا توجد برامج بعد</p>
-              ) : (
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 text-gray-500 text-xs">
-                    <tr>
-                      <th className="px-4 py-2 text-right">اسم الدورة</th>
-                      <th className="px-4 py-2 text-right">الفئة</th>
-                      <th className="px-4 py-2 text-right">المدة</th>
-                      <th className="px-4 py-2 text-right">الوصف</th>
-                      <th className="px-4 py-2 text-right">الملزمة</th>
-                      <th className="px-4 py-2 text-right">الحالة</th>
-                      <th className="px-4 py-2 text-right">إجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {programs.map((p) => (
-                      <tr key={p.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 font-medium">{p.name}</td>
-                        <td className="px-4 py-3 text-gray-500">{p.category || "—"}</td>
-                        <td className="px-4 py-3 text-gray-500">{p.duration || "—"}</td>
-                        <td className="px-4 py-3 text-gray-400 text-xs max-w-[200px] truncate">{p.description || "—"}</td>
-                        <td className="px-4 py-3">
-                          {p.material_url
-                            ? <a href={p.material_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">📎 فتح</a>
-                            : <span className="text-gray-300 text-xs">—</span>
-                          }
-                        </td>
-                        <td className="px-4 py-3">
-                          <button onClick={() => toggleProgramStatus(p.id, p.status)}
-                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${p.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}>
-                            {p.status === "active" ? "نشط" : "موقوف"}
-                          </button>
-                        </td>
-                        <td className="px-4 py-3">
-                          <button onClick={() => deleteProgram(p.id)} className="text-xs text-red-500 hover:text-red-700">حذف</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        )}
-
         {/* ── Trainers ── */}
         {activeTab === "trainers" && (
           <div className="space-y-5">
@@ -732,8 +759,14 @@ export default function AdminPage() {
           <div className="space-y-6">
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h2 className="font-bold text-lg mb-1">تحكم بأيام الاختبار</h2>
-              <p className="text-gray-400 text-sm mb-5">اليوم المفتوح حالياً: <span className="font-bold text-black">يوم {quizCurrentDay}</span></p>
+              <p className="text-gray-400 text-sm mb-5">
+                الحالة: <span className="font-bold text-black">{quizCurrentDay === 0 ? "🔒 كل الأيام مقفلة" : `مفتوح حتى اليوم ${quizCurrentDay}`}</span>
+              </p>
               <div className="flex flex-wrap gap-3">
+                <button onClick={() => setQuizDay(0)} disabled={dayLoading}
+                  className={`px-6 py-3 rounded-xl text-sm font-bold transition-all ${quizCurrentDay === 0 ? "bg-red-600 text-white shadow-lg scale-105" : "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600"}`}>
+                  🔒 قفل الكل
+                </button>
                 {[1, 2, 3, 4, 5].map((day) => (
                   <button key={day} onClick={() => setQuizDay(day)} disabled={dayLoading}
                     className={`px-6 py-3 rounded-xl text-sm font-bold transition-all ${quizCurrentDay === day ? "bg-black text-white shadow-lg scale-105" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>
@@ -786,6 +819,264 @@ export default function AdminPage() {
                 </table>
               )}
             </div>
+          </div>
+        )}
+
+        {/* ── Discounts ── */}
+        {activeTab === "discounts" && (
+          <div className="space-y-5">
+
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold">إضافة خصم جديد</h2>
+                <button onClick={() => setShowAddDiscount(v => !v)}
+                  className="text-sm px-4 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors">
+                  {showAddDiscount ? "إغلاق" : "+ خصم جديد"}
+                </button>
+              </div>
+              {discountMsg.text && (
+                <div className={`mb-3 rounded-xl px-4 py-2.5 text-sm font-medium ${discountMsg.ok ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+                  {discountMsg.text}
+                </div>
+              )}
+              {showAddDiscount && (
+                <form onSubmit={addDiscount} className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 rounded-xl">
+                  <input required placeholder="عنوان الخصم *" value={newDiscount.title}
+                    onChange={(e) => setNewDiscount(p => ({ ...p, title: e.target.value }))}
+                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                  <input placeholder="كود الخصم (اختياري)" dir="ltr" value={newDiscount.code}
+                    onChange={(e) => setNewDiscount(p => ({ ...p, code: e.target.value }))}
+                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                  <input type="number" placeholder="نسبة الخصم % (اختياري)" min="1" max="100" value={newDiscount.discount_percent}
+                    onChange={(e) => setNewDiscount(p => ({ ...p, discount_percent: e.target.value }))}
+                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                  <input type="date" placeholder="تاريخ الانتهاء" value={newDiscount.expires_at}
+                    onChange={(e) => setNewDiscount(p => ({ ...p, expires_at: e.target.value }))}
+                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                  <textarea placeholder="الوصف (اختياري)" value={newDiscount.description}
+                    onChange={(e) => setNewDiscount(p => ({ ...p, description: e.target.value }))}
+                    rows={2} className="sm:col-span-2 border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black resize-none" />
+                  <div className="sm:col-span-2">
+                    <button type="submit" disabled={discountLoading}
+                      className="px-6 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
+                      {discountLoading ? "جاري الحفظ..." : "حفظ الخصم"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="px-5 py-3 border-b border-gray-100">
+                <h2 className="font-bold">قائمة الخصومات ({discounts.length})</h2>
+              </div>
+              {discounts.length === 0 ? (
+                <p className="text-center text-gray-400 py-12 text-sm">لا توجد خصومات بعد</p>
+              ) : (
+                <div className="divide-y divide-gray-100">
+                  {discounts.map((d) => (
+                    <div key={d.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <p className="font-medium text-sm">{d.title}</p>
+                          {d.discount_percent && (
+                            <span className="bg-red-50 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">
+                              {d.discount_percent}%
+                            </span>
+                          )}
+                          {d.code && (
+                            <span className="bg-gray-100 text-gray-700 font-mono text-xs px-2 py-0.5 rounded" dir="ltr">
+                              {d.code}
+                            </span>
+                          )}
+                        </div>
+                        {d.description && <p className="text-gray-400 text-xs mt-0.5 truncate max-w-sm">{d.description}</p>}
+                        {d.expires_at && (
+                          <p className="text-gray-300 text-xs mt-0.5">
+                            ينتهي: {new Date(d.expires_at).toLocaleDateString("ar-SA")}
+                          </p>
+                        )}
+                      </div>
+                      <button onClick={() => deleteDiscount(d.id)} className="text-xs text-red-400 hover:text-red-600 flex-shrink-0 mr-4">حذف</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+        )}
+
+        {/* ── Courses (الدورات) ── */}
+        {activeTab === "workshops" && (
+          <div className="space-y-5">
+
+            {selectedWorkshop ? (
+              /* ── Course detail ── */
+              <div className="space-y-5">
+                <button onClick={() => { setSelectedWorkshop(null); setWorkshopMaterials([]); setWorkshopEnrollments([]); }}
+                  className="text-sm text-gray-500 hover:text-black flex items-center gap-1">← رجوع للدورات</button>
+
+                {/* Course info card */}
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h2 className="font-bold text-lg">{selectedWorkshop.name}</h2>
+                      {selectedWorkshop.description && <p className="text-gray-400 text-sm mt-0.5">{selectedWorkshop.description}</p>}
+                      <div className="flex gap-3 mt-2 flex-wrap">
+                        {selectedWorkshop.category && (
+                          <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">{selectedWorkshop.category}</span>
+                        )}
+                        {selectedWorkshop.duration && (
+                          <span className="bg-gray-100 text-gray-600 text-xs px-2.5 py-1 rounded-full">⏱ {selectedWorkshop.duration}</span>
+                        )}
+                      </div>
+                    </div>
+                    <button onClick={() => deleteWorkshop(selectedWorkshop.id)} className="text-xs text-red-500 hover:text-red-700 font-medium flex-shrink-0 mr-4">حذف الدورة</button>
+                  </div>
+                </div>
+
+                {workshopMsg.text && (
+                  <div className={`rounded-xl px-4 py-2.5 text-sm font-medium ${workshopMsg.ok ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
+                    {workshopMsg.text}
+                  </div>
+                )}
+
+                {/* Course content */}
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <h3 className="font-bold mb-4">محتوى الدورة</h3>
+                  <form onSubmit={addMaterial} className="grid grid-cols-1 sm:grid-cols-4 gap-2 mb-4">
+                    <select value={newMaterial.content_type} onChange={(e) => setNewMaterial(p => ({ ...p, content_type: e.target.value }))}
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black bg-white">
+                      <option value="file">📄 ملف / ملزمة</option>
+                      <option value="quiz">📝 اختبار</option>
+                      <option value="video">🎬 فيديو</option>
+                      <option value="link">🔗 رابط</option>
+                    </select>
+                    <input required placeholder="الاسم *" value={newMaterial.name} onChange={(e) => setNewMaterial(p => ({ ...p, name: e.target.value }))}
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                    <input required placeholder="الرابط *" type="url" dir="ltr" value={newMaterial.url} onChange={(e) => setNewMaterial(p => ({ ...p, url: e.target.value }))}
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                    <button type="submit" disabled={materialLoading}
+                      className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
+                      {materialLoading ? "..." : "+ إضافة"}
+                    </button>
+                  </form>
+                  {workshopMaterials.length === 0 ? (
+                    <p className="text-gray-400 text-sm py-4 text-center">لا يوجد محتوى بعد</p>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {workshopMaterials.map((m) => {
+                        const typeIcon = m.content_type === "quiz" ? "📝" : m.content_type === "video" ? "🎬" : m.content_type === "link" ? "🔗" : "📄";
+                        const typeLabel = m.content_type === "quiz" ? "اختبار" : m.content_type === "video" ? "فيديو" : m.content_type === "link" ? "رابط" : "ملف";
+                        const typeBg = m.content_type === "quiz" ? "bg-purple-50 text-purple-700" : m.content_type === "video" ? "bg-blue-50 text-blue-700" : m.content_type === "link" ? "bg-gray-100 text-gray-600" : "bg-orange-50 text-orange-700";
+                        return (
+                          <div key={m.id} className="flex items-center justify-between py-2.5 gap-3">
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${typeBg}`}>{typeIcon} {typeLabel}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium">{m.name}</p>
+                              <a href={m.url} target="_blank" rel="noopener noreferrer" dir="ltr"
+                                className="text-xs text-blue-500 hover:underline truncate max-w-[300px] block">{m.url}</a>
+                            </div>
+                            <button onClick={() => deleteMaterial(m.id)} className="text-xs text-red-400 hover:text-red-600 flex-shrink-0">حذف</button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Enrollments */}
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <h3 className="font-bold mb-4">المسجّلون في الدورة ({workshopEnrollments.length})</h3>
+                  <form onSubmit={addEnrollment} className="flex gap-2 mb-4">
+                    <input required type="email" placeholder="إيميل المتدرب *" dir="ltr" value={newEnrollEmail}
+                      onChange={(e) => setNewEnrollEmail(e.target.value)}
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                    <button type="submit" disabled={enrollLoading}
+                      className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50 flex-shrink-0">
+                      {enrollLoading ? "..." : "+ تسجيل"}
+                    </button>
+                  </form>
+                  {workshopEnrollments.length === 0 ? (
+                    <p className="text-gray-400 text-sm py-4 text-center">لا يوجد مسجّلون بعد</p>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {workshopEnrollments.map((en) => (
+                        <div key={en.id} className="flex items-center justify-between py-2.5">
+                          <p className="text-sm font-medium" dir="ltr">{en.user_email}</p>
+                          <button onClick={() => deleteEnrollment(en.id)} className="text-xs text-red-400 hover:text-red-600">إزالة</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            ) : (
+              /* ── Courses list ── */
+              <>
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="font-bold">إضافة دورة جديدة</h2>
+                    <button onClick={() => setShowAddWorkshop(v => !v)}
+                      className="text-sm px-4 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors">
+                      {showAddWorkshop ? "إغلاق" : "+ دورة جديدة"}
+                    </button>
+                  </div>
+                  {showAddWorkshop && (
+                    <form onSubmit={addWorkshop} className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 rounded-xl">
+                      <input required placeholder="اسم الدورة *" value={newWorkshop.name}
+                        onChange={(e) => setNewWorkshop(p => ({ ...p, name: e.target.value }))}
+                        className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                      <input placeholder="الفئة (مثال: ساعة العمل)" value={newWorkshop.category}
+                        onChange={(e) => setNewWorkshop(p => ({ ...p, category: e.target.value }))}
+                        className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                      <input placeholder="المدة (مثال: 4 أسابيع)" value={newWorkshop.duration}
+                        onChange={(e) => setNewWorkshop(p => ({ ...p, duration: e.target.value }))}
+                        className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                      <textarea placeholder="الوصف (اختياري)" value={newWorkshop.description}
+                        onChange={(e) => setNewWorkshop(p => ({ ...p, description: e.target.value }))}
+                        rows={1} className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black resize-none" />
+                      <div className="sm:col-span-2">
+                        <button type="submit" disabled={workshopLoading}
+                          className="px-6 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
+                          {workshopLoading ? "جاري الحفظ..." : "إنشاء الدورة"}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <div className="px-5 py-3 border-b border-gray-100">
+                    <h2 className="font-bold">قائمة الدورات ({workshops.length})</h2>
+                  </div>
+                  {workshops.length === 0 ? (
+                    <p className="text-center text-gray-400 py-12 text-sm">لا توجد دورات بعد</p>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {workshops.map((w) => (
+                        <button key={w.id} onClick={() => fetchWorkshopDetails(w)}
+                          className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition text-right">
+                          <div>
+                            <p className="font-medium text-sm">{w.name}</p>
+                            <div className="flex gap-2 mt-0.5 flex-wrap">
+                              {w.category && <span className="text-gray-400 text-xs">{w.category}</span>}
+                              {w.duration && <span className="text-gray-400 text-xs">· {w.duration}</span>}
+                              {w.description && <span className="text-gray-300 text-xs truncate max-w-[300px]">· {w.description}</span>}
+                            </div>
+                            <p className="text-gray-300 text-xs mt-0.5">{new Date(w.created_at).toLocaleDateString("ar-SA")}</p>
+                          </div>
+                          <span className="text-gray-400 text-xs flex-shrink-0 mr-4">إدارة ←</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
           </div>
         )}
 
