@@ -1,12 +1,11 @@
 import "@/styles/globals.css";
 import { cn } from "@/utils/cn";
-import { Inter, Tajawal } from "next/font/google";
+import { Inter } from "next/font/google";
 
 import { StoreProviders } from "@/store/providers";
 import { getLocale } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 const inter = Inter({ subsets: ["latin"] });
-const tajawal = Tajawal({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
 export default async function RootLayout({
   children,
@@ -30,11 +29,10 @@ export default async function RootLayout({
       <body
         className={cn(
           inter.className,
-          tajawal.className,
           "h-screen",
           locale === "ar" ? "font-tajawal" : "font-inter"
         )}
-        style={{ fontFamily: locale === "ar" ? tajawal.style.fontFamily : inter.style.fontFamily }}
+        style={{ fontFamily: locale === "ar" ? "'MontserratArabic', sans-serif" : inter.style.fontFamily }}
       >
         <NextIntlClientProvider>
           <StoreProviders>{children}</StoreProviders>

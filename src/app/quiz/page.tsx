@@ -619,7 +619,7 @@ export default function QuizPage() {
         loadProgress(user.id),
       ]);
 
-      const openUntilDay = settingsRes.data?.current_day ?? 1;
+      const openUntilDay = settingsRes.data?.current_day ?? 0;
       const globalUnlocked = days.map((_, i) => i < openUntilDay);
       setUnlocked(globalUnlocked);
 

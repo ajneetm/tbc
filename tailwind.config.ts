@@ -20,7 +20,7 @@ const config: Config = {
       "2xl": "1320px",
     },
     fontFamily: {
-      tajawal: ["Tajawal", "sans-serif"],
+      tajawal: ["MontserratArabic", "Tajawal", "sans-serif"],
       inter: ["Inter", "sans-serif"],
     },
     extend: {
