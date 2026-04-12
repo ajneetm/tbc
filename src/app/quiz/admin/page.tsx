@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import * as XLSX from "xlsx";
 
@@ -338,10 +339,10 @@ export default function AdminPage() {
 
         {/* Brand */}
         <div className="px-5 py-5 border-b border-white/10">
-          <a href="/" className="flex items-center gap-2 text-gray-400 hover:text-white text-xs mb-4 transition">
+          <Link href="/" className="flex items-center gap-2 text-gray-400 hover:text-white text-xs mb-4 transition">
             <span>←</span>
             <span>الصفحة الرئيسية</span>
-          </a>
+          </Link>
           <p className="text-white font-bold text-sm leading-tight">لوحة تحكم المدير</p>
           <p className="text-gray-400 text-xs mt-1">أجني لدعم الأعمال</p>
         </div>
