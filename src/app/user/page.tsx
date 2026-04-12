@@ -24,6 +24,8 @@ export default function UserDashboard() {
 
   // Workshops
   const [workshops, setWorkshops] = useState<any[]>([]);
+  const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
+  const [enrollingId, setEnrollingId] = useState<string | null>(null);
   const [selectedWorkshop, setSelectedWorkshop] = useState<any>(null);
   const [workshopMaterials, setWorkshopMaterials] = useState<any[]>([]);
   const [quizCurrentDay, setQuizCurrentDay] = useState(0);
@@ -60,7 +62,8 @@ export default function UserDashboard() {
         phone: meta.phone || "",
       });
 
-      const [enrollRes, certsRes, resultsRes, quizRes, progressRes, discountsRes] = await Promise.all([
+      const [allWsRes, enrollRes, certsRes, resultsRes, quizRes, progressRes, discountsRes] = await Promise.all([
+        supabase.from("workshops").select("id, name, description, category, duration, created_at").order("created_at", { ascending: false }),
         supabase.from("workshop_enrollments").select("workshop_id").ilike("user_email", email),
         supabase.from("certificates").select("*").ilike("trainee_email", email).order("issued_at", { ascending: false }),
         supabase.from("survey_results").select("*").ilike("email", email).order("created_at", { ascending: false }),
@@ -69,13 +72,10 @@ export default function UserDashboard() {
         supabase.from("discounts").select("*").order("created_at", { ascending: false }),
       ]);
 
-      const workshopIds = enrollRes.data?.map((r: any) => r.workshop_id).filter(Boolean) || [];
-      if (workshopIds.length > 0) {
-        const { data: wsData } = await supabase
-          .from("workshops")
-          .select("id, name, description, category, duration, created_at")
-          .in("id", workshopIds);
-        setWorkshops(wsData || []);
+      if (allWsRes.data) setWorkshops(allWsRes.data);
+      if (enrollRes.data) {
+        const ids = enrollRes.data.map((r: any) => r.workshop_id).filter(Boolean);
+        setEnrolledIds(new Set(ids));
       }
       if (certsRes.data) setCertificates(certsRes.data);
       if (resultsRes.data) setSurveyResults(resultsRes.data);
@@ -86,6 +86,15 @@ export default function UserDashboard() {
     };
     init();
   }, []);
+
+  const enrollInWorkshop = async (workshopId: string) => {
+    if (!authUser) return;
+    setEnrollingId(workshopId);
+    const email = authUser.email?.toLowerCase() || "";
+    const { error } = await supabase.from("workshop_enrollments").insert({ workshop_id: workshopId, user_email: email });
+    if (!error) setEnrolledIds(prev => new Set([...prev, workshopId]));
+    setEnrollingId(null);
+  };
 
   const openWorkshop = async (workshop: any) => {
     setSelectedWorkshop(workshop);
@@ -148,8 +157,8 @@ export default function UserDashboard() {
               }`}>
               <span className="flex-shrink-0">{tab.icon}</span>
               <span>{tab.label}</span>
-              {tab.key === "workshops" && workshops.length > 0 && (
-                <span className="mr-auto bg-white/20 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{workshops.length}</span>
+              {tab.key === "workshops" && enrolledIds.size > 0 && (
+                <span className="mr-auto bg-white/20 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{enrolledIds.size}</span>
               )}
             </button>
           ))}
@@ -232,33 +241,52 @@ export default function UserDashboard() {
             </div>
           )}
 
-          {/* ── الورش ── */}
+          {/* ── الدورات ── */}
           {activeTab === "workshops" && !selectedWorkshop && (
             <div className="space-y-4">
               {workshops.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-14 text-center">
                   <p className="text-4xl mb-3">🎓</p>
-                  <p className="font-bold text-gray-700 mb-1">لم تُضف إلى أي دورة بعد</p>
-                  <p className="text-gray-400 text-sm">سيتم إضافتك من قِبل الإدارة</p>
+                  <p className="font-bold text-gray-700 mb-1">لا توجد دورات متاحة حالياً</p>
+                  <p className="text-gray-400 text-sm">ترقّب الدورات القادمة</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {workshops.map((ws) => (
-                    <button key={ws.id} onClick={() => openWorkshop(ws)}
-                      className="bg-white rounded-2xl border border-gray-200 p-6 text-right hover:shadow-md hover:border-black/20 transition group">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white text-lg flex-shrink-0">🎓</div>
-                        <span className="text-xs text-gray-400">{new Date(ws.created_at).toLocaleDateString("ar-SA")}</span>
+                  {workshops.map((ws) => {
+                    const enrolled = enrolledIds.has(ws.id);
+                    const enrolling = enrollingId === ws.id;
+                    return (
+                      <div key={ws.id} className="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-md transition">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="w-10 h-10 rounded-xl bg-black flex items-center justify-center text-white text-lg flex-shrink-0">🎓</div>
+                          {enrolled
+                            ? <span className="bg-green-50 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">✓ مسجّل</span>
+                            : <span className="text-xs text-gray-400">{new Date(ws.created_at).toLocaleDateString("ar-SA")}</span>
+                          }
+                        </div>
+                        <h3 className="font-bold text-base mb-1">{ws.name}</h3>
+                        <div className="flex gap-2 mb-2 flex-wrap">
+                          {ws.category && <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">{ws.category}</span>}
+                          {ws.duration && <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">⏱ {ws.duration}</span>}
+                        </div>
+                        {ws.description && <p className="text-gray-500 text-sm leading-relaxed line-clamp-2 mb-4">{ws.description}</p>}
+                        <div className="flex gap-2 mt-3">
+                          {enrolled && (
+                            <button onClick={() => openWorkshop(ws)}
+                              className="flex-1 bg-black text-white text-xs font-bold py-2 rounded-xl hover:bg-gray-800 transition">
+                              فتح الدورة ←
+                            </button>
+                          )}
+                          {!enrolled && (
+                            <button onClick={() => enrollInWorkshop(ws.id)} disabled={enrolling}
+                              className="flex-1 bg-black text-white text-xs font-bold py-2 rounded-xl hover:bg-gray-800 disabled:opacity-50 transition">
+                              {enrolling ? "جاري التسجيل..." : "التسجيل في الدورة"}
+                            </button>
+                          )}
+                        </div>
                       </div>
-                      <h3 className="font-bold text-base mb-1">{ws.name}</h3>
-                      <div className="flex gap-2 mb-2 flex-wrap">
-                        {ws.category && <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">{ws.category}</span>}
-                        {ws.duration && <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">⏱ {ws.duration}</span>}
-                      </div>
-                      {ws.description && <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">{ws.description}</p>}
-                      <p className="text-xs text-primary mt-3 group-hover:underline">فتح الدورة ←</p>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
