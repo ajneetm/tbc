@@ -64,8 +64,8 @@ export default function UserDashboard() {
         supabase.from("workshop_enrollments").select("workshop_id").ilike("user_email", email),
         supabase.from("certificates").select("*").ilike("trainee_email", email).order("issued_at", { ascending: false }),
         supabase.from("survey_results").select("*").ilike("email", email).order("created_at", { ascending: false }),
-        supabase.from("quiz_settings").select("current_day").eq("id", 1).single(),
-        supabase.from("quiz_progress").select("*").eq("user_id", user.id).single(),
+        supabase.from("quiz_settings").select("current_day").eq("id", 1).maybeSingle(),
+        supabase.from("quiz_progress").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("discounts").select("*").order("created_at", { ascending: false }),
       ]);
 
