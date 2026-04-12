@@ -7,9 +7,9 @@ import Survey from "./Survey";
 import { updateAssessmentStarted } from "@/store/assessmentForm/AssessmentForm";
 import { handleNewChat } from "../chatbot/helpers/chats";
 import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
-import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
-type Step = "entry" | "guest-info" | "setup" | "survey";
+type Step = "entry" | "register" | "setup" | "survey";
 
 export interface GuestInfo {
   firstName: string;
@@ -49,13 +49,15 @@ function AssessmentController() {
   const { isAssessmentStarted } = useSelector((state) => state.assessmentForm);
   const { user, loading } = useSupabaseAuth();
   const dispatch = useDispatch();
-  const router = useRouter();
 
   const [step, setStep] = useState<Step>("entry");
-  const [guestInfo, setGuestInfo] = useState<GuestInfo>({
-    firstName: "", lastName: "", email: "", phone: "", countryCode: "+974",
+  const [regData, setRegData] = useState({
+    firstName: "", lastName: "", email: "", password: "",
+    phone: "", countryCode: "+974",
   });
-  const [formErrors, setFormErrors] = useState<Partial<GuestInfo>>({});
+  const [regErrors, setRegErrors] = useState<Record<string, string>>({});
+  const [regLoading, setRegLoading] = useState(false);
+  const [regError, setRegError] = useState("");
 
   const resetAssessmentForm = () => dispatch(updateAssessmentStarted(false));
 
@@ -66,181 +68,210 @@ function AssessmentController() {
     };
   }, []);
 
-  // If user is logged in, skip entry → go straight to setup
+  // Already logged in → skip to setup
   useEffect(() => {
-    if (!loading && user && step === "entry") {
-      setStep("setup");
-    }
+    if (!loading && user && step === "entry") setStep("setup");
   }, [user, loading]);
 
-  // When assessment starts (Survey shows), update step
+  // Survey started
   useEffect(() => {
     if (isAssessmentStarted) setStep("survey");
   }, [isAssessmentStarted]);
 
-  const validateGuestInfo = () => {
-    const errors: Partial<GuestInfo> = {};
-    if (!guestInfo.firstName.trim()) errors.firstName = "الاسم الأول مطلوب";
-    if (!guestInfo.lastName.trim()) errors.lastName = "الاسم الأخير مطلوب";
-    if (!guestInfo.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestInfo.email))
-      errors.email = "البريد الإلكتروني غير صحيح";
-    setFormErrors(errors);
+  const validate = () => {
+    const errors: Record<string, string> = {};
+    if (!regData.firstName.trim()) errors.firstName = "مطلوب";
+    if (!regData.lastName.trim()) errors.lastName = "مطلوب";
+    if (!regData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regData.email))
+      errors.email = "بريد إلكتروني غير صحيح";
+    if (regData.password.length < 6) errors.password = "6 أحرف على الأقل";
+    setRegErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const handleGuestSubmit = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateGuestInfo()) {
-      // Store in sessionStorage for Survey.tsx to use when saving results
-      sessionStorage.setItem("guest_info", JSON.stringify({
-        name: `${guestInfo.firstName} ${guestInfo.lastName}`,
-        email: guestInfo.email,
-        phone: guestInfo.phone ? `${guestInfo.countryCode}${guestInfo.phone}` : "",
-      }));
+    if (!validate()) return;
+    setRegLoading(true);
+    setRegError("");
+    const fullName = `${regData.firstName} ${regData.lastName}`.trim();
+    const phone = regData.phone ? `${regData.countryCode}${regData.phone}` : "";
+    const { error } = await supabase.auth.signUp({
+      email: regData.email,
+      password: regData.password,
+      options: {
+        data: { full_name: fullName, first_name: regData.firstName, phone },
+      },
+    });
+    if (error) {
+      setRegError(error.message === "User already registered" ? "هذا البريد مسجل مسبقاً" : error.message);
+    } else {
       setStep("setup");
     }
+    setRegLoading(false);
   };
 
   // ── Entry screen ──
   if (step === "entry" && !user) return (
-    <div dir="rtl" className="mx-auto mt-5 max-w-[600px] px-4">
+    <div dir="rtl" className="mx-auto mt-5 max-w-[580px] px-4">
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">اختبار قياس الجاهزية التجارية</h1>
-        <p className="text-gray-500 text-sm">اختر طريقة المتابعة</p>
+        <p className="text-gray-500 text-sm">كيف تريد المتابعة؟</p>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-        {/* With login */}
+        {/* Anonymous */}
         <button
-          onClick={() => router.push("/auth/signin")}
-          className="group bg-black text-white rounded-2xl p-6 text-right hover:bg-gray-900 transition"
-        >
-          <div className="text-3xl mb-3">🔑</div>
-          <h2 className="font-bold text-lg mb-1">بتسجيل دخول</h2>
-          <p className="text-gray-400 text-sm leading-relaxed">سيتم حفظ نتائجك وتقاريرك في حسابك الشخصي</p>
-          <div className="mt-4 text-xs text-gray-500 group-hover:text-gray-400">
-            تسجيل الدخول ←
-          </div>
-        </button>
-
-        {/* Without login */}
-        <button
-          onClick={() => setStep("guest-info")}
+          onClick={() => setStep("setup")}
           className="group bg-white border-2 border-gray-200 text-gray-900 rounded-2xl p-6 text-right hover:border-black transition"
         >
-          <div className="text-3xl mb-3">👤</div>
-          <h2 className="font-bold text-lg mb-1">بدون تسجيل دخول</h2>
-          <p className="text-gray-500 text-sm leading-relaxed">أجرِ الاختبار مباشرة بدون إنشاء حساب</p>
-          <div className="mt-4 text-xs text-gray-400 group-hover:text-black">
-            متابعة ←
-          </div>
+          <div className="text-3xl mb-3">⚡</div>
+          <h2 className="font-bold text-lg mb-1">بدون تسجيل</h2>
+          <p className="text-gray-500 text-sm leading-relaxed">ابدأ الاختبار مباشرة بدون أي بيانات</p>
+          <div className="mt-4 text-xs text-gray-400 group-hover:text-black transition">ابدأ الآن ←</div>
+        </button>
+
+        {/* Register */}
+        <button
+          onClick={() => setStep("register")}
+          className="group bg-black text-white rounded-2xl p-6 text-right hover:bg-gray-900 transition"
+        >
+          <div className="text-3xl mb-3">📋</div>
+          <h2 className="font-bold text-lg mb-1">إنشاء حساب</h2>
+          <p className="text-gray-400 text-sm leading-relaxed">سجّل بياناتك واحفظ نتائجك ومتابعة تقدمك</p>
+          <div className="mt-4 text-xs text-gray-500 group-hover:text-gray-400 transition">تسجيل ←</div>
         </button>
 
       </div>
     </div>
   );
 
-  // ── Guest info form ──
-  if (step === "guest-info") return (
-    <div dir="rtl" className="mx-auto mt-5 max-w-[600px] px-4">
-      <button onClick={() => setStep("entry")} className="text-sm text-gray-400 hover:text-black mb-6 flex items-center gap-1">
+  // ── Register form ──
+  if (step === "register") return (
+    <div dir="rtl" className="mx-auto mt-5 max-w-[580px] px-4">
+      <button onClick={() => setStep("entry")} className="text-sm text-gray-400 hover:text-black mb-5 flex items-center gap-1">
         ← رجوع
       </button>
-      <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
-        <h2 className="font-bold text-xl mb-1">معلوماتك الأساسية</h2>
-        <p className="text-gray-400 text-sm mb-6">لن يتم إنشاء حساب، هذه المعلومات لتخصيص تقريرك</p>
 
-        <form onSubmit={handleGuestSubmit} className="space-y-5">
+      <div className="bg-white rounded-2xl border border-gray-200 p-7 shadow-sm">
+        <h2 className="font-bold text-xl mb-1">إنشاء حساب جديد</h2>
+        <p className="text-gray-400 text-sm mb-6">بعد التسجيل ستنتقل مباشرة للاختبار</p>
 
-          {/* Name row */}
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleRegister} className="space-y-4">
+
+          {/* Name */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 الاسم الأول <span className="text-red-500">*</span>
-                <span className="text-gray-400 font-normal text-xs mr-1">(بالإنجليزية)</span>
+                <span className="text-gray-400 font-normal"> (EN)</span>
               </label>
               <input
                 type="text"
-                value={guestInfo.firstName}
-                onChange={(e) => setGuestInfo(p => ({ ...p, firstName: e.target.value.replace(/[^\x00-\x7F]/g, "") }))}
+                value={regData.firstName}
+                onChange={(e) => setRegData(p => ({ ...p, firstName: e.target.value.replace(/[^\x00-\x7F]/g, "") }))}
                 placeholder="First Name"
                 dir="ltr"
-                className={`w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black ${formErrors.firstName ? "border-red-400" : "border-gray-300"}`}
+                className={`w-full border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black ${regErrors.firstName ? "border-red-400" : "border-gray-300"}`}
               />
-              {formErrors.firstName && <p className="text-red-500 text-xs mt-1">{formErrors.firstName}</p>}
+              {regErrors.firstName && <p className="text-red-500 text-xs mt-0.5">{regErrors.firstName}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs font-medium text-gray-600 mb-1">
                 الاسم الأخير <span className="text-red-500">*</span>
-                <span className="text-gray-400 font-normal text-xs mr-1">(بالإنجليزية)</span>
+                <span className="text-gray-400 font-normal"> (EN)</span>
               </label>
               <input
                 type="text"
-                value={guestInfo.lastName}
-                onChange={(e) => setGuestInfo(p => ({ ...p, lastName: e.target.value.replace(/[^\x00-\x7F]/g, "") }))}
+                value={regData.lastName}
+                onChange={(e) => setRegData(p => ({ ...p, lastName: e.target.value.replace(/[^\x00-\x7F]/g, "") }))}
                 placeholder="Last Name"
                 dir="ltr"
-                className={`w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black ${formErrors.lastName ? "border-red-400" : "border-gray-300"}`}
+                className={`w-full border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black ${regErrors.lastName ? "border-red-400" : "border-gray-300"}`}
               />
-              {formErrors.lastName && <p className="text-red-500 text-xs mt-1">{formErrors.lastName}</p>}
+              {regErrors.lastName && <p className="text-red-500 text-xs mt-0.5">{regErrors.lastName}</p>}
             </div>
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              البريد الإلكتروني <span className="text-red-500">*</span>
-            </label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">البريد الإلكتروني <span className="text-red-500">*</span></label>
             <input
               type="email"
-              value={guestInfo.email}
-              onChange={(e) => setGuestInfo(p => ({ ...p, email: e.target.value }))}
+              value={regData.email}
+              onChange={(e) => setRegData(p => ({ ...p, email: e.target.value }))}
               placeholder="example@email.com"
               dir="ltr"
-              className={`w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black ${formErrors.email ? "border-red-400" : "border-gray-300"}`}
+              className={`w-full border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black ${regErrors.email ? "border-red-400" : "border-gray-300"}`}
             />
-            {formErrors.email && <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>}
+            {regErrors.email && <p className="text-red-500 text-xs mt-0.5">{regErrors.email}</p>}
           </div>
 
-          {/* Phone with country code */}
+          {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              رقم الهاتف <span className="text-gray-400 font-normal text-xs">(اختياري)</span>
+            <label className="block text-xs font-medium text-gray-600 mb-1">كلمة المرور <span className="text-red-500">*</span></label>
+            <input
+              type="password"
+              value={regData.password}
+              onChange={(e) => setRegData(p => ({ ...p, password: e.target.value }))}
+              placeholder="6 أحرف على الأقل"
+              dir="ltr"
+              className={`w-full border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black ${regErrors.password ? "border-red-400" : "border-gray-300"}`}
+            />
+            {regErrors.password && <p className="text-red-500 text-xs mt-0.5">{regErrors.password}</p>}
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              رقم الهاتف <span className="text-gray-400 font-normal">(اختياري)</span>
             </label>
             <div className="flex gap-2">
               <select
-                value={guestInfo.countryCode}
-                onChange={(e) => setGuestInfo(p => ({ ...p, countryCode: e.target.value }))}
-                className="border border-gray-300 rounded-xl px-2 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black bg-white flex-shrink-0 w-[130px]"
+                value={regData.countryCode}
+                onChange={(e) => setRegData(p => ({ ...p, countryCode: e.target.value }))}
                 dir="ltr"
+                className="border border-gray-300 rounded-xl px-2 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black bg-white w-[120px] flex-shrink-0"
               >
                 {countries.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.flag} {c.code}
-                  </option>
+                  <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
                 ))}
               </select>
               <input
                 type="tel"
-                value={guestInfo.phone}
-                onChange={(e) => setGuestInfo(p => ({ ...p, phone: e.target.value.replace(/[^0-9]/g, "") }))}
+                value={regData.phone}
+                onChange={(e) => setRegData(p => ({ ...p, phone: e.target.value.replace(/[^0-9]/g, "") }))}
                 placeholder="XXXX XXXX"
                 dir="ltr"
-                className="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black"
+                className="flex-1 border border-gray-300 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black"
               />
             </div>
           </div>
 
-          <button type="submit" className="w-full bg-black text-white rounded-xl py-3 text-sm font-bold hover:bg-gray-800 transition">
-            متابعة لاختيار نوع الاختبار ←
+          {regError && (
+            <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-2.5 text-sm text-red-600">{regError}</div>
+          )}
+
+          <button
+            type="submit"
+            disabled={regLoading}
+            className="w-full bg-black text-white rounded-xl py-3 text-sm font-bold hover:bg-gray-800 disabled:opacity-50 transition"
+          >
+            {regLoading ? "جاري التسجيل..." : "تسجيل والمتابعة للاختبار ←"}
           </button>
+
+          <p className="text-center text-xs text-gray-400">
+            لديك حساب؟{" "}
+            <a href="/auth/signin" className="text-black font-medium hover:underline">سجّل دخولك</a>
+          </p>
         </form>
       </div>
     </div>
   );
 
-  // ── Setup (survey type + age) ──
-  if (step === "setup") return <AssessmentForm guestInfo={user ? undefined : guestInfo} />;
+  // ── Setup ──
+  if (step === "setup") return <AssessmentForm />;
 
   // ── Survey ──
   return <Survey />;

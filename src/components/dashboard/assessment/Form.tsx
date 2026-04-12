@@ -23,7 +23,6 @@ import z from "zod";
 import { triggerSurveySequence } from "../chatbot/helpers/survey";
 import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 import { useEffect } from "react";
-import type { GuestInfo } from "./AssessmentController";
 
 const assessmentSchema = z
   .object({
@@ -67,7 +66,7 @@ const assessmentSchema = z
     }
   });
 
-const AssessmentForm = ({ guestInfo }: { guestInfo?: GuestInfo }) => {
+const AssessmentForm = () => {
   const dispatch = useDispatch();
   const t = useTranslations("assessment");
   const { user } = useSupabaseAuth();
@@ -102,13 +101,11 @@ const AssessmentForm = ({ guestInfo }: { guestInfo?: GuestInfo }) => {
 
   function onSubmit(values: z.infer<typeof assessmentSchema>) {
     const { language, surveyType, age, businessType, capital, projectAge, staffCount } = values;
-    const guestName = guestInfo ? `${guestInfo.firstName} ${guestInfo.lastName}`.trim() : "";
-    const guestPhone = guestInfo?.phone ? `${guestInfo.countryCode}${guestInfo.phone}` : "";
     dispatch(
       saveAssessmentData({
-        name: user?.user_metadata?.full_name || guestName,
-        email: user?.email || guestInfo?.email || "",
-        phone: user?.user_metadata?.phone || guestPhone,
+        name: user?.user_metadata?.full_name || "",
+        email: user?.email || "",
+        phone: user?.user_metadata?.phone || "",
         language,
         isAssessmentStarted: true,
         surveyType,
