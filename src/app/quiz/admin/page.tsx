@@ -88,7 +88,7 @@ export default function AdminPage() {
       supabase.from("quiz_progress").select("*").order("updated_at", { ascending: false }),
       supabase.from("quiz_settings").select("current_day").eq("id", 1).single(),
       supabase.from("trainers").select("*").order("created_at", { ascending: false }),
-      supabase.from("workshops").select("*").order("created_at", { ascending: false }),
+      supabase.from("workshops").select("*, workshop_materials(count), workshop_enrollments(count)").order("created_at", { ascending: false }),
       supabase.from("discounts").select("*").order("created_at", { ascending: false }),
     ]);
     if (usersRes.users) setSiteUsers(usersRes.users);
@@ -222,16 +222,30 @@ export default function AdminPage() {
     e.preventDefault();
     if (!newWorkshop.name.trim()) return;
     setWorkshopLoading(true);
-    await supabase.from("workshops").insert({
+    const { data, error } = await supabase.from("workshops").insert({
       name: newWorkshop.name,
       description: newWorkshop.description || null,
       category: newWorkshop.category || null,
       duration: newWorkshop.duration || null,
-    });
+    }).select().single();
+    if (error) {
+      // Retry without optional columns if they don't exist yet
+      const { data: data2, error: error2 } = await supabase.from("workshops").insert({
+        name: newWorkshop.name,
+        description: newWorkshop.description || null,
+      }).select().single();
+      if (error2) {
+        alert("فشل إنشاء الدورة: " + error2.message);
+        setWorkshopLoading(false);
+        return;
+      }
+      if (data2) setWorkshops(prev => [data2, ...prev]);
+    } else if (data) {
+      setWorkshops(prev => [data, ...prev]);
+    }
     setNewWorkshop({ name: "", description: "", category: "", duration: "" });
     setShowAddWorkshop(false);
     setWorkshopLoading(false);
-    fetchAll();
   };
 
   const deleteWorkshop = async (id: string) => {
@@ -1111,24 +1125,32 @@ export default function AdminPage() {
                     <h2 className="font-bold">قائمة الدورات ({workshops.length})</h2>
                   </div>
                   {workshops.length === 0 ? (
-                    <p className="text-center text-gray-400 py-12 text-sm">لا توجد دورات بعد</p>
+                    <p className="text-center text-gray-400 py-12 text-sm">لا توجد دورات بعد — أضف دورة من الأعلى</p>
                   ) : (
                     <div className="divide-y divide-gray-100">
-                      {workshops.map((w) => (
+                      {workshops.map((w) => {
+                        const matsCount = w.workshop_materials?.[0]?.count ?? 0;
+                        const enrollsCount = w.workshop_enrollments?.[0]?.count ?? 0;
+                        return (
                         <button key={w.id} onClick={() => fetchWorkshopDetails(w)}
                           className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition text-right">
-                          <div>
+                          <div className="flex-1 min-w-0">
                             <p className="font-medium text-sm">{w.name}</p>
-                            <div className="flex gap-2 mt-0.5 flex-wrap">
-                              {w.category && <span className="text-gray-400 text-xs">{w.category}</span>}
-                              {w.duration && <span className="text-gray-400 text-xs">· {w.duration}</span>}
-                              {w.description && <span className="text-gray-300 text-xs truncate max-w-[300px]">· {w.description}</span>}
+                            <div className="flex gap-2 mt-1 flex-wrap items-center">
+                              {w.category && <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">{w.category}</span>}
+                              {w.duration && <span className="bg-gray-100 text-gray-500 text-xs px-2 py-0.5 rounded-full">⏱ {w.duration}</span>}
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${matsCount > 0 ? "bg-orange-50 text-orange-600" : "bg-gray-100 text-gray-400"}`}>
+                                📄 {matsCount} ملف
+                              </span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${enrollsCount > 0 ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-400"}`}>
+                                👥 {enrollsCount} مسجّل
+                              </span>
                             </div>
-                            <p className="text-gray-300 text-xs mt-0.5">{new Date(w.created_at).toLocaleDateString("ar-SA")}</p>
                           </div>
                           <span className="text-gray-400 text-xs flex-shrink-0 mr-4">إدارة ←</span>
                         </button>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
