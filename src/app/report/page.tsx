@@ -95,6 +95,7 @@ const businessAreaMappings: Record<string, Record<string, string>> = {
 export default function ReportPage() {
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [reportData, setReportData] = useState<StructuredReport | null>(null);
+  const [language, setLanguage] = useState<"ar" | "en">("ar");
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
   const { push } = useRouter();
 
@@ -113,6 +114,7 @@ export default function ReportPage() {
       JSON.parse(modalScoreRaw);
     const formData = formDataRaw ? JSON.parse(formDataRaw) : {};
     const language: "ar" | "en" = formData.language || "en";
+    setLanguage(language);
 
     // Map modalScore to SurveyItem[] for the report component
     const data = modalScore.map((item, index) => ({
@@ -162,7 +164,7 @@ export default function ReportPage() {
 
   return (
     <div>
-      <SurveyReport survey={survey} reportData={reportData} aiAnalysis={aiAnalysis} />
+      <SurveyReport survey={survey} reportData={reportData} language={language} aiAnalysis={aiAnalysis} />
     </div>
   );
 }

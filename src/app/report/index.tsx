@@ -1,8 +1,6 @@
 "use client";
 
 import { Survey } from "@/app/libs/api/survey";
-import { useSelector } from "@/store/hooks";
-import Image from "next/image";
 import { useMemo } from "react";
 import {
   PolarAngleAxis,
@@ -17,17 +15,18 @@ import { StructuredReport } from "./generateReportText";
 function SurveyReport({
   survey,
   reportData,
+  language,
   aiAnalysis,
 }: {
   survey: Survey;
   reportData?: StructuredReport | null;
+  language?: "ar" | "en";
   aiAnalysis?: string;
 }) {
-  const { score, data, name } = survey;
-  const { language } = useSelector((state) => state.assessmentForm);
+  const { score, data } = survey;
 
-  const today = new Date();
-  const formattedDate = `${String(today.getDate()).padStart(2, "0")}.${String(today.getMonth() + 1).padStart(2, "0")}.${today.getFullYear()}`;
+  const isRtl = language === "ar";
+  const dir = isRtl ? "rtl" : "ltr";
 
   const modalRatio = ((Number(score) / 360) * 100).toFixed(2);
   const chartData = useMemo(() => {
@@ -43,44 +42,15 @@ function SurveyReport({
     return elements;
   }, [data]);
 
-  const isRtl = language === "ar";
-  const dir = isRtl ? "rtl" : "ltr";
-
-  const reportTitle =
-    survey.type === "entrepreneurs"
-      ? isRtl ? "ملخص تقييم القوة التجارية" : "Business Strength Assessment"
-      : survey.type === "companies"
-      ? isRtl ? "ملخص تقييم الأداء المؤسسي" : "Institutional Performance Assessment"
-      : isRtl ? "ملخص تقييم الجاهزية التجارية" : "Business Readiness Assessment";
-
   return (
     <div dir={dir} className="min-h-screen bg-gray-50 font-[Tajawal] print:bg-white">
       {/* ── Print styles ── */}
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          .print-break { page-break-before: always; }
           body { font-family: 'Tajawal', Arial, sans-serif; }
         }
       `}</style>
-
-      {/* ── Header ── */}
-      <div className="bg-black text-white py-4 px-6 flex items-center justify-between print:py-3">
-        <div className="flex items-center gap-3">
-          <Image
-            src="/images/brands/Ajnee-business-hub-black.svg"
-            alt="Ajnee"
-            width={70}
-            height={40}
-            className="invert"
-          />
-        </div>
-        <div className="text-center">
-          <h1 className="text-lg font-bold leading-tight">{reportTitle}</h1>
-          {name && <p className="text-sm text-gray-300 mt-0.5">{isRtl ? `مُعدّ لـ: ${name}` : `Prepared for: ${name}`}</p>}
-        </div>
-        <div className="text-sm text-gray-400">{formattedDate}</div>
-      </div>
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 print:px-6 print:py-4">
 
