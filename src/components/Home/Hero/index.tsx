@@ -54,7 +54,7 @@ export default function Hero() {
                   href="/dashboard/assessment"
                   className="flex items-center justify-center rounded-[10px] bg-red-500 px-5 text-base font-bold text-white shadow-md hover:bg-red-600 transition-colors"
                 >
-                  <span>اختبر موقعك في عالم الأعمال</span>
+                  <span className="text-center leading-tight">اختبر موقعك في عالم الأعمال</span>
                 </Link>
                 <div className={`text-sm text-gray-600 leading-relaxed ${locale === "ar" ? "text-right" : "text-left"}`}>
                   <p className="font-semibold text-gray-700 mb-0.5">{t("ctaTime")}</p>
