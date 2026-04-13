@@ -235,15 +235,6 @@ function SurveyReport({
           </div>
         )}
 
-        {/* ── Footer ── */}
-        <div className="bg-black text-white rounded-2xl p-6 text-center space-y-1 text-sm">
-          <p className="font-bold text-base">أجني لدعم الأعمال</p>
-          <p><span className="font-medium">ajnee</span> BUSINESS SUPPORT</p>
-          <p className="text-gray-400">The Gate Mall, Tower 2, Floor 12</p>
-          <p className="text-gray-400">Tel. 41415555 — P.O. Box 55994</p>
-          <p className="text-gray-300">info@Ajnee.com — www.Ajnee.com</p>
-        </div>
-
         {/* ── Print button ── */}
         <div className="flex justify-center pb-4 no-print">
           <button
