@@ -983,6 +983,12 @@ export default function AdminPage() {
                       <textarea placeholder="الوصف" value={editWorkshopData.description}
                         onChange={(e) => setEditWorkshopData(p => ({ ...p, description: e.target.value }))}
                         rows={1} className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black resize-none" />
+                      <input type="number" placeholder="نسبة الخصم % (اختياري)" min="1" max="100" value={editWorkshopData.discount_percent}
+                        onChange={(e) => setEditWorkshopData(p => ({ ...p, discount_percent: e.target.value }))}
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
+                      <input placeholder="كود الخصم (اختياري)" dir="ltr" value={editWorkshopData.discount_code}
+                        onChange={(e) => setEditWorkshopData(p => ({ ...p, discount_code: e.target.value }))}
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
                       <div className="sm:col-span-2 flex gap-2">
                         <button type="submit" className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800">حفظ</button>
                         <button type="button" onClick={() => setEditingWorkshop(false)} className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200">إلغاء</button>
