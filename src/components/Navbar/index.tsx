@@ -58,7 +58,7 @@ export default function Navbar() {
 
     // Admin check first (no DB query needed)
     if (ADMIN_EMAILS.includes(email)) {
-      setDashboardPath("/quiz/admin");
+      setDashboardPath("/admin");
       return;
     }
 

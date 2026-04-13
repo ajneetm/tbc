@@ -50,7 +50,7 @@ export default function UserDashboard() {
       if (!user) { router.replace("/auth/signin"); return; }
 
       const email = user.email?.toLowerCase() || "";
-      if (ADMIN_EMAILS.includes(email)) { router.replace("/quiz/admin"); return; }
+      if (ADMIN_EMAILS.includes(email)) { router.replace("/admin"); return; }
 
       const { data: trainer } = await supabase.from("trainers").select("status").ilike("email", email).single();
       if (trainer?.status === "active") { router.replace("/trainer"); return; }

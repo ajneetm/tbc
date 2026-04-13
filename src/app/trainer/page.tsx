@@ -46,7 +46,7 @@ export default function TrainerPage() {
       if (!user) { router.replace("/auth/signin"); return; }
 
       const email = user.email?.toLowerCase() || "";
-      if (ADMIN_EMAILS.includes(email)) { router.replace("/quiz/admin"); return; }
+      if (ADMIN_EMAILS.includes(email)) { router.replace("/admin"); return; }
 
       const { data: trainer } = await supabase
         .from("trainers")
