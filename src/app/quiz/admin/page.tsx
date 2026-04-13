@@ -7,7 +7,7 @@ import * as XLSX from "xlsx";
 
 const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase());
 
-type Tab = "overview" | "users" | "surveys" | "quiz-control" | "trainers" | "workshops" | "discounts";
+type Tab = "overview" | "users" | "surveys" | "quiz-control" | "trainers" | "workshops" | "consultations";
 
 const surveyTypeLabel = (t: string) =>
   t === "explorers" ? "مستكشف" : t === "entrepreneurs" ? "رائد أعمال" : "صاحب شركة/مدير تنفيذي";
@@ -43,23 +43,22 @@ export default function AdminPage() {
   const [trainerLoading, setTrainerLoading] = useState(false);
   const [showAddTrainer, setShowAddTrainer] = useState(false);
 
-  // Discounts
-  const [discounts, setDiscounts] = useState<any[]>([]);
-  const [newDiscount, setNewDiscount] = useState({ title: "", description: "", code: "", discount_percent: "", expires_at: "" });
-  const [discountLoading, setDiscountLoading] = useState(false);
-  const [showAddDiscount, setShowAddDiscount] = useState(false);
-  const [discountMsg, setDiscountMsg] = useState({ text: "", ok: true });
+  // Consultations
+  const [consultations, setConsultations] = useState<any[]>([]);
+  const [replyingId, setReplyingId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyLoading, setReplyLoading] = useState(false);
 
   // Courses (الدورات)
   const [workshops, setWorkshops] = useState<any[]>([]);
   const [selectedWorkshop, setSelectedWorkshop] = useState<any>(null);
   const [workshopMaterials, setWorkshopMaterials] = useState<any[]>([]);
   const [workshopEnrollments, setWorkshopEnrollments] = useState<any[]>([]);
-  const [newWorkshop, setNewWorkshop] = useState({ name: "", description: "", category: "", duration: "" });
+  const [newWorkshop, setNewWorkshop] = useState({ name: "", description: "", category: "", duration: "", discount_percent: "", discount_code: "" });
   const [workshopLoading, setWorkshopLoading] = useState(false);
   const [showAddWorkshop, setShowAddWorkshop] = useState(false);
   const [editingWorkshop, setEditingWorkshop] = useState(false);
-  const [editWorkshopData, setEditWorkshopData] = useState({ name: "", description: "", category: "", duration: "" });
+  const [editWorkshopData, setEditWorkshopData] = useState({ name: "", description: "", category: "", duration: "", discount_percent: "", discount_code: "" });
   const [copiedLink, setCopiedLink] = useState(false);
   const [newMaterial, setNewMaterial] = useState({ name: "", url: "", content_type: "file" });
   const [materialLoading, setMaterialLoading] = useState(false);
@@ -82,14 +81,14 @@ export default function AdminPage() {
 
   const fetchAll = async () => {
     setLoadingData(true);
-    const [usersRes, surveysRes, progressRes, settingsRes, trainersRes, workshopsRes, discountsRes] = await Promise.all([
+    const [usersRes, surveysRes, progressRes, settingsRes, trainersRes, workshopsRes, consultRes] = await Promise.all([
       fetch("/api/admin/users").then((r) => r.json()).catch(() => ({ users: [] })),
       supabase.from("survey_results").select("*").order("created_at", { ascending: false }),
       supabase.from("quiz_progress").select("*").order("updated_at", { ascending: false }),
       supabase.from("quiz_settings").select("current_day").eq("id", 1).single(),
       supabase.from("trainers").select("*").order("created_at", { ascending: false }),
       supabase.from("workshops").select("*, workshop_materials(count), workshop_enrollments(count)").order("created_at", { ascending: false }),
-      supabase.from("discounts").select("*").order("created_at", { ascending: false }),
+      supabase.from("consultations").select("*").order("created_at", { ascending: false }),
     ]);
     if (usersRes.users) setSiteUsers(usersRes.users);
     if (surveysRes.data) setSurveyResults(surveysRes.data);
@@ -97,7 +96,7 @@ export default function AdminPage() {
     if (settingsRes.data) setQuizCurrentDay(settingsRes.data.current_day);
     if (trainersRes.data) setTrainers(trainersRes.data);
     if (workshopsRes.data) setWorkshops(workshopsRes.data);
-    if (discountsRes.data) setDiscounts(discountsRes.data);
+    if (consultRes.data) setConsultations(consultRes.data);
     setLoadingData(false);
   };
 
@@ -174,32 +173,26 @@ export default function AdminPage() {
     fetchAll();
   };
 
-  // ── Discounts ──
-  const showDiscountMsg = (text: string, ok = true) => {
-    setDiscountMsg({ text, ok });
-    setTimeout(() => setDiscountMsg({ text: "", ok: true }), 3500);
+  // ── Consultations ──
+  const replyToConsultation = async (id: string) => {
+    if (!replyText.trim()) return;
+    setReplyLoading(true);
+    const { error } = await supabase.from("consultations").update({
+      admin_reply: replyText,
+      status: "replied",
+      replied_at: new Date().toISOString(),
+    }).eq("id", id);
+    if (!error) {
+      setConsultations(prev => prev.map(c => c.id === id ? { ...c, admin_reply: replyText, status: "replied", replied_at: new Date().toISOString() } : c));
+      setReplyingId(null);
+      setReplyText("");
+    }
+    setReplyLoading(false);
   };
 
-  const addDiscount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setDiscountLoading(true);
-    const payload: any = {
-      title: newDiscount.title,
-      description: newDiscount.description || null,
-      code: newDiscount.code || null,
-      discount_percent: newDiscount.discount_percent ? parseInt(newDiscount.discount_percent) : null,
-      expires_at: newDiscount.expires_at || null,
-    };
-    const { error } = await supabase.from("discounts").insert(payload);
-    if (error) showDiscountMsg("فشل الحفظ", false);
-    else { showDiscountMsg("تم إضافة الخصم ✓"); setNewDiscount({ title: "", description: "", code: "", discount_percent: "", expires_at: "" }); setShowAddDiscount(false); fetchAll(); }
-    setDiscountLoading(false);
-  };
-
-  const deleteDiscount = async (id: string) => {
-    if (!confirm("حذف هذا الخصم؟")) return;
-    await supabase.from("discounts").delete().eq("id", id);
-    fetchAll();
+  const closeConsultation = async (id: string) => {
+    await supabase.from("consultations").update({ status: "closed" }).eq("id", id);
+    setConsultations(prev => prev.map(c => c.id === id ? { ...c, status: "closed" } : c));
   };
 
   // ── Workshops ──
@@ -260,14 +253,26 @@ export default function AdminPage() {
   };
 
   const startEditWorkshop = (w: any) => {
-    setEditWorkshopData({ name: w.name, description: w.description || "", category: w.category || "", duration: w.duration || "" });
+    setEditWorkshopData({
+      name: w.name, description: w.description || "",
+      category: w.category || "", duration: w.duration || "",
+      discount_percent: w.discount_percent ? String(w.discount_percent) : "",
+      discount_code: w.discount_code || "",
+    });
     setEditingWorkshop(true);
   };
 
   const saveEditWorkshop = async (e: React.FormEvent) => {
     e.preventDefault();
     const { data } = await supabase.from("workshops")
-      .update({ name: editWorkshopData.name, description: editWorkshopData.description || null, category: editWorkshopData.category || null, duration: editWorkshopData.duration || null })
+      .update({
+        name: editWorkshopData.name,
+        description: editWorkshopData.description || null,
+        category: editWorkshopData.category || null,
+        duration: editWorkshopData.duration || null,
+        discount_percent: editWorkshopData.discount_percent ? parseInt(editWorkshopData.discount_percent) : null,
+        discount_code: editWorkshopData.discount_code || null,
+      })
       .eq("id", selectedWorkshop.id)
       .select().single();
     if (data) setSelectedWorkshop(data);
@@ -361,13 +366,13 @@ export default function AdminPage() {
   );
 
   const tabs: { key: Tab; label: string; icon: string }[] = [
-    { key: "overview",     label: "نظرة عامة",       icon: "📊" },
-    { key: "surveys",      label: "الاختبارات",       icon: "📋" },
-    { key: "users",        label: "المستخدمون",       icon: "👥" },
-    { key: "trainers",     label: "المدربون",         icon: "🧑‍💼" },
-    { key: "quiz-control", label: "الاختبار اليومي",  icon: "📅" },
-    { key: "workshops",    label: "الدورات",          icon: "🎓" },
-    { key: "discounts",   label: "الخصومات",         icon: "🎁" },
+    { key: "overview",       label: "نظرة عامة",       icon: "📊" },
+    { key: "surveys",        label: "الاختبارات",       icon: "📋" },
+    { key: "users",          label: "المستخدمون",       icon: "👥" },
+    { key: "trainers",       label: "المدربون",         icon: "🧑‍💼" },
+    { key: "quiz-control",   label: "الاختبار اليومي",  icon: "📅" },
+    { key: "workshops",      label: "الدورات",          icon: "🎓" },
+    { key: "consultations",  label: "الاستشارات",       icon: "💬" },
   ];
 
   const activeTabObj = tabs.find(t => t.key === activeTab)!;
@@ -864,88 +869,91 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ── Discounts ── */}
-        {activeTab === "discounts" && (
-          <div className="space-y-5">
-
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold">إضافة خصم جديد</h2>
-                <button onClick={() => setShowAddDiscount(v => !v)}
-                  className="text-sm px-4 py-1.5 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors">
-                  {showAddDiscount ? "إغلاق" : "+ خصم جديد"}
-                </button>
+        {/* ── Consultations ── */}
+        {activeTab === "consultations" && (
+          <div className="space-y-4 max-w-3xl">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-lg">الاستشارات ({consultations.length})</h2>
+              <div className="flex gap-2 text-xs">
+                <span className="bg-yellow-50 text-yellow-700 px-2.5 py-1 rounded-full font-medium">
+                  قيد المراجعة: {consultations.filter(c => c.status === "pending").length}
+                </span>
+                <span className="bg-green-50 text-green-700 px-2.5 py-1 rounded-full font-medium">
+                  تم الرد: {consultations.filter(c => c.status === "replied").length}
+                </span>
               </div>
-              {discountMsg.text && (
-                <div className={`mb-3 rounded-xl px-4 py-2.5 text-sm font-medium ${discountMsg.ok ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"}`}>
-                  {discountMsg.text}
-                </div>
-              )}
-              {showAddDiscount && (
-                <form onSubmit={addDiscount} className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 bg-gray-50 rounded-xl">
-                  <input required placeholder="عنوان الخصم *" value={newDiscount.title}
-                    onChange={(e) => setNewDiscount(p => ({ ...p, title: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
-                  <input placeholder="كود الخصم (اختياري)" dir="ltr" value={newDiscount.code}
-                    onChange={(e) => setNewDiscount(p => ({ ...p, code: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
-                  <input type="number" placeholder="نسبة الخصم % (اختياري)" min="1" max="100" value={newDiscount.discount_percent}
-                    onChange={(e) => setNewDiscount(p => ({ ...p, discount_percent: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
-                  <input type="date" placeholder="تاريخ الانتهاء" value={newDiscount.expires_at}
-                    onChange={(e) => setNewDiscount(p => ({ ...p, expires_at: e.target.value }))}
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black" />
-                  <textarea placeholder="الوصف (اختياري)" value={newDiscount.description}
-                    onChange={(e) => setNewDiscount(p => ({ ...p, description: e.target.value }))}
-                    rows={2} className="sm:col-span-2 border border-gray-300 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-black resize-none" />
-                  <div className="sm:col-span-2">
-                    <button type="submit" disabled={discountLoading}
-                      className="px-6 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
-                      {discountLoading ? "جاري الحفظ..." : "حفظ الخصم"}
-                    </button>
-                  </div>
-                </form>
-              )}
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <div className="px-5 py-3 border-b border-gray-100">
-                <h2 className="font-bold">قائمة الخصومات ({discounts.length})</h2>
+            {consultations.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-dashed border-gray-200 p-14 text-center">
+                <p className="text-4xl mb-3">💬</p>
+                <p className="font-bold text-gray-700">لا توجد استشارات بعد</p>
               </div>
-              {discounts.length === 0 ? (
-                <p className="text-center text-gray-400 py-12 text-sm">لا توجد خصومات بعد</p>
-              ) : (
-                <div className="divide-y divide-gray-100">
-                  {discounts.map((d) => (
-                    <div key={d.id} className="flex items-center justify-between px-5 py-4 hover:bg-gray-50">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <p className="font-medium text-sm">{d.title}</p>
-                          {d.discount_percent && (
-                            <span className="bg-red-50 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full">
-                              {d.discount_percent}%
-                            </span>
-                          )}
-                          {d.code && (
-                            <span className="bg-gray-100 text-gray-700 font-mono text-xs px-2 py-0.5 rounded" dir="ltr">
-                              {d.code}
-                            </span>
+            ) : (
+              <div className="space-y-3">
+                {consultations.map((c) => {
+                  const isReplying = replyingId === c.id;
+                  const stBadge = c.status === "replied"
+                    ? "bg-green-50 text-green-700"
+                    : c.status === "closed"
+                    ? "bg-gray-100 text-gray-500"
+                    : "bg-yellow-50 text-yellow-700";
+                  const stLabel = c.status === "replied" ? "تم الرد" : c.status === "closed" ? "مغلق" : "قيد المراجعة";
+                  return (
+                    <div key={c.id} className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                      <div className="px-5 py-4">
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <p className="font-bold text-sm">{c.subject}</p>
+                              <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${stBadge}`}>{stLabel}</span>
+                            </div>
+                            <p className="text-xs text-gray-400">{c.user_name} · {c.user_email}</p>
+                            <p className="text-xs text-gray-300 mt-0.5">{new Date(c.created_at).toLocaleDateString("ar-SA", { year: "numeric", month: "long", day: "numeric" })}</p>
+                          </div>
+                          {c.status !== "closed" && (
+                            <button onClick={() => closeConsultation(c.id)}
+                              className="text-xs text-gray-400 hover:text-gray-600 flex-shrink-0">إغلاق</button>
                           )}
                         </div>
-                        {d.description && <p className="text-gray-400 text-xs mt-0.5 truncate max-w-sm">{d.description}</p>}
-                        {d.expires_at && (
-                          <p className="text-gray-300 text-xs mt-0.5">
-                            ينتهي: {new Date(d.expires_at).toLocaleDateString("ar-SA")}
-                          </p>
+                        <p className="text-gray-700 text-sm leading-relaxed bg-gray-50 rounded-xl px-4 py-3">{c.message}</p>
+
+                        {c.admin_reply && (
+                          <div className="mt-3 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
+                            <p className="text-xs font-bold text-blue-700 mb-1">ردك</p>
+                            <p className="text-sm text-blue-800">{c.admin_reply}</p>
+                          </div>
+                        )}
+
+                        {!isReplying ? (
+                          <button onClick={() => { setReplyingId(c.id); setReplyText(c.admin_reply || ""); }}
+                            className="mt-3 text-xs font-bold text-black border border-gray-300 px-4 py-1.5 rounded-lg hover:bg-gray-50 transition">
+                            {c.admin_reply ? "تعديل الرد" : "رد على الاستشارة"}
+                          </button>
+                        ) : (
+                          <div className="mt-3 space-y-2">
+                            <textarea value={replyText} rows={3}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              placeholder="اكتب ردك هنا..."
+                              className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black resize-none" />
+                            <div className="flex gap-2">
+                              <button onClick={() => replyToConsultation(c.id)} disabled={replyLoading}
+                                className="flex-1 bg-black text-white text-sm font-bold py-2 rounded-xl hover:bg-gray-800 disabled:opacity-50 transition">
+                                {replyLoading ? "..." : "إرسال الرد"}
+                              </button>
+                              <button onClick={() => { setReplyingId(null); setReplyText(""); }}
+                                className="px-4 border border-gray-300 text-gray-600 text-sm rounded-xl hover:bg-gray-50 transition">
+                                إلغاء
+                              </button>
+                            </div>
+                          </div>
                         )}
                       </div>
-                      <button onClick={() => deleteDiscount(d.id)} className="text-xs text-red-400 hover:text-red-600 flex-shrink-0 mr-4">حذف</button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
