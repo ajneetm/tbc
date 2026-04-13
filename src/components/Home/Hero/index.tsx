@@ -73,17 +73,26 @@ export default function Hero() {
           <div className="w-full px-4 lg:w-6/12 flex flex-col items-center justify-center">
             <div className="flex flex-col items-center w-full max-lg:mt-10 lg:justify-end gap-10">
               <HeroImage />
-              <div>
 
-                <Link href={"/dashboard/assessment"} className="rounded-[10px] z-50 cursor-pointer bg-red-500 p-2 px-4 text-xl font-bold flex items-center justify-center text-white sm:text-2xl lg:text-xl xl:text-2xl shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-                 <p className={`${locale === "ar" ? "pt-1" : ""}`}>
-                  {t("cta")}
-                  </p>
+              {/* CTA block — aligned to the right */}
+              <div className={`flex items-center gap-4 w-full ${locale === "ar" ? "flex-row justify-end" : "flex-row-reverse justify-end"}`}>
+
+                {/* Button */}
+                <Link
+                  href="/dashboard/assessment"
+                  className="flex-shrink-0 rounded-[10px] bg-red-500 px-5 py-2.5 text-base font-bold text-white shadow-md hover:bg-red-600 transition-colors"
+                >
+                  <p className={locale === "ar" ? "pt-0.5" : ""}>{t("cta")}</p>
                 </Link>
+
+                {/* Explanatory text */}
+                <div className={`text-sm text-gray-600 max-w-[220px] leading-relaxed ${locale === "ar" ? "text-right" : "text-left"}`}>
+                  <p className="font-semibold text-gray-800 mb-1">{t("ctaTime")}</p>
+                  <p className="text-xs text-gray-500">{t("ctaHint")}</p>
+                </div>
+
               </div>
-
             </div>
-
           </div>
         </div>
       </div>

@@ -21,7 +21,9 @@
       "button": "Explore Programs",
       "link": "Download Brochure",
       "clients": "Trusted by the best",
-      "cta": "Find Your Businuss Gap"
+      "cta": "Assess Your Business Path",
+      "ctaHint": "Choose your category carefully for accurate results — new market explorers, entrepreneurs with a real opportunity, or existing business owners.",
+      "ctaTime": "Takes less than 3 minutes"
     },
     "overview": {
       "title": "Overview",
