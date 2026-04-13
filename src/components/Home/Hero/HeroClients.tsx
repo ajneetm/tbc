@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 export default function HeroClients() {
   const t = useTranslations("home.hero");
   return (
-    <div className="clients pt-16">
+    <div className="clients pt-8">
       <p className="mb-2 flex items-center text-xs font-normal text-body-color">
         {t("clients")}
       </p>

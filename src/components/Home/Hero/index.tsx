@@ -24,74 +24,49 @@ export default function Hero() {
               <p className="mb-8 max-w-[480px] text-base text-body-color">
                 {t("description")}
               </p>
-              <ul className="flex flex-wrap items-center gap-8">
-                <li className="leading-none">
+              <ul className="flex flex-wrap items-stretch gap-3">
+                <li className="flex">
                   <a
                     href="/files/brochure.pdf"
                     download="The Business Clock Brochure.pdf"
                     target="_blank"
-                    className="inline-flex items-center justify-center py-1 text-center text-base font-normal text-body-color hover:text-primary"
+                    className="inline-flex items-center justify-center px-1 py-1 text-base font-normal text-body-color hover:text-primary"
                   >
                     <span className="mx-2">
-                      <svg
-                        width="22"
-                        height="22"
-                        viewBox="0 0 22 22"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
+                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="11" cy="11" r="11" fill="#ef4444" />
-                        <rect
-                          x="6.90906"
-                          y="13.3636"
-                          width="8.18182"
-                          height="1.63636"
-                          fill="white"
-                        />
-                        <rect
-                          x="10.1818"
-                          y="6"
-                          width="1.63636"
-                          height="4.09091"
-                          fill="white"
-                        />
-                        <path
-                          d="M11 12.5454L13.8343 9.47726H8.16576L11 12.5454Z"
-                          fill="white"
-                        />
+                        <rect x="6.90906" y="13.3636" width="8.18182" height="1.63636" fill="white" />
+                        <rect x="10.1818" y="6" width="1.63636" height="4.09091" fill="white" />
+                        <path d="M11 12.5454L13.8343 9.47726H8.16576L11 12.5454Z" fill="white" />
                       </svg>
                     </span>
                     {t("link")}
                   </a>
                 </li>
+                <li className="flex">
+                  <Link
+                    href="/dashboard/assessment"
+                    className="flex items-center rounded-[10px] bg-red-500 px-4 text-base font-bold text-white shadow-md hover:bg-red-600 transition-colors"
+                  >
+                    <span className={locale === "ar" ? "pt-0.5" : ""}>{t("cta")}</span>
+                  </Link>
+                </li>
               </ul>
 
+              {/* Clients — moved up */}
               <HeroClients />
+
+              {/* Hint text below clients */}
+              <div className={`mt-1 text-sm text-gray-600 leading-relaxed ${locale === "ar" ? "text-right" : "text-left"}`}>
+                <p className="font-semibold text-gray-700 mb-0.5">{t("ctaTime")}</p>
+                <p className="text-xs text-gray-500 max-w-[400px]">{t("ctaHint")}</p>
+              </div>
             </div>
           </div>
           <div className="hidden px-4 xl:block xl:w-1/12"></div>
           <div className="w-full px-4 lg:w-6/12 flex flex-col items-center justify-center">
-            <div className="flex flex-col items-center w-full max-lg:mt-10 lg:justify-end gap-10">
+            <div className="flex flex-col items-center w-full max-lg:mt-10 lg:justify-end">
               <HeroImage />
-
-              {/* CTA block — aligned to the right */}
-              <div className={`flex items-center gap-4 w-full ${locale === "ar" ? "flex-row justify-end" : "flex-row-reverse justify-end"}`}>
-
-                {/* Button */}
-                <Link
-                  href="/dashboard/assessment"
-                  className="flex-shrink-0 rounded-[10px] bg-red-500 px-5 py-2.5 text-base font-bold text-white shadow-md hover:bg-red-600 transition-colors"
-                >
-                  <p className={locale === "ar" ? "pt-0.5" : ""}>{t("cta")}</p>
-                </Link>
-
-                {/* Explanatory text */}
-                <div className={`text-sm text-gray-600 max-w-[220px] leading-relaxed ${locale === "ar" ? "text-right" : "text-left"}`}>
-                  <p className="font-semibold text-gray-800 mb-1">{t("ctaTime")}</p>
-                  <p className="text-xs text-gray-500">{t("ctaHint")}</p>
-                </div>
-
-              </div>
             </div>
           </div>
         </div>
