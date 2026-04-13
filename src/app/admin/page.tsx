@@ -240,7 +240,7 @@ export default function AdminPage() {
     } else if (data) {
       setWorkshops(prev => [data, ...prev]);
     }
-    setNewWorkshop({ name: "", description: "", category: "", duration: "" });
+    setNewWorkshop({ name: "", description: "", category: "", duration: "", discount_percent: "", discount_code: "" });
     setShowAddWorkshop(false);
     setWorkshopLoading(false);
   };
