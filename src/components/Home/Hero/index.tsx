@@ -25,14 +25,6 @@ export default function Hero() {
                 {t("description")}
               </p>
               <ul className="flex flex-wrap items-center gap-8">
-                <li>
-                  <Link
-                    href="/programs"
-                    className="inline-flex items-center justify-center rounded-lg bg-primary px-10 py-4 text-center text-base font-normal text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-                  >
-                    {t("button")}
-                  </Link>
-                </li>
                 <li className="leading-none">
                   <a
                     href="/files/brochure.pdf"

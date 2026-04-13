@@ -34,7 +34,7 @@ export default function TrainerPage() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [loading, setLoading] = useState(true);
   const [trainerProfile, setTrainerProfile] = useState<any>(null);
-  const [programs, setPrograms] = useState<any[]>([]);
+  const [workshops, setWorkshops] = useState<any[]>([]);
   const [trainees, setTrainees] = useState<any[]>([]);
   const [certificates, setCertificates] = useState<any[]>([]);
   const [issuingCert, setIssuingCert] = useState<string | null>(null);
@@ -58,13 +58,13 @@ export default function TrainerPage() {
 
       setTrainerProfile({ ...trainer, authEmail: user.email });
 
-      const [programsRes, traineesRes, certsRes] = await Promise.all([
-        supabase.from("programs").select("*").eq("status", "active").order("created_at", { ascending: false }),
+      const [workshopsRes, traineesRes, certsRes] = await Promise.all([
+        supabase.from("workshops").select("id, name, description, category, duration").order("created_at", { ascending: false }),
         supabase.from("trainer_trainees").select("*, survey_results(*)").eq("trainer_id", trainer.id),
         supabase.from("certificates").select("*").eq("trainer_id", trainer.id).order("issued_at", { ascending: false }),
       ]);
 
-      if (programsRes.data) setPrograms(programsRes.data);
+      if (workshopsRes.data) setWorkshops(workshopsRes.data);
       if (traineesRes.data) setTrainees(traineesRes.data);
       if (certsRes.data) setCertificates(certsRes.data);
       setLoading(false);
@@ -203,15 +203,15 @@ export default function TrainerPage() {
           {/* ── الدورات المتاحة ── */}
           {activeTab === "available-courses" && (
             <div className="space-y-4">
-              <p className="text-gray-500 text-sm mb-2">إجمالي الدورات: <span className="font-bold text-black">{programs.length}</span></p>
-              {programs.length === 0 ? (
+              <p className="text-gray-500 text-sm mb-2">إجمالي الدورات: <span className="font-bold text-black">{workshops.length}</span></p>
+              {workshops.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
                   <p className="text-4xl mb-3">📚</p>
                   <p className="text-gray-400">لا توجد دورات متاحة حالياً</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {programs.map((p) => (
+                  {workshops.map((p) => (
                     <div key={p.id} className="bg-white rounded-2xl border border-gray-200 p-5 hover:shadow-md transition">
                       <div className="flex items-start justify-between mb-3">
                         <h3 className="font-bold text-base leading-snug">{p.name}</h3>

@@ -25,12 +25,6 @@ export const footerLinks: FooterLink[] = [
 export const footerHotLinks: FooterLink[] = [
   {
     id: uuid(),
-    title: "Opportunity Hour",
-    href: "/programs/opportunity-hour",
-    external: false,
-  },
-  {
-    id: uuid(),
     title: "Ding Model",
     href: "/overview",
     external: false,
@@ -42,12 +36,6 @@ export const footerQuickLinks: FooterLink[] = [
     id: uuid(),
     title: "Services",
     href: "/#services",
-    external: false,
-  },
-  {
-    id: uuid(),
-    title: "Programs",
-    href: "/programs",
     external: false,
   },
 ];
