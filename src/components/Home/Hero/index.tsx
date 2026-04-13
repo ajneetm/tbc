@@ -52,9 +52,14 @@ export default function Hero() {
               <div className="mt-4 flex items-stretch gap-3">
                 <Link
                   href="/dashboard/assessment"
-                  className="flex items-center justify-center rounded-[10px] bg-red-500 px-5 text-base font-bold text-white shadow-md hover:bg-red-600 transition-colors"
+                  className="flex flex-col items-center justify-center gap-1 rounded-[10px] bg-red-500 px-5 text-base font-bold text-white shadow-md hover:bg-red-600 transition-colors"
                 >
-                  <span className={locale === "ar" ? "pt-0.5" : ""}>{t("cta")}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                    <rect x="9" y="3" width="6" height="4" rx="1" />
+                    <path d="M9 12h6M9 16h4" />
+                  </svg>
+                  <span>{t("cta")}</span>
                 </Link>
                 <div className={`text-sm text-gray-600 leading-relaxed ${locale === "ar" ? "text-right" : "text-left"}`}>
                   <p className="font-semibold text-gray-700 mb-0.5">{t("ctaTime")}</p>
