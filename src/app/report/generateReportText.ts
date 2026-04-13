@@ -317,170 +317,170 @@ const companiesModalDescriptionsEn: Record<string, ModalDesc> = {
 function getScoreLevelAr(percentage: number, surveyType: string): { level: string; summary: string; recs: string } {
   if (surveyType === "explorers") {
     if (percentage < 40) return {
-      level: "مستوى أولي يستدعي العمل على بناء قاعدة معرفية وتجريبية أشمل قبل الاقتراب من السوق بصورة جدية",
-      summary: "التقييم العام يشير إلى أن المستفيد في مرحلة التأسيس المعرفي، ويحتاج إلى استثمار أعمق في فهم أساسيات السوق والأعمال التجارية قبل الانطلاق الفعلي. هذه المرحلة لا تعني القصور بقدر ما تعني أن الرحلة في بدايتها وأن ما يُبنى الآن سيُشكّل أساس النجاح المستقبلي.",
-      recs: "التوصيات في هذه المرحلة تتمحور حول الاستثمار في التعلم الموجّه عبر برامج ريادة الأعمال، وحضور ورش العمل التدريبية، والتعرف على نماذج أعمال مختلفة من خلال القراءة والاحتكاك بأصحاب التجارب الناجحة. كما يُنصح بمحاولة تجارب استكشافية صغيرة ومنخفضة المخاطر تُتيح بناء الخبرة العملية بصورة تدريجية ومنهجية.",
+      level: "مستوى أولي يستدعي بناء قاعدة معرفية وتجريبية أشمل قبل الاقتراب من السوق بصورة جدية",
+      summary: "معظم الأدوات الأساسية لفهم السوق لا تزال تحتاج إلى بناء. هذا لا يعني غياب الإمكانية، بل يعني أن الخطوات الأولى ينبغي أن تكون تعلمية وتجريبية قبل أن تكون تنفيذية.",
+      recs: "ابدأ بتحديد مشكلة واحدة تراها في محيطك واكتب في ورقة: من يعاني منها؟ كيف يتعاملون معها الآن؟ ثم ابحث عن 3 مشاريع موجودة تحل نفس المشكلة وادرس كيف تعمل وكيف تكسب. اختر فرصة صغيرة لا تكلفك شيئاً لتجربتها — بيع خدمة بسيطة، أو عرض منتج على عدد محدود — والهدف ليس الربح بل تعلم كيف يتصرف السوق فعلاً.",
     };
     if (percentage < 55) return {
-      level: "مستوى متوسط يعكس وجود أساس أولي يمكن البناء عليه مع الحرص على تطوير الجوانب التي لا تزال تحتاج إلى تعزيز",
-      summary: "التقييم العام يشير إلى أن المستفيد يمتلك مقومات أولية واعدة تؤهله لأن يكون قريبًا من فهم السوق والدخول إليه بوعي أفضل من الشخص العادي، إلا أن جاهزيته ما تزال بحاجة إلى تعميق في الجوانب العملية، خصوصًا ما يتعلق بالتحليل المالي، وقراءة المخاطر، وبناء العلاقات والموارد.",
-      recs: "التوصيات العامة في هذه المرحلة تتمثل في توسيع الاطلاع على نماذج الأعمال المختلفة، وتنمية الفهم المالي الأساسي، والتدرب على تحليل الفرص من أكثر من زاوية، إلى جانب بناء شبكة علاقات مهنية أوسع. كما يُستحسن أن يخوض المستفيد تجارب استكشافية بسيطة ومدروسة أو جلسات توجيه مهني.",
+      level: "مستوى متوسط يعكس وجود أساس أولي واعد مع حاجة لتعميق الأدوات التحليلية والمالية",
+      summary: "لديك فهم جزئي للسوق لكن القدرة على تقييم الفرصة بشكل موضوعي قبل الانتقال للتنفيذ تحتاج تطويراً. كثير من الأفكار تبدو جيدة حتى تكتب أرقامها على ورقة.",
+      recs: "خذ أي فكرة تجارية تراودك الآن واكتب تقييمها على ورقة واحدة: من هو العميل بالتحديد؟ كم سيدفع؟ كم سيكلفك توصيل الخدمة له؟ ما ربحك من كل عملية؟ كرر هذا التمرين على 3 أفكار مختلفة. بعدها اختر الفكرة الأوضح وتحدث مع 5 أشخاص من الجمهور المستهدف لتتحقق من أن المشكلة حقيقية وليست مجرد افتراض.",
     };
     if (percentage < 70) return {
-      level: "مستوى متوسط جيد من الجاهزية، بما يدل على وجود أساس مناسب يمكن البناء عليه، مع حاجة واضحة إلى تطوير بعض الجوانب المكملة",
-      summary: "التقييم العام يشير إلى أن المستفيد يمتلك مقومات جيدة تجعله في موقع متقدم من مستكشفي السوق، وأن لديه أرضية صلبة تُمكّنه من الانطلاق بخطوات أكثر ثقة. غير أن تحسين بعض الجوانب المشار إليها سيُمكّنه من رفع مستوى جاهزيته إلى الدرجة التي تجعله قادرًا على قراءة الفرص بدقة أعلى.",
-      recs: "يُوصى بالتركيز على الجوانب التي أشار إليها التقييم كمجالات تطوير، من خلال برامج تدريبية متخصصة أو جلسات توجيه مهني. كما يُستحسن الاستمرار في تعميق الجوانب القوية لأنها تُشكّل ركيزة يمكن الاعتماد عليها في رحلة استكشاف السوق.",
+      level: "مستوى متوسط جيد يدل على أرضية صلبة مع حاجة للانتقال من التفكير إلى الاختبار الفعلي",
+      summary: "أساسك جيد وفهمك للسوق أفضل من المتوسط. الفجوة الحقيقية الآن في الانتقال من التحليل إلى الاختبار الميداني — لأن كثيراً من الأسئلة لا تُجيب عنها الدراسة، بل السوق نفسه.",
+      recs: "اختر الفرصة التي تشغل بالك وضعها في اختبار صغير: تحدث مع 10 أشخاص من جمهورك المستهدف واسألهم عن المشكلة، وكيف يحلونها حالياً، وكم يدفعون فعلاً. لا تبيع لهم الفكرة — فقط اسأل. دوّن ما تسمعه. ثم ضع جدولاً زمنياً لأسبوعين: الأول للبحث الميداني، الثاني لاتخاذ قرار المضي أو التعديل بناءً على ما سمعته.",
     };
     if (percentage < 85) return {
-      level: "مستوى جيد مرتفع يكشف عن جاهزية واضحة واستعداد مناسب للتعامل مع متطلبات السوق واستكشاف الفرص بصورة أكثر ثقة",
-      summary: "التقييم العام يُشير إلى أن المستفيد يمتلك جاهزية تجارية جيدة تؤهله للدخول إلى السوق بصورة واعية ومدروسة. والجوانب التي لا تزال تحتاج إلى تطوير لا تُشكّل عائقًا بقدر ما تُمثّل فرصة لرفع مستوى الأداء إلى مرحلة التميز الكامل.",
-      recs: "يُوصى بالاستثمار في تطوير الجوانب المُشار إليها لرفع مستوى الجاهزية من الجيد إلى الممتاز. كما يُنصح بالانتقال من مرحلة الاستكشاف إلى مرحلة التطبيق الفعلي من خلال تجارب مدروسة ومحسوبة المخاطر.",
+      level: "مستوى جيد مرتفع يكشف عن جاهزية واضحة وأدوات تحليلية متطورة",
+      summary: "جاهزيتك عالية وقدرتك التحليلية متطورة. ما يعيق الانطلاق الآن غالباً هو انتظار اليقين التام — وهو شيء لا يوجد في السوق. القرار الصحيح لا يأتي من المزيد من التحليل، بل من الاختبار المدروس.",
+      recs: "حدد الفرصة التي تريد اختبارها وضع لها جدولاً إجرائياً محدداً: الأسبوع الأول — تحديد الجمهور والتواصل المباشر معه. الثاني — عرض الفكرة أو الخدمة ورصد الاستجابة. الثالث — تسعير وتجربة أول صفقة أو عملية فعلية. الرابع — تقييم النتيجة والقرار بالمضي أو التعديل. نفّذ هذا الجدول بصرف النظر عن مستوى الاستعداد.",
     };
     return {
-      level: "مستوى عالٍ ومتقدم من الجاهزية يؤهل صاحبه للانطلاق بثقة عالية نحو السوق",
-      summary: "التقييم العام يُشير إلى جاهزية تجارية متقدمة تضع المستفيد في مقدمة مستكشفي السوق. هذا المستوى المرتفع من الوعي والاستعداد يُهيئه لاتخاذ قرارات تجارية راسخة والانطلاق نحو فرص حقيقية بثقة عالية.",
-      recs: "في هذه المرحلة، يُوصى بتحويل هذه الجاهزية إلى خطوات عملية ملموسة، سواء بالبدء في استكشاف فرصة محددة أو بالانخراط في برامج ريادية أو شراكات تجارية. كما يُنصح بالحرص على تغذية هذا المستوى من الوعي باستمرار من خلال التعلم والتطبيق والمراجعة الدورية.",
+      level: "مستوى متقدم يؤهل صاحبه للانطلاق بثقة — التأخر الآن يُضيع الميزة المبنية",
+      summary: "تمتلك جاهزية متقدمة وقدرة تحليلية عالية. الاستمرار في التقييم بدلاً من التنفيذ هو المخاطرة الوحيدة المتبقية — السوق الجيد لا ينتظر.",
+      recs: "خذ قراراً واحداً محدداً هذا الأسبوع: ما الفرصة التي ستختبرها؟ ضع الموعد الأول للتنفيذ خلال 7 أيام من الآن. إن كانت فكرة — تحدث مع أول عميل محتمل. إن كانت شراكة — أرسل أول تواصل. إن كانت منتجاً — ضع أول نموذج مبسط. الخطوة الأولى هي الأصعب والأهم، وكل يوم تأخير له تكلفة.",
     };
   }
 
   if (surveyType === "entrepreneurs") {
     if (percentage < 40) return {
-      level: "مستوى يستدعي مراجعة الأسس وتقوية الجوانب الجوهرية قبل التوسع أو اتخاذ قرارات تجارية كبرى",
-      summary: "التقييم العام يشير إلى وجود فجوات في بعض المهارات والممارسات الريادية الأساسية تستحق الاهتمام والمعالجة المدروسة. هذه الفجوات لا تنفي القدرات الموجودة، لكنها تُنبّه إلى أهمية تقوية الأساس قبل التوسع.",
-      recs: "يُوصى بمراجعة الممارسات الحالية وتحديد الأولويات التطويرية، والاستعانة بمستشارين أعمال أو برامج تدريبية متخصصة تُعالج الجوانب التي أشار إليها التقييم.",
+      level: "مستوى يستدعي مراجعة الأسس التشغيلية والمالية قبل التوسع أو اتخاذ قرارات كبرى",
+      summary: "التقييم يشير إلى فجوات في بعض الممارسات الريادية الأساسية يمكن معالجتها من داخل العمل نفسه دون الحاجة للتوقف. البدء بالأرقام هو أسرع طريقة لفهم أين تكمن المشكلة الحقيقية.",
+      recs: "ابدأ بورقة واحدة الآن: اكتب الإيراد الشهري، التكاليف الثابتة، التكاليف المتغيرة، الربح الصافي. إن لم تستطع كتابتها بسرعة، فهذا هو أول شيء تحتاج إصلاحه — ضع نظاماً بسيطاً لتتبع الأرقام أسبوعياً. بعدها حدد ثلاثة عملاء تكسب منهم أكثر واسأل لماذا هم تحديداً — الجواب سيخبرك أين تضاعف جهدك وأين تتوقف عن الهدر.",
     };
     if (percentage < 55) return {
-      level: "مستوى متوسط يكشف عن قدرات ريادية قائمة مع حاجة واضحة لتعزيز بعض الجوانب الجوهرية",
-      summary: "التقييم العام يشير إلى أن صاحب المشروع يمتلك رصيدًا ريادياً جيداً اكتسبه من تجربته، غير أن تطوير بعض الجوانب المشار إليها سيُحسّن بشكل ملحوظ من كفاءة المشروع وقدرته على النمو المستدام.",
-      recs: "يُوصى بالتركيز على المجالات التي أشار إليها التقييم كأولويات تطوير، مع إجراء مراجعة دورية للاستراتيجية والعمليات وقياس مؤشرات الأداء بصورة منتظمة.",
+      level: "مستوى متوسط يكشف عن خبرة حقيقية مع حاجة لتحويل الحدس إلى قرارات مبنية على بيانات",
+      summary: "لديك مشروع يعمل وخبرة متراكمة، لكن بعض القرارات تُبنى على الحدس بدلاً من الأرقام. الفجوة الأكبر ليست في القدرة بل في المنهجية — واكتساب المنهجية لا يحتاج وقتاً طويلاً، بل قراراً بتغيير طريقة التفكير في القرارات.",
+      recs: "اختر قراراً أجّلته أو تردد فيه مؤخراً في مشروعك. اكتب: ما الخيارات المتاحة؟ ما تكلفة كل خيار؟ ما العائد المتوقع من كل منها؟ ما الأسوأ الذي يمكن حدوثه في كل حالة؟ اتخذ القرار وطبقه، ثم قس نتيجته بعد 30 يوماً بمؤشر واحد واضح. كرر هذا النمط مع كل قرار مهم — ستلاحظ تحسناً ملموساً في دقة قراراتك خلال ثلاثة أشهر.",
     };
     if (percentage < 70) return {
-      level: "مستوى متوسط جيد من الجاهزية الريادية يدل على تجربة حقيقية وقدرات قائمة مع مجال للتطوير والتحسين",
-      summary: "التقييم العام يُشير إلى أن رائد الأعمال يمتلك أساسًا ريادياً متيناً أهّله للوصول إلى هذه المرحلة من مسيرته. والمضي في تطوير الجوانب المُشار إليها سيُمكّنه من الانتقال من مرحلة التشغيل الجيد إلى مرحلة النمو المتسارع والمستدام.",
-      recs: "يُوصى بتوجيه الجهد التطويري نحو الجوانب التي كشف عنها التقييم، مع الحرص على ترجمة التطوير إلى إجراءات عملية قابلة للقياس. كما يُنصح بالاستمرار في تعزيز نقاط القوة لأنها ركيزة النجاح الحالي.",
+      level: "مستوى متوسط جيد يدل على تجربة متينة — الفارق للمستوى التالي هو التفرغ للنمو بدلاً من التشغيل",
+      summary: "مشروعك يعمل بشكل جيد وتمتلك أساساً قوياً. الفرق بين من يبقى في هذا المستوى ومن يتجاوزه هو القدرة على رفع البصر من التشغيل اليومي إلى بناء النمو — وهذا يبدأ بتحديد هدف واحد واضح والالتزام به.",
+      recs: "حدد هدفاً واحداً محدداً للأشهر الثلاثة القادمة — ليس عاماً مثل 'أزيد المبيعات'، بل دقيقاً مثل 'أوصل لـ X عميل جديد بحلول تاريخ كذا' أو 'أخفض تكاليف التشغيل بنسبة X%'. قسّمه إلى خطوات أسبوعية مكتوبة. في نهاية كل أسبوع اسأل: هل تقدمنا؟ إن لا، ما الذي يعيق التقدم تحديداً؟ عالج العائق — لا تبدل الهدف.",
     };
     if (percentage < 85) return {
-      level: "مستوى جيد مرتفع يُبرز نضجًا ريادياً واضحًا وجاهزية عالية للتوسع والنمو",
-      summary: "التقييم العام يُشير إلى أن رائد الأعمال يمتلك جاهزية ريادية متقدمة تجعله في موقع قوي لتحقيق نمو مستدام. والمجالات التي لا تزال تحتاج إلى تطوير إذا عُولجت ستُعلي من مستوى الأداء وتُعزز من القدرة التنافسية.",
-      recs: "يُوصى باستثمار هذا المستوى المرتفع في اتخاذ خطوات توسعية مدروسة، مع مواصلة تطوير الجوانب المُشار إليها. الشراكات الاستراتيجية وبرامج التسريع قد تُضيف قيمة مضاعفة في هذه المرحلة.",
+      level: "مستوى مرتفع يُبرز نضجاً ريادياً واضحاً — السؤال الآن ماذا تبني بعد ذلك",
+      summary: "وصلت لمستوى نضج ريادي واضح وأدواتك التشغيلية والاستراتيجية متطورة. السؤال الحقيقي الآن ليس كيف تحسن ما هو موجود، بل ما الخطوة التوسعية التالية وكيف تختبرها بأقل مخاطرة ممكنة.",
+      recs: "حدد خطة توسع واحدة محددة: هل ستدخل قطاعاً جديداً؟ تضيف منتجاً إضافياً؟ تفتح قناة بيع جديدة؟ خصص 60 يوماً لاختبار الفكرة بحجم صغير قبل الاستثمار الكبير — بميزانية محدودة وهدف واضح قابل للقياس. في نهاية الـ60 يوماً اتخذ القرار بناءً على الأرقام الفعلية لا التوقعات.",
     };
     return {
-      level: "مستوى متميز من الجاهزية الريادية يُؤهل صاحبه للقيادة والتوسع بثقة عالية وأدوات متكاملة",
-      summary: "التقييم العام يُشير إلى جاهزية ريادية عالية تضع رائد الأعمال في مقدمة أقرانه. هذا المستوى يُهيئه لاتخاذ قرارات توسعية جريئة ومدروسة والانتقال إلى مراحل نمو أكثر طموحًا.",
-      recs: "يُوصى بتوجيه هذه الجاهزية نحو استراتيجيات توسع واضحة، سواء في الأسواق أو المنتجات أو الشراكات. كما يُنصح بالحرص على نقل هذا الوعي الريادي إلى الفريق وبناء ثقافة مؤسسية تُستدام بها هذه المستويات من الأداء.",
+      level: "مستوى متميز — التحدي الحقيقي الآن هو الانضباط في الأولويات وعدم تشتيت الموارد",
+      summary: "جاهزيتك الريادية متقدمة وتمتلك أدوات التفكير والتنفيذ اللازمة للوصول إلى المستوى التالي. التحدي الفعلي في هذه المرحلة ليس القدرة بل التركيز — لأن المشاريع المتميزة لا تنجح بالتشتت بل بالتركيز المتعمد.",
+      recs: "اكتب قائمة بكل الفرص التوسعية التي تفكر فيها. صنّفها من الأعلى عائداً والأسرع تنفيذاً. اختر واحدة فقط وركز عليها كل الموارد لمدة ربع سنة كاملة. ضع مؤشراً واحداً تقيس به النجاح وراجعه شهرياً. بعد ربع السنة — سواء نجحت أو لم تنجح — ستكون لديك بيانات حقيقية تبني عليها القرار التالي.",
     };
   }
 
   // companies
   if (percentage < 40) return {
-    level: "مستوى يُشير إلى حاجة مؤسسية فعلية لمراجعة الممارسات الأساسية وتقوية البنية التشغيلية",
-    summary: "التقييم العام يُبرز وجود فجوات مؤسسية تستحق المعالجة المنهجية والعاجلة. معالجة هذه الفجوات بأسلوب استراتيجي مدروس سيُحسّن من الأداء العام للمؤسسة ويُعزز من قدرتها التنافسية.",
-    recs: "يُوصى بإجراء مراجعة شاملة للممارسات المؤسسية الحالية وتحديد الأولويات التطويرية بناءً على الأثر المتوقع وسرعة التنفيذ. الاستعانة بخبراء استشاريين متخصصين في المجالات المُشار إليها قد يُسرّع التحسن.",
+    level: "مستوى يُشير إلى فجوات مؤسسية تستحق المعالجة الفورية من داخل المنظومة",
+    summary: "التقييم يكشف فجوات في الأسس المؤسسية يمكن معالجة كثير منها بقرارات تشغيلية داخلية دون انتظار. الخطوة الأولى هي توثيق ما يحدث فعلاً — لأن ما لا يُقاس لا يُحسَّن.",
+    recs: "ابدأ بتوثيق 5 عمليات أساسية في شركتك كتابياً: من يفعل ماذا، متى، وكيف يُقاس النجاح. ثم ضع لكل قسم مؤشر أداء واحد تقيسه أسبوعياً — مبيعات، وقت تسليم، رضا عميل، أو أي مؤشر مناسب. بعد شهر واحد من القياس المنتظم ستظهر أكبر مصادر الهدر والخلل بوضوح، وعندها تُحدد أولويات التحسين بناءً على أرقام حقيقية لا تقديرات.",
   };
   if (percentage < 55) return {
-    level: "مستوى متوسط يكشف عن ممارسات مؤسسية قائمة مع وجود مجال واضح للتطوير والتحسين",
-    summary: "التقييم العام يُشير إلى أن المؤسسة تمتلك قاعدة عمل قائمة لكنها تحتاج إلى تعزيز منهجي في الجوانب المُشار إليها لتُحسّن من مستوى أدائها وتُعزز من قدرتها على النمو المستدام.",
-    recs: "يُوصى بوضع خطة تطوير مؤسسي واضحة تُحدد الأهداف والمؤشرات والمسؤوليات، مع مراجعة دورية للتحقق من التقدم المُحرز.",
+    level: "مستوى متوسط يكشف عن ممارسات قائمة مع قصور تشغيلي يمكن تحديده وعلاجه داخلياً",
+    summary: "المؤسسة لديها قاعدة عمل قائمة، لكن بعض الممارسات تسير بقصور تشغيلي لا يُكتشف إلا بالسؤال المباشر. تحديد هذه الممارسات قبل أن تتراكم تكاليفها هو القرار الأذكى في هذه المرحلة.",
+    recs: "اجلس مع كل مسؤول قسم ساعة واحدة واسأله سؤالاً واحداً: ما أكبر شيء يُبطّئ عملك أو يأخذ وقتاً أكثر مما يجب؟ اجمع الإجابات وصنّفها من الأعلى تأثيراً على الإنتاجية أو التكلفة أو رضا العميل. اختر المشكلة الأعلى تأثيراً وخصص شهراً كاملاً لحلها فقط — مع تحديد المسؤول، والإجراء، والمؤشر الذي يثبت أن الحل نجح.",
   };
   if (percentage < 70) return {
-    level: "مستوى متوسط جيد يعكس ممارسات مؤسسية ناضجة مع فرص واضحة للارتقاء بالأداء",
-    summary: "التقييم العام يُشير إلى مؤسسة ذات أداء جيد تمتلك ممارسات ناضجة في أغلب مجالاتها. والمضي في تطوير الجوانب المُشار إليها سيُحسّن من مستوى الكفاءة المؤسسية ويُعزز من الميزة التنافسية.",
-    recs: "يُوصى بتبني نهج التحسين المستمر في الجوانب المُشار إليها، وقياس الأداء بمؤشرات واضحة تُتيح تتبع التقدم وتُحفز الفريق على بلوغ مستويات أعلى.",
+    level: "مستوى متوسط جيد يعكس ممارسات ناضجة — الانتقال للمستوى التالي يبدأ بمضاعفة ما ينجح فعلاً",
+    summary: "المؤسسة تعمل بكفاءة جيدة في أغلب جوانبها. الانتقال للمستوى التالي لا يأتي من إصلاح ما يفشل فقط، بل من التعرف على ما ينجح ومضاعفة الاستثمار فيه — وهذا يبدأ بتحليل بيانات الأداء الموجودة.",
+    recs: "خذ تقرير المبيعات أو الإيرادات للأشهر الستة الماضية وابحث عن ثلاثة أنماط: ما أكثر المنتجات أو الخدمات ربحاً؟ ما القطاع أو الشريحة التي تعطي أعلى عائد؟ ما القناة التي تجلب أفضل عملاء بأقل تكلفة؟ ضع خطة لمدة 90 يوماً لمضاعفة الاستثمار في الناجح — بدلاً من توزيع الموارد على كل شيء بالتساوي.",
   };
   if (percentage < 85) return {
-    level: "مستوى جيد مرتفع يُبرز مؤسسة ناضجة وجاهزة للتوسع والمنافسة القوية في السوق",
-    summary: "التقييم العام يُشير إلى مؤسسة ذات أداء مرتفع وممارسات متقدمة تجعلها في موقع تنافسي جيد. والمجالات التي لا تزال تحتاج إلى تطوير إذا عُولجت ستُوصل المؤسسة إلى مرحلة التميز المؤسسي.",
-    recs: "يُوصى باستثمار هذا المستوى المرتفع في مبادرات توسعية استراتيجية، مع مواصلة الرفع من مستوى الجوانب المُشار إليها لتُحقق المؤسسة التميز الشامل في مجالها.",
+    level: "مستوى مرتفع يُبرز مؤسسة ناضجة — الوقت مناسب للمخاطرة المحسوبة في التوسع",
+    summary: "المؤسسة في موقع تنافسي جيد وأداؤها مرتفع. هذا المستوى يُتيح المخاطرة المحسوبة في التوسع — لأن قاعدة العمل القوية الحالية تستطيع استيعاب تجارب جديدة دون أن تزعزع الاستقرار.",
+    recs: "حدد قطاعاً أو منتجاً أو خدمة لم تستثمر فيها حتى الآن وضع اختباراً مصغراً في 60 يوماً: ميزانية محدودة ومحددة، هدف قابل للقياس، ومؤشر نجاح واحد واضح. في نهاية الـ60 يوماً اتخذ القرار بناءً على الأرقام — سواء بالتوسع أو بالإيقاف. التوسع بخطوات صغيرة محسوبة أفضل بكثير من قرار توسعي كبير دفعة واحدة.",
   };
   return {
-    level: "مستوى متميز يُعكس مؤسسة عالية الأداء قادرة على قيادة السوق والمنافسة على أعلى المستويات",
-    summary: "التقييم العام يُشير إلى مؤسسة ذات أداء متميز وممارسات رائدة تضعها في مقدمة منافسيها. هذا المستوى يُهيئها لتصبح مرجعًا في مجالها وقيادة حركة التطور في سوقها.",
-    recs: "يُوصى بتوجيه هذه القدرات المؤسسية نحو أهداف توسع طموحة وبناء شراكات استراتيجية تُضاعف الأثر. كما يُنصح بنقل هذه الثقافة المؤسسية الرائدة إلى كل مستويات الفريق لضمان استمرارها وتطورها.",
+    level: "مستوى متميز — التحدي الحقيقي هو قيادة التوسع مع الحفاظ على جودة الأداء",
+    summary: "مؤسستك في مقدمة الأداء وتمتلك الأدوات والنضج المؤسسي للقيادة. التحدي الفعلي في هذه المرحلة هو ضمان أن التوسع لا يُضعف جودة ما بُني — وهذا يتطلب تخطيطاً إجرائياً واضحاً لا مجرد طموح.",
+    recs: "ضع خطة توسع لمدة سنة بثلاثة محاور محددة قابلة للقياس — مثل: دخول سوق جديد بهدف إيراد محدد، أو إطلاق منتج إضافي، أو رفع هامش الربح بنسبة محددة من خلال تحسين كفاءة تشغيلية معينة. خصص لكل محور أهدافاً ربعية وراجعها شهرياً. القيادة السوقية لا تُحفظ بالثبات بل بالتقدم المنضبط.",
   };
 }
 
 function getScoreLevelEn(percentage: number, surveyType: string): { level: string; summary: string; recs: string } {
   if (surveyType === "explorers") {
     if (percentage < 40) return {
-      level: "A foundational level that calls for building broader knowledge and experience before seriously approaching the market",
-      summary: "The assessment indicates you are at the knowledge-building stage and need deeper investment in understanding market fundamentals before launching. This stage doesn't indicate a shortcoming — it means the journey is just beginning, and what is built now will form the foundation of future success.",
-      recs: "Focus on directed learning through entrepreneurship programs, training workshops, and exposure to different business models through reading and interaction with experienced entrepreneurs. Consider small, low-risk exploratory ventures to build practical experience gradually.",
+      level: "A foundational level — the priority now is learning through small experiments, not planning",
+      summary: "Most of the core tools for understanding the market still need to be built. This doesn't mean a lack of potential — it means the first steps should be exploratory and learning-oriented before they become execution-oriented.",
+      recs: "Start by identifying one problem you observe in your environment. Write on a single page: who is affected by it, how do they deal with it today, and what would they pay to solve it better? Then find 3 existing businesses solving a similar problem and study how they operate and earn. Finally, choose the smallest possible test you can run — offer a simple service to a small group — not to profit, but to learn how the market actually behaves.",
     };
     if (percentage < 55) return {
-      level: "An average level reflecting a promising foundation that can be built upon, with areas that still need strengthening",
-      summary: "The assessment indicates you have promising initial foundations that put you ahead of the average person in understanding the market. However, your readiness still needs deepening — particularly in financial analysis, risk assessment, and building relationships and resources.",
-      recs: "Broaden your exposure to different business models, develop basic financial understanding, and practice analyzing opportunities from multiple angles. Build a wider professional network and consider mentoring sessions or guided exploratory experiences.",
+      level: "An average level with promising foundations — the gap is in evaluating opportunities objectively before acting",
+      summary: "You have a partial understanding of the market, but the tools to assess opportunities financially and analytically need strengthening. Many ideas look promising until you write the numbers down.",
+      recs: "Take any business idea you're currently considering and write its assessment on one page: Who exactly is the customer? What will they pay? What will it cost you to deliver? What is your profit per transaction? Repeat this for 3 different ideas. Then take the clearest one and talk to 5 people from your target audience to verify the problem is real — not just an assumption.",
     };
     if (percentage < 70) return {
-      level: "A good intermediate level of readiness, indicating a suitable foundation to build on with clear need to develop some complementary areas",
-      summary: "The assessment indicates you have good foundations that place you in an advanced position among market explorers. Improving the identified areas will enable you to read opportunities with greater accuracy and seize them with greater efficiency.",
-      recs: "Focus on the development areas identified through specialized training or mentoring. Continue strengthening your strong points as they form the foundation for your market exploration journey.",
+      level: "A good intermediate level — the real gap now is moving from analysis to field testing",
+      summary: "Your foundation is solid and your market understanding is above average. The real gap is in transitioning from analysis to field testing — because many questions can't be answered by research alone; the market itself provides the answers.",
+      recs: "Take the opportunity that occupies your mind and run a small test: talk to 10 people from your target audience — ask about the problem, how they currently solve it, and what they actually pay. Don't pitch your idea; just ask and listen. Document what you hear. Then set a two-week schedule: week one for field research, week two for deciding to proceed or adjust based on what you learned.",
     };
     if (percentage < 85) return {
-      level: "A good high level revealing clear readiness and appropriate preparation to handle market requirements confidently",
-      summary: "The assessment indicates you have good business readiness that qualifies you to enter the market in a conscious and measured way. Areas that still need development are opportunities to elevate performance to full excellence.",
-      recs: "Invest in developing the identified areas to raise your readiness from good to excellent. Transition from exploration to actual application through calculated, risk-conscious experiences, and leverage your professional network to validate opportunities.",
+      level: "A good high level with strong analytical tools — waiting for perfect certainty is the only remaining risk",
+      summary: "Your readiness is high and your analytical capability is strong. What typically delays action at this stage is waiting for total certainty — which doesn't exist in any market. The right decision doesn't come from more analysis; it comes from structured testing.",
+      recs: "Identify the opportunity you want to test and build a specific action timeline: Week 1 — identify and directly contact your target audience. Week 2 — present the idea or service and measure the response. Week 3 — set a price and attempt the first real transaction. Week 4 — evaluate results and decide whether to proceed or adjust. Execute this plan regardless of how ready you feel.",
     };
     return {
-      level: "A high and advanced level of readiness that qualifies you to launch confidently into the market",
-      summary: "The assessment indicates advanced business readiness placing you at the forefront of market explorers. This high level of awareness prepares you for solid business decisions and pursuing real opportunities with full confidence.",
-      recs: "Convert this readiness into concrete practical steps — whether by exploring a specific opportunity or engaging in entrepreneurial programs or business partnerships. Continuously feed this level of awareness through learning, application, and periodic review.",
+      level: "An advanced level — delaying action now wastes the advantage you have already built",
+      summary: "You have advanced readiness and high analytical capability. Continuing to assess instead of executing is the only remaining risk — good markets don't wait.",
+      recs: "Make one specific decision this week: which opportunity will you test first? Set a date for the first execution step within 7 days. If it's an idea — talk to the first potential customer. If it's a partnership — send the first outreach. If it's a product — build the first simple prototype. The first step is the hardest and most important, and every day of delay has a real cost.",
     };
   }
 
   if (surveyType === "entrepreneurs") {
     if (percentage < 40) return {
-      level: "A level calling for reviewing the fundamentals and strengthening core areas before expanding or making major business decisions",
-      summary: "The assessment indicates gaps in some fundamental entrepreneurial skills and practices that deserve careful attention. These gaps don't negate existing capabilities — they highlight the importance of strengthening the foundation before expanding.",
-      recs: "Review current practices, identify development priorities, and seek business advisors or specialized training programs that address the areas identified. Regular performance evaluation with clear metrics helps track improvement and ensure continuity.",
+      level: "A level calling for reviewing operational and financial foundations — fixable from within the business",
+      summary: "The assessment points to gaps in some core entrepreneurial practices that can be addressed internally without stopping. Starting with the numbers is the fastest way to understand where the real problem lies.",
+      recs: "Start with one page right now: write your monthly revenue, fixed costs, variable costs, and net profit. If you can't write these quickly, that's the first thing to fix — set up a simple system to track these numbers weekly. Then identify the three customers you earn the most from and ask yourself why specifically those three — the answer will tell you where to double your effort and where to stop wasting resources.",
     };
     if (percentage < 55) return {
-      level: "An average level revealing existing entrepreneurial capabilities with a clear need to strengthen some core areas",
-      summary: "The assessment indicates you have a good entrepreneurial foundation built from your experience. Developing the identified areas will significantly improve your business efficiency and capacity for sustainable growth.",
-      recs: "Focus on the areas identified as development priorities, conduct periodic reviews of strategy and operations, and measure performance indicators regularly. Entrepreneurial communities and acceleration programs help exchange experiences and accelerate growth.",
+      level: "An average level with real experience — the gap is converting intuition into data-driven decisions",
+      summary: "You have a working business and accumulated experience, but some decisions are based on intuition rather than numbers. The biggest gap is not in capability but in methodology — and developing that methodology doesn't take long; it takes a decision to change how you approach decisions.",
+      recs: "Choose one decision you've been postponing or are uncertain about in your business. Write: what are the available options? What is the cost of each? What is the expected return from each? What is the worst that could happen in each case? Make the decision and implement it, then measure its outcome after 30 days using one clear metric. Repeat this pattern with every significant decision — you'll notice a measurable improvement in decision quality within three months.",
     };
     if (percentage < 70) return {
-      level: "A good intermediate level of entrepreneurial readiness reflecting genuine experience and established capabilities with room for improvement",
-      summary: "The assessment indicates you have a solid entrepreneurial foundation that has brought you to this stage of your journey. Continuing to develop the identified areas will enable you to transition from good operations to accelerated, sustainable growth.",
-      recs: "Direct development efforts toward the areas the assessment revealed and translate development into practical, measurable actions. Continue strengthening your strengths as they are the foundation of current success and the launchpad for the next level.",
+      level: "A good intermediate level with solid experience — the step up is shifting focus from operating to growing",
+      summary: "Your business is running well and you have a strong foundation. The difference between staying at this level and moving beyond it is the ability to look beyond daily operations and build deliberate growth — and that starts with setting one clear target and committing to it.",
+      recs: "Set one specific goal for the next three months — not something vague like 'increase sales', but precise like 'reach X new customers by this date' or 'reduce operating costs by X%'. Break it into weekly written steps. At the end of each week ask: did we move forward? If not, what specifically is blocking progress? Address the obstacle — don't change the goal.",
     };
     if (percentage < 85) return {
-      level: "A good high level highlighting clear entrepreneurial maturity and high readiness for expansion and growth",
-      summary: "The assessment indicates advanced entrepreneurial readiness placing you in a strong position for sustainable growth. Areas that still need development, if addressed, will elevate performance and strengthen competitive advantage.",
-      recs: "Invest this high level in making measured expansion steps while continuing to develop the identified areas. Strategic partnerships and acceleration programs can add multiplied value at this stage.",
+      level: "A high level with clear entrepreneurial maturity — the question now is what to build next",
+      summary: "You've reached a clear level of entrepreneurial maturity with strong operational and strategic tools. The real question now isn't how to improve what exists — it's what the next expansion step is and how to test it with minimum risk.",
+      recs: "Define one specific expansion plan: will you enter a new segment? Add a product? Open a new sales channel? Allocate 60 days to test the idea at a small scale before major investment — with a limited budget, a clear goal, and one measurable success indicator. At the end of 60 days, make your decision based on actual numbers, not expectations.",
     };
     return {
-      level: "An outstanding level of entrepreneurial readiness that qualifies you for leadership and expansion with full confidence",
-      summary: "The assessment indicates high entrepreneurial readiness placing you at the forefront of your peers. This level prepares you for bold, measured expansion decisions and transition to more ambitious growth stages.",
-      recs: "Direct this readiness toward clear expansion strategies — whether in markets, products, or partnerships. Transfer this entrepreneurial awareness to your team and build an organizational culture that sustains these performance levels.",
+      level: "An outstanding level — the real challenge now is disciplined focus, not capability",
+      summary: "Your entrepreneurial readiness is advanced and you have the thinking and execution tools needed for the next level. The real challenge at this stage isn't capability — it's focus. Outstanding businesses don't succeed by spreading thin; they succeed by deliberate concentration.",
+      recs: "Write a list of every expansion opportunity you're considering. Rank them by highest return and fastest execution. Choose only one and direct all resources toward it for a full quarter. Set one metric to measure success and review it monthly. After the quarter — whether it succeeds or not — you'll have real data to build the next decision on.",
     };
   }
 
   // companies
   if (percentage < 40) return {
-    level: "A level indicating a genuine institutional need to review core practices and strengthen the operational structure",
-    summary: "The assessment highlights institutional gaps that deserve systematic and urgent attention. Addressing these gaps strategically will improve the organization's overall performance and strengthen its competitive position.",
-    recs: "Conduct a comprehensive review of current institutional practices and identify development priorities based on expected impact and implementation speed. Specialized consultants in the identified areas can accelerate improvement and reduce the cost of errors.",
+    level: "A level indicating institutional gaps — many are fixable through internal operational decisions",
+    summary: "The assessment reveals gaps in institutional foundations that can largely be addressed through internal decisions. The first step is documenting what actually happens — because what isn't measured can't be improved.",
+    recs: "Start by documenting 5 core processes in your organization in writing: who does what, when, and how success is measured. Then assign each department one performance indicator to track weekly — sales, delivery time, customer satisfaction, or whatever fits. After one month of consistent tracking, the biggest sources of waste and dysfunction will become visible — and you can then prioritize improvements based on real numbers, not estimates.",
   };
   if (percentage < 55) return {
-    level: "An average level revealing existing institutional practices with clear room for development and improvement",
-    summary: "The assessment indicates the organization has an established base but needs systematic strengthening in the identified areas to improve performance and capacity for sustainable growth.",
-    recs: "Set a clear institutional development plan with defined objectives, indicators, and responsibilities, with periodic review to verify progress.",
+    level: "An average level with operational shortfalls that can be identified and fixed internally",
+    summary: "The organization has an established base, but some practices are running with hidden operational shortfalls that are only uncovered by asking the right questions. Identifying these before their costs compound is the smartest move at this stage.",
+    recs: "Sit with each department head for one hour and ask one question: what's the single biggest thing slowing your work or taking more time than it should? Collect the answers and rank them by impact on productivity, cost, or customer experience. Choose the highest-impact problem and dedicate one full month to solving only that — with a clear owner, a clear action, and a clear metric that proves the solution worked.",
   };
   if (percentage < 70) return {
-    level: "A good intermediate level reflecting mature institutional practices with clear opportunities to elevate performance",
-    summary: "The assessment indicates an organization with good performance and mature practices in most areas. Continuing to develop the identified areas will improve institutional efficiency and strengthen competitive advantage.",
-    recs: "Adopt a continuous improvement approach in the identified areas and measure performance with clear indicators that allow tracking progress and motivating the team to reach higher levels.",
+    level: "A good intermediate level with mature practices — the next step is doubling down on what already works",
+    summary: "The organization performs well across most areas. Moving to the next level doesn't come only from fixing what fails — it also comes from identifying what succeeds and investing more in it. That starts with analyzing the performance data you already have.",
+    recs: "Pull your sales or revenue data from the last six months and look for three patterns: which products or services are most profitable? Which segment or audience generates the highest return? Which channel brings the best customers at the lowest cost? Build a 90-day plan to double investment in what's already working — instead of spreading resources equally across everything.",
   };
   if (percentage < 85) return {
-    level: "A good high level highlighting a mature organization ready for expansion and strong market competition",
-    summary: "The assessment indicates an organization with high performance and advanced practices that place it in a good competitive position. The areas that still need development, if addressed, will bring the organization to institutional excellence.",
-    recs: "Invest this high level in strategic expansion initiatives while continuing to raise the level of identified areas for comprehensive excellence in your field.",
+    level: "A high level with a mature organization — the conditions are right for calculated expansion",
+    summary: "The organization is in a strong competitive position with high performance. This level enables calculated risk-taking in expansion — because a strong existing base can absorb new experiments without destabilizing operations.",
+    recs: "Identify a segment, product, or service you haven't invested in yet and design a 60-day pilot: a defined limited budget, one measurable goal, and one clear success indicator. At the end of 60 days, make your decision based on the numbers — whether to scale or stop. Expanding through small, calculated steps is far better than one large expansion decision made all at once.",
   };
   return {
-    level: "An outstanding level reflecting a high-performance organization capable of leading the market and competing at the highest levels",
-    summary: "The assessment indicates an organization with outstanding performance and leading practices that place it at the forefront of competitors. This level positions it to become a reference in its field and lead the direction of development in its market.",
-    recs: "Direct these institutional capabilities toward ambitious expansion goals and strategic partnerships that multiply impact. Transfer this leading organizational culture to all team levels to ensure its continuity and development.",
+    level: "An outstanding level — the challenge now is leading expansion without compromising what's been built",
+    summary: "Your organization is at the forefront of performance with the tools and maturity needed for leadership. The real challenge at this stage is ensuring that expansion doesn't dilute the quality of what's been built — and that requires clear procedural planning, not just ambition.",
+    recs: "Build a one-year expansion plan around three specific, measurable pillars — for example: entering a new market with a defined revenue target, launching an additional product, or improving operational efficiency to raise margin by a specific percentage. Assign quarterly targets to each pillar and review monthly. Market leadership isn't maintained by standing still — it's maintained by disciplined, consistent progress.",
   };
 }
 
