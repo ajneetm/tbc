@@ -24,8 +24,8 @@ export default function Hero() {
               <p className="mb-8 max-w-[480px] text-base text-body-color">
                 {t("description")}
               </p>
-              <ul className="flex flex-wrap items-stretch gap-3">
-                <li className="flex">
+              <ul className="flex flex-wrap items-center gap-3">
+                <li>
                   <a
                     href="/files/brochure.pdf"
                     download="The Business Clock Brochure.pdf"
@@ -43,23 +43,23 @@ export default function Hero() {
                     {t("link")}
                   </a>
                 </li>
-                <li className="flex">
-                  <Link
-                    href="/dashboard/assessment"
-                    className="flex items-center rounded-[10px] bg-red-500 px-4 text-base font-bold text-white shadow-md hover:bg-red-600 transition-colors"
-                  >
-                    <span className={locale === "ar" ? "pt-0.5" : ""}>{t("cta")}</span>
-                  </Link>
-                </li>
               </ul>
 
-              {/* Clients — moved up */}
+              {/* Clients */}
               <HeroClients />
 
-              {/* Hint text below clients */}
-              <div className={`mt-1 text-sm text-gray-600 leading-relaxed ${locale === "ar" ? "text-right" : "text-left"}`}>
-                <p className="font-semibold text-gray-700 mb-0.5">{t("ctaTime")}</p>
-                <p className="text-xs text-gray-500 max-w-[400px]">{t("ctaHint")}</p>
+              {/* CTA + hint — button stretches to match text block height */}
+              <div className="mt-4 flex items-stretch gap-3">
+                <Link
+                  href="/dashboard/assessment"
+                  className="flex items-center justify-center rounded-[10px] bg-red-500 px-5 text-base font-bold text-white shadow-md hover:bg-red-600 transition-colors"
+                >
+                  <span className={locale === "ar" ? "pt-0.5" : ""}>{t("cta")}</span>
+                </Link>
+                <div className={`text-sm text-gray-600 leading-relaxed ${locale === "ar" ? "text-right" : "text-left"}`}>
+                  <p className="font-semibold text-gray-700 mb-0.5">{t("ctaTime")}</p>
+                  <p className="text-xs text-gray-500 max-w-[340px]">{t("ctaHint")}</p>
+                </div>
               </div>
             </div>
           </div>
