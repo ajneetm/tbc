@@ -200,7 +200,7 @@ export default function AdminPage() {
     setSelectedWorkshop(workshop);
     const [matsRes, enrollsRes] = await Promise.all([
       supabase.from("workshop_materials").select("*").eq("workshop_id", workshop.id).order("created_at", { ascending: false }),
-      supabase.from("workshop_enrollments").select("*").eq("workshop_id", workshop.id).order("created_at", { ascending: false }),
+      supabase.from("workshop_enrollments").select("*").eq("workshop_id", workshop.id).order("enrolled_at", { ascending: false }),
     ]);
     if (matsRes.data) setWorkshopMaterials(matsRes.data);
     if (enrollsRes.data) setWorkshopEnrollments(enrollsRes.data);
