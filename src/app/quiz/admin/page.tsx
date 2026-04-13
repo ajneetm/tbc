@@ -198,12 +198,16 @@ export default function AdminPage() {
   // ── Workshops ──
   const fetchWorkshopDetails = async (workshop: any) => {
     setSelectedWorkshop(workshop);
+    const id = workshop.id as string;
     const [matsRes, enrollsRes] = await Promise.all([
-      supabase.from("workshop_materials").select("*").eq("workshop_id", workshop.id).order("created_at", { ascending: false }),
-      supabase.from("workshop_enrollments").select("*").eq("workshop_id", workshop.id).order("enrolled_at", { ascending: false }),
+      supabase.from("workshop_materials").select("*").eq("workshop_id", id),
+      supabase.from("workshop_enrollments").select("*").eq("workshop_id", id),
     ]);
-    if (matsRes.data) setWorkshopMaterials(matsRes.data);
-    if (enrollsRes.data) setWorkshopEnrollments(enrollsRes.data);
+    if (matsRes.error) console.error("[admin] materials error:", matsRes.error);
+    if (enrollsRes.error) console.error("[admin] enrollments error:", enrollsRes.error);
+    console.log("[admin] enrollments data:", enrollsRes.data);
+    setWorkshopMaterials(matsRes.data || []);
+    setWorkshopEnrollments(enrollsRes.data || []);
   };
 
   const showWsMsg = (text: string, ok = true) => {
