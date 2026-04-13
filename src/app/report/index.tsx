@@ -12,18 +12,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import clockBackground from "../../../public/images/dashboard/chat/clock-bg.png";
-import {
-  greetings,
-  greetings2,
-  paragraph1Messages,
-  aspectsHeaders,
-  paragraph3Messages,
-  paragraph4Messages,
-  printStyles,
-} from "./constants";
+import { StructuredReport } from "./generateReportText";
 
-function SurveyReport({ survey, aiAnalysis }: { survey: Survey; aiAnalysis?: string }) {
-  const { score, data, name} = survey;
+function SurveyReport({
+  survey,
+  reportData,
+  aiAnalysis,
+}: {
+  survey: Survey;
+  reportData?: StructuredReport | null;
+  aiAnalysis?: string;
+}) {
+  const { score, data, name } = survey;
   const { language } = useSelector((state) => state.assessmentForm);
 
   const today = new Date();
@@ -33,9 +33,9 @@ function SurveyReport({ survey, aiAnalysis }: { survey: Survey; aiAnalysis?: str
   const chartData = useMemo(() => {
     const elements: { modalId: string; score: number }[] = [];
     data.forEach((item) => {
-      const existingItem = elements.find(i => i.modalId === item.modalId);
-      if (existingItem) {
-        existingItem.score = (Number(existingItem.score) + Number(item.score)) / 2;
+      const existing = elements.find((i) => i.modalId === item.modalId);
+      if (existing) {
+        existing.score = (Number(existing.score) + Number(item.score)) / 2;
       } else {
         elements.push({ ...item, score: Number(item.score) });
       }
@@ -43,299 +43,218 @@ function SurveyReport({ survey, aiAnalysis }: { survey: Survey; aiAnalysis?: str
     return elements;
   }, [data]);
 
-  // Business area mappings
-  const businessAreaMappings: Record<string, Record<string, string>> = {
-    en: {
-      "explorers-modal-1": "Problem Analysis & Financial Understanding",
-      "explorers-modal-2": "Goal Setting & Vision",
-      "explorers-modal-3": "Organization & Planning",
-      "explorers-modal-4": "Brand Identity & Naming",
-      "explorers-modal-5": "Legal Knowledge & Company Forms",
-      "explorers-modal-6": "Networking & Resources",
-      "explorers-modal-7": "Decision Making & Risk Analysis",
-      "explorers-modal-8": "Task Management & Execution",
-      "explorers-modal-9": "Marketing Channels & Methods",
-      "explorers-modal-10": "Financial Management",
-      "explorers-modal-11": "Financial Analysis & Ratios",
-      "explorers-modal-12": "Self-Development & Business Improvement",
-      "companies-modal-1": "Opportunity Seeking & Growth",
-      "companies-modal-2": "Competitive Advantage",
-      "companies-modal-3": "Planning & Organization",
-      "companies-modal-4": "Brand Development",
-      "companies-modal-5": "Legal Compliance",
-      "companies-modal-6": "Resource Management",
-      "companies-modal-7": "Strategic Decision Making",
-      "companies-modal-8": "Operational Excellence",
-      "companies-modal-9": "Marketing Strategy",
-      "companies-modal-10": "Financial Control",
-      "companies-modal-11": "Performance Analytics",
-      "companies-modal-12": "Continuous Improvement",
-      "entrepreneurs-modal-1": "Experience & Opportunity Assessment",
-      "entrepreneurs-modal-2": "Strategic Thinking & Growth",
-      "entrepreneurs-modal-3": "Action Planning & Execution",
-      "entrepreneurs-modal-4": "Brand Design & Identity",
-      "entrepreneurs-modal-5": "Legal Understanding & Compliance",
-      "entrepreneurs-modal-6": "Resource Assessment & Management",
-      "entrepreneurs-modal-7": "Decision Making & Evaluation",
-      "entrepreneurs-modal-8": "Process Management",
-      "entrepreneurs-modal-9": "Market Penetration",
-      "entrepreneurs-modal-10": "Financial Operations",
-      "entrepreneurs-modal-11": "Financial Monitoring",
-      "entrepreneurs-modal-12": "Business Development"
-    },
-    ar: {
-      "explorers-modal-1": "تحليل المشاكل والفهم المالي",
-      "explorers-modal-2": "تحديد الأهداف والرؤية",
-      "explorers-modal-3": "التنظيم والتخطيط",
-      "explorers-modal-4": "الهوية التجارية والتسمية",
-      "explorers-modal-5": "المعرفة القانونية وأشكال الشركات",
-      "explorers-modal-6": "الشبكات والموارد",
-      "explorers-modal-7": "صنع القرار وتحليل المخاطر",
-      "explorers-modal-8": "إدارة المهام والتنفيذ",
-      "explorers-modal-9": "قنوات وطرق التسويق",
-      "explorers-modal-10": "الإدارة المالية",
-      "explorers-modal-11": "التحليل المالي والنسب",
-      "explorers-modal-12": "التطوير الذاتي وتحسين الأعمال",
-      "companies-modal-1": "البحث عن الفرص والنمو",
-      "companies-modal-2": "الميزة التنافسية",
-      "companies-modal-3": "التخطيط والتنظيم",
-      "companies-modal-4": "تطوير العلامة التجارية",
-      "companies-modal-5": "الامتثال القانوني",
-      "companies-modal-6": "إدارة الموارد",
-      "companies-modal-7": "صنع القرارات الاستراتيجية",
-      "companies-modal-8": "التميز التشغيلي",
-      "companies-modal-9": "استراتيجية التسويق",
-      "companies-modal-10": "التحكم المالي",
-      "companies-modal-11": "تحليل الأداء",
-      "companies-modal-12": "التحسين المستمر",
-      "entrepreneurs-modal-1": "تقييم الخبرة والفرص",
-      "entrepreneurs-modal-2": "التفكير الاستراتيجي والنمو",
-      "entrepreneurs-modal-3": "تخطيط العمل والتنفيذ",
-      "entrepreneurs-modal-4": "تصميم العلامة التجارية والهوية",
-      "entrepreneurs-modal-5": "الفهم القانوني والامتثال",
-      "entrepreneurs-modal-6": "تقييم وإدارة الموارد",
-      "entrepreneurs-modal-7": "صنع القرار والتقييم",
-      "entrepreneurs-modal-8": "إدارة العمليات",
-      "entrepreneurs-modal-9": "اختراق السوق",
-      "entrepreneurs-modal-10": "العمليات المالية",
-      "entrepreneurs-modal-11": "المراقبة المالية",
-      "entrepreneurs-modal-12": "تطوير الأعمال"
-    }
-  };
+  const isRtl = language === "ar";
+  const dir = isRtl ? "rtl" : "ltr";
 
-  // Calculate analysis based on actual survey data
-  const analysisData = useMemo(() => {
-    if (!chartData.length) return { strengths: [], development: [], weaknesses: [] };
+  const reportTitle =
+    survey.type === "entrepreneurs"
+      ? isRtl ? "ملخص تقييم القوة التجارية" : "Business Strength Assessment"
+      : survey.type === "companies"
+      ? isRtl ? "ملخص تقييم الأداء المؤسسي" : "Institutional Performance Assessment"
+      : isRtl ? "ملخص تقييم الجاهزية التجارية" : "Business Readiness Assessment";
 
-    // Sort by score to categorize
-    const sortedData = [...chartData].sort((a, b) => b.score - a.score);
-    const total = sortedData.length;
-
-    // Categorize into thirds
-    const strengthsCount = Math.ceil(total / 3);
-    const weaknessesCount = Math.ceil(total / 3);
-
-    const strengths = sortedData.slice(0, strengthsCount);
-    const weaknesses = sortedData.slice(-weaknessesCount);
-    const development = sortedData.slice(strengthsCount, total - weaknessesCount);
-
-    return {
-      strengths: strengths.map(item => businessAreaMappings[language][item.modalId] || item.modalId),
-      development: development.map(item => businessAreaMappings[language][item.modalId] || item.modalId),
-      weaknesses: weaknesses.map(item => businessAreaMappings[language][item.modalId] || item.modalId)
-    };
-  }, [chartData, language]);
-
-  const mappedStrengths = analysisData.strengths.join(", ");
-  const mappedDevelopment = analysisData.development.join(", ");
-  const mappedWeaknesses = analysisData.weaknesses.join(", ");
- 
   return (
-    <>
-      <style jsx global>
-        {printStyles}
-      </style>
-      <section
-        dir={language === "ar" ? "rtl" : "ltr"}
-        id="report-area"
-        className="print:page-break-after-avoid print:page-break-before-avoid print:page-break-inside-avoid bg-white font-[Tajawal] print:m-0 print:min-h-[297mm] print:w-[210mm] print:break-before-avoid print:break-inside-avoid print:break-after-avoid print:overflow-visible print:p-0"
-        style={{
-          WebkitPrintColorAdjust: "exact",
-          printColorAdjust: "exact",
-        }}
-      >
-        <div
-          id="report-container"
-          className="mx-auto flex min-h-full max-w-[210mm] print:min-h-[297mm] print:w-[210mm] print:overflow-visible"
-        >
-          <div className="main-content flex w-5/6 flex-col p-3">
-            <div className="mt-9 flex items-center justify-between ps-3">
-              <p className="text-xs">{formattedDate}</p>
-              <p className="max-w-min text-end text-lg font-medium leading-snug">
-                WE SUPPORT YOUR BUSINESS
-              </p>
-            </div>
-            <div className="mt-9 flex items-center justify-center gap-4 leading-snug">
-              <div className="mt-3 space-y-2 ps-3 pe-6 text-justify">
-                <p className="font-bold">{greetings[language](name || "")}</p>
-                <p>{greetings2[language]}</p>
+    <div dir={dir} className="min-h-screen bg-gray-50 font-[Tajawal] print:bg-white">
+      {/* ── Print styles ── */}
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          .print-break { page-break-before: always; }
+          body { font-family: 'Tajawal', Arial, sans-serif; }
+        }
+      `}</style>
 
-                {aiAnalysis ? (
-                  <div
-                    className="whitespace-pre-wrap text-sm leading-relaxed"
-                    dangerouslySetInnerHTML={{ __html: aiAnalysis }}
-                  />
-                ) : (
-                  <>
-                    <p>{paragraph1Messages[language]}</p>
-                    {analysisData.strengths.length > 0 && (
-                      <p>
-                        {language === "en"
-                          ? `Through this assessment, you demonstrate strong capabilities in: ${analysisData.strengths.slice(0, 3).join(", ")}. These strengths provide a solid foundation for your business development.`
-                          : `من خلال هذا التقييم، تُظهر قدرات قوية في: ${analysisData.strengths.slice(0, 3).join("، ")}. هذه نقاط القوة تُوفر أساساً قوياً لتطوير أعمالك.`
-                        }
-                      </p>
-                    )}
-                    {analysisData.weaknesses.length > 0 && (
-                      <p>
-                        {language === "en"
-                          ? `Areas that would benefit from additional focus include: ${analysisData.weaknesses.slice(0, 3).join(", ")}. Developing these areas will significantly enhance your business capabilities.`
-                          : `المجالات التي ستستفيد من التركيز الإضافي تشمل: ${analysisData.weaknesses.slice(0, 3).join("، ")}. تطوير هذه المجالات سيعزز بشكل كبير من قدراتك التجارية.`
-                        }
-                      </p>
-                    )}
-                  </>
-                )}
-                <p>{paragraph3Messages[language]}</p>
-                <p>{paragraph4Messages[language]}</p>
+      {/* ── Header ── */}
+      <div className="bg-black text-white py-4 px-6 flex items-center justify-between print:py-3">
+        <div className="flex items-center gap-3">
+          <Image
+            src="/images/brands/Ajnee-business-hub-black.svg"
+            alt="Ajnee"
+            width={70}
+            height={40}
+            className="invert"
+          />
+        </div>
+        <div className="text-center">
+          <h1 className="text-lg font-bold leading-tight">{reportTitle}</h1>
+          {name && <p className="text-sm text-gray-300 mt-0.5">{isRtl ? `مُعدّ لـ: ${name}` : `Prepared for: ${name}`}</p>}
+        </div>
+        <div className="text-sm text-gray-400">{formattedDate}</div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 print:px-6 print:py-4">
+
+        {/* ── Score Hero ── */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="flex flex-col md:flex-row items-center gap-6 p-6">
+            {/* Radar chart */}
+            <div className="flex-shrink-0">
+              <div
+                className="size-[220px] p-[12px]"
+                style={{
+                  backgroundImage: `url(${clockBackground.src})`,
+                  backgroundSize: "cover",
+                }}
+              >
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart data={chartData}>
+                    <PolarAngleAxis dataKey="modalId" tick={false} />
+                    <PolarRadiusAxis domain={[0, 30]} tick={false} axisLine={false} />
+                    <Radar
+                      dataKey="score"
+                      fill="#F04438"
+                      fillOpacity={0.6}
+                      animationDuration={700}
+                      dot={{ r: 3, fillOpacity: 1 }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
               </div>
+            </div>
 
-              <div className="min-w-auto z-10 -me-[150px] flex flex-col items-center justify-center gap-10">
-                <div
-                  className="size-[278px] p-[15.5px]"
-                  style={{
-                    backgroundImage: `url(${clockBackground.src})`,
-                    backgroundSize: "cover",
-                  }}
-                >
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart data={chartData}>
-                      <PolarAngleAxis dataKey="modalId" tick={false} />
-                      <PolarRadiusAxis
-                        domain={[0, 30]}
-                        tick={false}
-                        axisLine={false}
-                      />
-                      <Radar
-                        dataKey="score"
-                        fill="#F04438"
-                        fillOpacity={0.6}
-                        animationDuration={700}
-                        dot={{
-                          r: 4,
-                          fillOpacity: 1,
-                        }}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
+            {/* Score info */}
+            <div className="flex-1 space-y-4">
+              <div className="flex flex-wrap gap-4">
+                <div className="flex-1 min-w-[140px] bg-black text-white rounded-xl p-4 text-center">
+                  <p className="text-3xl font-bold">{score}</p>
+                  <p className="text-sm text-gray-300 mt-1">{isRtl ? "من 360" : "out of 360"}</p>
                 </div>
-                <div className="flex flex-col items-center justify-center">
-                  <p className=" w-fit rounded-sm border border-white bg-[#000] p-4 text-center text-xl  font-bold text-white">{`${language === "en" ? "Score" : "نتيجة"} ${score}/${360}`}</p>
-                  <p className="mt-4 w-fit rounded-sm border border-white bg-[#000] p-4 text-center text-xl  font-bold text-white">
-                    {modalRatio} %
-                  </p>
+                <div className="flex-1 min-w-[140px] bg-gray-900 text-white rounded-xl p-4 text-center">
+                  <p className="text-3xl font-bold">{modalRatio}%</p>
+                  <p className="text-sm text-gray-300 mt-1">{isRtl ? "النسبة المئوية" : "Percentage"}</p>
                 </div>
-                {chartData.length > 0 && (
-                  <div className="mt-6 max-w-[600px] grid grid-cols-3 gap-1 border border-gray-300 bg-white p-1 text-center text-[10px]">
-                    {aspectsHeaders[language].map((header, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-center bg-black p-1 font-bold text-white"
-                      >
-                        {header}
-                      </div>
-                    ))}
-
-                    {/* Strengths Column */}
-                    {analysisData.strengths.map((strength, index) => (
-                      <div key={`strength-${index}`} className="flex items-center justify-center bg-green-50 p-1 text-green-800">
-                        {strength}
-                      </div>
-                    ))}
-                    {/* Fill empty cells if needed */}
-                    {Array.from({ length: Math.max(0, Math.max(analysisData.development.length, analysisData.weaknesses.length) - analysisData.strengths.length) }).map((_, index) => (
-                      <div key={`strength-empty-${index}`} className="flex items-center justify-center bg-gray-50 p-1 text-gray-400">
-                        -
-                      </div>
-                    ))}
-
-                    {/* Development Column */}
-                    {analysisData.development.map((dev, index) => (
-                      <div key={`dev-${index}`} className="flex items-center justify-center bg-yellow-50 p-1 text-yellow-800">
-                        {dev}
-                      </div>
-                    ))}
-                    {/* Fill empty cells if needed */}
-                    {Array.from({ length: Math.max(0, Math.max(analysisData.strengths.length, analysisData.weaknesses.length) - analysisData.development.length) }).map((_, index) => (
-                      <div key={`dev-empty-${index}`} className="flex items-center justify-center bg-gray-50 p-1 text-gray-400">
-                        -
-                      </div>
-                    ))}
-
-                    {/* Weaknesses Column */}
-                    {analysisData.weaknesses.map((weakness, index) => (
-                      <div key={`weakness-${index}`} className="flex items-center justify-center bg-red-50 p-1 text-red-800">
-                        {weakness}
-                      </div>
-                    ))}
-                    {/* Fill empty cells if needed */}
-                    {Array.from({ length: Math.max(0, Math.max(analysisData.strengths.length, analysisData.development.length) - analysisData.weaknesses.length) }).map((_, index) => (
-                      <div key={`weakness-empty-${index}`} className="flex items-center justify-center bg-gray-50 p-1 text-gray-400">
-                        -
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
-            </div>
-
-            <div className="mb-8 mt-auto flex items-center justify-center gap-3 text-center">
-              <div className="mt-2 ps-3">
-                <p className="text-xl font-bold">أجني لدعم الأعمال</p>
-                <p>
-                  <span className="mt-2 text-2xl font-medium">ajnee</span>{" "}
-                  BUSINESS SUPPORT
-                </p>
-                <p className="mt-1">The Gate Mall, Tower 2, Floor12</p>
-                <p>Tel. 41415555 - P.O. Box 55994</p>
-                <p>
-                  <span className="underline">info@Ajnee.com</span> -{" "}
-                  <span className="underline">www.Ajnee.com</span>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="side-bar h-[297mm] w-[25%] bg-[#000]">
-            <div className="mx-[2px] mt-9 bg-white px-5 py-2 flex items-center justify-center">
-              <Image
-                src="/images/brands/Ajnee-business-hub-black.svg"
-                alt="hero"
-                width={100}
-                height={100}
-              />
+              {reportData && (
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-sm font-medium text-gray-500 mb-1">{isRtl ? "التقدير" : "Level"}</p>
+                  <p className="text-gray-800 text-sm leading-relaxed">{reportData.level}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </section>
-      <div className="flex justify-center py-6 print:hidden">
-        <button
-          onClick={() => window.print()}
-          className="rounded-lg bg-black px-8 py-3 text-white font-medium hover:bg-gray-800 transition-colors"
-        >
-          {language === "ar" ? "طباعة التقرير" : "Print Report"}
-        </button>
+
+        {/* ── Intro ── */}
+        {reportData && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <p className="text-gray-700 leading-loose text-[15px]">{reportData.intro}</p>
+          </div>
+        )}
+
+        {/* ── Strengths ── */}
+        {reportData && reportData.strengths.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">✅</span>
+              <h2 className="text-lg font-bold text-gray-800">
+                {isRtl ? "أولاً: نقاط القوة (المكتسبات الحالية)" : "Strengths"}
+              </h2>
+            </div>
+            <div className="space-y-3">
+              {reportData.strengths.map((item, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-xl border border-green-100 shadow-sm overflow-hidden"
+                >
+                  <div className="flex items-stretch">
+                    <div className="w-1 bg-green-500 flex-shrink-0" />
+                    <div className="p-4 flex-1">
+                      <p className="font-semibold text-green-800 mb-1">{item.title}</p>
+                      <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Weaknesses / Development ── */}
+        {reportData && reportData.weaknesses.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-2xl">⚡</span>
+              <h2 className="text-lg font-bold text-gray-800">
+                {isRtl ? "ثانياً: جوانب التطوير (المهارات المطلوبة)" : "Development Areas"}
+              </h2>
+            </div>
+            <div className="space-y-3">
+              {reportData.weaknesses.map((item, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-xl border border-amber-100 shadow-sm overflow-hidden"
+                >
+                  <div className="flex items-stretch">
+                    <div className="w-1 bg-amber-500 flex-shrink-0" />
+                    <div className="p-4 flex-1">
+                      <p className="font-semibold text-amber-800 mb-1">{item.title}</p>
+                      <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Summary ── */}
+        {reportData && (
+          <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
+            <div className="bg-blue-600 px-6 py-3">
+              <h2 className="text-white font-bold text-base">
+                {isRtl ? "ثالثاً: الخلاصة" : "Summary"}
+              </h2>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-700 leading-loose text-[15px]">{reportData.summary}</p>
+            </div>
+          </div>
+        )}
+
+        {/* ── Recommendations ── */}
+        {reportData && (
+          <div className="bg-white rounded-2xl shadow-sm border border-indigo-100 overflow-hidden">
+            <div className="bg-indigo-700 px-6 py-3">
+              <h2 className="text-white font-bold text-base">
+                {isRtl ? "رابعاً: التوصيات المقترحة" : "Recommendations"}
+              </h2>
+            </div>
+            <div className="p-6">
+              <p className="text-gray-700 leading-loose text-[15px]">{reportData.recs}</p>
+            </div>
+          </div>
+        )}
+
+        {/* ── Fallback: plain text (English or no structured data) ── */}
+        {!reportData && aiAnalysis && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div
+              className="text-gray-700 leading-loose text-[15px]"
+              dangerouslySetInnerHTML={{ __html: aiAnalysis }}
+            />
+          </div>
+        )}
+
+        {/* ── Footer ── */}
+        <div className="bg-black text-white rounded-2xl p-6 text-center space-y-1 text-sm">
+          <p className="font-bold text-base">أجني لدعم الأعمال</p>
+          <p><span className="font-medium">ajnee</span> BUSINESS SUPPORT</p>
+          <p className="text-gray-400">The Gate Mall, Tower 2, Floor 12</p>
+          <p className="text-gray-400">Tel. 41415555 — P.O. Box 55994</p>
+          <p className="text-gray-300">info@Ajnee.com — www.Ajnee.com</p>
+        </div>
+
+        {/* ── Print button ── */}
+        <div className="flex justify-center pb-4 no-print">
+          <button
+            onClick={() => window.print()}
+            className="rounded-xl bg-black px-10 py-3 text-white font-semibold hover:bg-gray-800 transition-colors shadow-md"
+          >
+            {isRtl ? "طباعة التقرير" : "Print Report"}
+          </button>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

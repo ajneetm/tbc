@@ -9,7 +9,7 @@ import {
   SURVEY_SCORE,
   SURVEY_TYPE,
 } from "@/components/dashboard/chatbot/MessageTemplates/constents";
-import { generateReportText } from "./generateReportText";
+import { generateReportData, StructuredReport } from "./generateReportText";
 
 const SESSION_SURVEY_DATA = "SESSION_SURVEY_DATA";
 
@@ -94,6 +94,7 @@ const businessAreaMappings: Record<string, Record<string, string>> = {
 
 export default function ReportPage() {
   const [survey, setSurvey] = useState<Survey | null>(null);
+  const [reportData, setReportData] = useState<StructuredReport | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
   const { push } = useRouter();
 
@@ -142,21 +143,26 @@ export default function ReportPage() {
 
     setSurvey(surveyData);
 
-    // Generate report text from template
-    const reportText = generateReportText({
+    // Generate structured report data
+    const structured = generateReportData({
       surveyType: surveyType || formData.surveyType || "explorers",
       totalScore: Number(totalScore),
       modalScores: modalScore.map((i) => ({ modalId: i.modalId, score: i.modalScore })),
       language,
     });
-    if (reportText) setAiAnalysis(reportText.replace(/\n/g, "<br/>"));
+    if (structured) {
+      setReportData(structured);
+    } else {
+      // English fallback: simple score note
+      setAiAnalysis(`Score: ${totalScore}/360 (${((Number(totalScore) / 360) * 100).toFixed(2)}%)`);
+    }
   }, [push]);
 
   if (!survey) return null;
 
   return (
     <div>
-      <SurveyReport survey={survey} aiAnalysis={aiAnalysis} />
+      <SurveyReport survey={survey} reportData={reportData} aiAnalysis={aiAnalysis} />
     </div>
   );
 }

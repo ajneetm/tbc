@@ -325,6 +325,66 @@ export interface ReportInput {
   language: "ar" | "en";
 }
 
+export interface ReportItem {
+  title: string;
+  description: string;
+}
+
+export interface StructuredReport {
+  intro: string;
+  scoreNote: string;
+  level: string;
+  summary: string;
+  recs: string;
+  strengths: ReportItem[];
+  weaknesses: ReportItem[];
+}
+
+export function generateReportData(input: ReportInput): StructuredReport | null {
+  const { surveyType, totalScore, modalScores, language } = input;
+  if (language !== "ar") return null;
+
+  const percentage = (totalScore / 360) * 100;
+  const percentageStr = percentage.toFixed(2);
+
+  const descMap =
+    surveyType === "explorers"
+      ? explorerModalDescriptions
+      : surveyType === "entrepreneurs"
+      ? entrepreneurModalDescriptions
+      : companiesModalDescriptions;
+
+  const sorted = [...modalScores].sort((a, b) => b.score - a.score);
+  const top3 = sorted.slice(0, 3);
+  const bottom3 = sorted.slice(-3).reverse();
+
+  const { level, summary, recs } = getScoreLevelAr(percentage, surveyType);
+
+  const intro =
+    surveyType === "explorers"
+      ? `نشكر لكم اهتمامكم بالمشاركة في اختبار قياس الجاهزية التجارية لمستكشف السوق. هذا التقييم لا يهدف إلى الحكم على مشروع محدد أو فكرة قائمة، وإنما صُمّم لقياس مستوى الجاهزية الشخصية والمهنية للدخول إلى عالم السوق، وفهم الفرص، واستكشاف المسارات التجارية المناسبة بصورة أكثر وعيًا واتزانًا.`
+      : surveyType === "entrepreneurs"
+      ? `نشكر لكم اهتمامكم بالمشاركة في اختبار قياس القوة التجارية. وقد صُمّم هذا التقييم لقياس مجموعة من المهارات والقدرات التي تؤثر مباشرة في نجاح رائد الأعمال، وفي قدرته على إدارة العمل، واتخاذ القرارات، وتطوير النشاط التجاري على أسس أكثر وعيًا وتنظيمًا.`
+      : `نشكر لكم اهتمامكم بالمشاركة في اختبار قياس الأداء المؤسسي. هذا التقييم صُمّم لقياس مستوى النضج المؤسسي في مختلف جوانب العمل التجاري، وتحديد مواطن القوة والفرص التطويرية بصورة شاملة ومنهجية.`;
+
+  const scoreNote =
+    surveyType === "entrepreneurs"
+      ? `أظهرت نتيجتكم ${totalScore} من 360 بنسبة ${percentageStr}%`
+      : `النتيجة العامة: ${totalScore} من 360 (${percentageStr}%)`;
+
+  const strengths: ReportItem[] = top3.map((item) => ({
+    title: getModalName(item.modalId),
+    description: descMap[item.modalId]?.asStrength || "",
+  }));
+
+  const weaknesses: ReportItem[] = bottom3.map((item) => ({
+    title: getModalName(item.modalId),
+    description: descMap[item.modalId]?.asWeakness || "",
+  }));
+
+  return { intro, scoreNote, level, summary, recs, strengths, weaknesses };
+}
+
 export function generateReportText(input: ReportInput): string {
   const { surveyType, totalScore, modalScores, language } = input;
   const percentage = (totalScore / 360) * 100;
