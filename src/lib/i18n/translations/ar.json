@@ -1,4 +1,10 @@
 {
+  "footer": {
+    "contactInfo": "معلومات التواصل",
+    "trustedBy": "موثوق من قِبَل",
+    "hotLinks": "روابط مميزة",
+    "quickLinks": "روابط سريعة"
+  },
   "navbar": {
     "overview": "الملخص",
     "services": "الخدمات",

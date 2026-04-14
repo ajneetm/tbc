@@ -8,9 +8,11 @@ import FooterBottom from "./FooterBottom";
 import FooterContact from "./FooterContact";
 import FooterLinkItem from "./FooterLinkItem";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function Footer() {
   const pathName = usePathname();
+  const t = useTranslations("footer");
   const isChatbot = pathName.includes("chatbot");
   if (isChatbot) {
     return null;
@@ -25,7 +27,7 @@ export default function Footer() {
           <div className="w-full px-4 md:w-1/2 lg:w-3/12">
             <div className="mb-10">
               <h3 className="mb-9 text-xl font-semibold text-white">
-                Trusted by
+                {t("trustedBy")}
               </h3>
               <ul className="space-y-3">
                 {footerLinks.map((linkItem) => (
@@ -37,7 +39,7 @@ export default function Footer() {
           <div className="w-full px-4 md:w-1/2 lg:w-2/12">
             <div className="mb-10">
               <h3 className="mb-9 text-xl font-semibold text-white">
-                Hot Links
+                {t("hotLinks")}
               </h3>
               <ul className="space-y-3">
                 {footerHotLinks.map((linkItem) => (
@@ -49,7 +51,7 @@ export default function Footer() {
           <div className="w-full px-4 md:w-1/2 lg:w-3/12">
             <div className="mb-10">
               <h3 className="mb-9 text-xl font-semibold text-white">
-                Quick Links
+                {t("quickLinks")}
               </h3>
               <ul className="space-y-3">
                 {footerQuickLinks.map((linkItem) => (

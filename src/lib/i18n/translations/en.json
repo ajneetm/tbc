@@ -1,4 +1,10 @@
 {
+  "footer": {
+    "contactInfo": "Contact Info",
+    "trustedBy": "Trusted by",
+    "hotLinks": "Hot Links",
+    "quickLinks": "Quick Links"
+  },
   "navbar": {
     "overview": "Overview",
     "services": "Services",
