@@ -99,6 +99,41 @@ export function resetPasswordTemplate(resetUrl: string) {
   `);
 }
 
+// ── Contact form message (to admin) ──
+export function contactMessageTemplate(data: {
+  name: string; company?: string; email: string; phone?: string; message: string;
+}) {
+  const rows = [
+    ["الاسم", data.name],
+    ["البريد الإلكتروني", data.email],
+    data.phone ? ["رقم الهاتف", data.phone] : null,
+    data.company ? ["الشركة", data.company] : null,
+  ].filter(Boolean) as [string, string][];
+
+  const tableRows = rows.map(([label, val], i) =>
+    `<tr style="background:${i % 2 === 0 ? "#fff" : "#f9fafb"};">
+      <td style="padding:10px 14px;font-weight:600;color:#374151;font-size:13px;width:40%;border:1px solid #e5e7eb;">${label}</td>
+      <td style="padding:10px 14px;color:#111827;font-size:13px;border:1px solid #e5e7eb;">${val}</td>
+    </tr>`
+  ).join("");
+
+  return wrapper(`
+    <div style="margin-bottom:24px;">
+      <h1 style="font-size:20px;font-weight:700;color:#111827;margin-bottom:4px;">رسالة تواصل جديدة 💬</h1>
+      <p style="color:#6b7280;font-size:13px;">وصلتك رسالة من نموذج التواصل في الموقع</p>
+    </div>
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-bottom:24px;">
+      ${tableRows}
+    </table>
+
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:20px;margin-top:8px;">
+      <p style="font-size:12px;font-weight:600;color:#6b7280;margin-bottom:8px;">الرسالة</p>
+      <p style="font-size:14px;color:#111827;line-height:1.7;white-space:pre-line;">${data.message}</p>
+    </div>
+  `);
+}
+
 // ── Survey result notification (to admin) ──
 export function surveyResultTemplate(data: {
   name: string; email: string; phone?: string;
