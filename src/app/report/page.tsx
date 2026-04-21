@@ -10,6 +10,8 @@ import {
   SURVEY_TYPE,
 } from "@/components/dashboard/chatbot/MessageTemplates/constents";
 import { generateReportData, StructuredReport } from "./generateReportText";
+import { remark } from "remark";
+import remarkHtml from "remark-html";
 
 const SESSION_SURVEY_DATA = "SESSION_SURVEY_DATA";
 
@@ -145,19 +147,42 @@ export default function ReportPage() {
 
     setSurvey(surveyData);
 
-    // Generate structured report data
-    const structured = generateReportData({
-      surveyType: surveyType || formData.surveyType || "explorers",
-      totalScore: Number(totalScore),
-      modalScores: modalScore.map((i) => ({ modalId: i.modalId, score: i.modalScore })),
-      language,
-    });
-    if (structured) {
-      setReportData(structured);
-    } else {
-      // English fallback: simple score note
-      setAiAnalysis(`Score: ${totalScore}/360 (${((Number(totalScore) / 360) * 100).toFixed(2)}%)`);
-    }
+    // Generate AI report
+    const type = surveyType || formData.surveyType || "explorers";
+    fetch("/api/generate-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        surveyType: type,
+        totalScore: Number(totalScore),
+        modalScores: modalScore.map((i) => ({ modalId: i.modalId, score: i.modalScore })),
+        language,
+      }),
+    })
+      .then((r) => r.json())
+      .then(async (res) => {
+        if (res.content) {
+          const html = (await remark().use(remarkHtml).process(res.content)).toString();
+          setAiAnalysis(html);
+        } else {
+          const structured = generateReportData({
+            surveyType: type,
+            totalScore: Number(totalScore),
+            modalScores: modalScore.map((i) => ({ modalId: i.modalId, score: i.modalScore })),
+            language,
+          });
+          if (structured) setReportData(structured);
+        }
+      })
+      .catch(() => {
+        const structured = generateReportData({
+          surveyType: type,
+          totalScore: Number(totalScore),
+          modalScores: modalScore.map((i) => ({ modalId: i.modalId, score: i.modalScore })),
+          language,
+        });
+        if (structured) setReportData(structured);
+      });
   }, [push]);
 
   if (!survey) return null;
