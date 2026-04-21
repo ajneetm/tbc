@@ -1,6 +1,7 @@
 "use client";
 
 import { Survey } from "@/app/libs/api/survey";
+import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 import { useMemo } from "react";
 import {
   PolarAngleAxis,
@@ -10,20 +11,21 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import clockBackground from "../../../public/images/dashboard/chat/clock-bg.png";
-import { StructuredReport } from "./generateReportText";
+import Link from "next/link";
 
 function SurveyReport({
   survey,
-  reportData,
   language,
   aiAnalysis,
+  isLoading,
 }: {
   survey: Survey;
-  reportData?: StructuredReport | null;
   language?: "ar" | "en";
   aiAnalysis?: string;
+  isLoading?: boolean;
 }) {
   const { score, data } = survey;
+  const { user } = useSupabaseAuth();
 
   const isRtl = language === "ar";
   const dir = isRtl ? "rtl" : "ltr";
@@ -44,12 +46,13 @@ function SurveyReport({
 
   return (
     <div dir={dir} className="min-h-screen bg-gray-50 font-[Tajawal] print:bg-white">
-      {/* ── Print styles ── */}
       <style>{`
-        @media print {
-          .no-print { display: none !important; }
-          body { font-family: 'Tajawal', Arial, sans-serif; }
-        }
+        @media print { .no-print { display: none !important; } body { font-family: 'Tajawal', Arial, sans-serif; } }
+        .ai-report h2 { font-size: 1.1rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #1f2937; }
+        .ai-report p  { color: #374151; line-height: 1.85; margin-bottom: 0.75rem; font-size: 0.95rem; }
+        .ai-report ul, .ai-report ol { padding-inline-start: 1.5rem; margin-bottom: 0.75rem; }
+        .ai-report li { color: #374151; line-height: 1.75; font-size: 0.95rem; }
+        .ai-report strong { color: #111827; }
       `}</style>
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 print:px-6 print:py-4">
@@ -57,32 +60,21 @@ function SurveyReport({
         {/* ── Score Hero ── */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="flex flex-col md:flex-row items-center gap-6 p-6">
-            {/* Radar chart */}
             <div className="flex-shrink-0">
               <div
                 className="size-[220px] p-[12px]"
-                style={{
-                  backgroundImage: `url(${clockBackground.src})`,
-                  backgroundSize: "cover",
-                }}
+                style={{ backgroundImage: `url(${clockBackground.src})`, backgroundSize: "cover" }}
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={chartData}>
                     <PolarAngleAxis dataKey="modalId" tick={false} />
                     <PolarRadiusAxis domain={[0, 30]} tick={false} axisLine={false} />
-                    <Radar
-                      dataKey="score"
-                      fill="#F04438"
-                      fillOpacity={0.6}
-                      animationDuration={700}
-                      dot={{ r: 3, fillOpacity: 1 }}
-                    />
+                    <Radar dataKey="score" fill="#F04438" fillOpacity={0.6} animationDuration={700} dot={{ r: 3, fillOpacity: 1 }} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Score info */}
             <div className="flex-1 space-y-4">
               <div className="flex flex-wrap gap-4">
                 <div className="flex-1 min-w-[140px] bg-black text-white rounded-xl p-4 text-center">
@@ -94,116 +86,28 @@ function SurveyReport({
                   <p className="text-sm text-gray-300 mt-1">{isRtl ? "النسبة المئوية" : "Percentage"}</p>
                 </div>
               </div>
-              {reportData && (
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                  <p className="text-sm font-medium text-gray-500 mb-1">{isRtl ? "التقدير" : "Level"}</p>
-                  <p className="text-gray-800 text-sm leading-relaxed">{reportData.level}</p>
-                </div>
-              )}
             </div>
           </div>
         </div>
 
-        {/* ── Intro ── */}
-        {reportData && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <p className="text-gray-700 leading-loose text-[15px]">{reportData.intro}</p>
-          </div>
-        )}
-
-        {/* ── Strengths ── */}
-        {reportData && reportData.strengths.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">✅</span>
-              <h2 className="text-lg font-bold text-gray-800">
-                {isRtl ? "أولاً: نقاط القوة (المكتسبات الحالية)" : "Strengths"}
-              </h2>
+        {/* ── AI Report ── */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-3 py-12 text-gray-400">
+              <div className="w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+              <p className="text-sm">{isRtl ? "جارٍ إنشاء تقريرك..." : "Generating your report..."}</p>
             </div>
-            <div className="space-y-3">
-              {reportData.strengths.map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-xl border border-green-100 shadow-sm overflow-hidden"
-                >
-                  <div className="flex items-stretch">
-                    <div className="w-1 bg-green-500 flex-shrink-0" />
-                    <div className="p-4 flex-1">
-                      <p className="font-semibold text-green-800 mb-1">{item.title}</p>
-                      <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Weaknesses / Development ── */}
-        {reportData && reportData.weaknesses.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-2xl">⚡</span>
-              <h2 className="text-lg font-bold text-gray-800">
-                {isRtl ? "ثانياً: جوانب التطوير (المهارات المطلوبة)" : "Development Areas"}
-              </h2>
-            </div>
-            <div className="space-y-3">
-              {reportData.weaknesses.map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-xl border border-amber-100 shadow-sm overflow-hidden"
-                >
-                  <div className="flex items-stretch">
-                    <div className="w-1 bg-amber-500 flex-shrink-0" />
-                    <div className="p-4 flex-1">
-                      <p className="font-semibold text-amber-800 mb-1">{item.title}</p>
-                      <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Summary ── */}
-        {reportData && (
-          <div className="bg-white rounded-2xl shadow-sm border border-blue-100 overflow-hidden">
-            <div className="bg-blue-600 px-6 py-3">
-              <h2 className="text-white font-bold text-base">
-                {isRtl ? "ثالثاً: الخلاصة" : "Summary"}
-              </h2>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-700 leading-loose text-[15px]">{reportData.summary}</p>
-            </div>
-          </div>
-        )}
-
-        {/* ── Recommendations ── */}
-        {reportData && (
-          <div className="bg-white rounded-2xl shadow-sm border border-indigo-100 overflow-hidden">
-            <div className="bg-indigo-700 px-6 py-3">
-              <h2 className="text-white font-bold text-base">
-                {isRtl ? "رابعاً: التوصيات المقترحة" : "Recommendations"}
-              </h2>
-            </div>
-            <div className="p-6">
-              <p className="text-gray-700 leading-loose text-[15px]">{reportData.recs}</p>
-            </div>
-          </div>
-        )}
-
-        {/* ── Fallback: plain text (English or no structured data) ── */}
-        {!reportData && aiAnalysis && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          ) : aiAnalysis ? (
             <div
-              className="text-gray-700 leading-loose text-[15px]"
+              className="ai-report"
               dangerouslySetInnerHTML={{ __html: aiAnalysis }}
             />
-          </div>
-        )}
+          ) : (
+            <p className="text-gray-400 text-sm text-center py-8">
+              {isRtl ? "لم يتم إنشاء التقرير" : "Report could not be generated"}
+            </p>
+          )}
+        </div>
 
         {/* ── Print button ── */}
         <div className="flex justify-center pb-4 no-print">
@@ -214,6 +118,27 @@ function SurveyReport({
             {isRtl ? "طباعة التقرير" : "Print Report"}
           </button>
         </div>
+
+        {/* ── Subscribe CTA (non-logged-in users only) ── */}
+        {!user && (
+          <div className="no-print bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 text-center text-white space-y-4">
+            <p className="text-xl font-bold">
+              {isRtl ? "أنشئ حسابك واحفظ نتائجك" : "Create your account and save your results"}
+            </p>
+            <p className="text-gray-400 text-sm">
+              {isRtl
+                ? "سجّل مجاناً لمتابعة تقدّمك ومقارنة نتائجك مع مرور الوقت"
+                : "Sign up for free to track your progress and compare results over time"}
+            </p>
+            <Link
+              href="/auth/signup"
+              className="inline-block bg-white text-black font-semibold px-8 py-3 rounded-xl hover:bg-gray-100 transition-colors"
+            >
+              {isRtl ? "إنشاء حساب مجاني" : "Create Free Account"}
+            </Link>
+          </div>
+        )}
+
       </div>
     </div>
   );

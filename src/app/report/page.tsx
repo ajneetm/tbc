@@ -9,7 +9,6 @@ import {
   SURVEY_SCORE,
   SURVEY_TYPE,
 } from "@/components/dashboard/chatbot/MessageTemplates/constents";
-import { generateReportData, StructuredReport } from "./generateReportText";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 
@@ -96,9 +95,9 @@ const businessAreaMappings: Record<string, Record<string, string>> = {
 
 export default function ReportPage() {
   const [survey, setSurvey] = useState<Survey | null>(null);
-  const [reportData, setReportData] = useState<StructuredReport | null>(null);
   const [language, setLanguage] = useState<"ar" | "en">("ar");
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   const { push } = useRouter();
 
   useEffect(() => {
@@ -164,32 +163,17 @@ export default function ReportPage() {
         if (res.content) {
           const html = (await remark().use(remarkHtml).process(res.content)).toString();
           setAiAnalysis(html);
-        } else {
-          const structured = generateReportData({
-            surveyType: type,
-            totalScore: Number(totalScore),
-            modalScores: modalScore.map((i) => ({ modalId: i.modalId, score: i.modalScore })),
-            language,
-          });
-          if (structured) setReportData(structured);
         }
       })
-      .catch(() => {
-        const structured = generateReportData({
-          surveyType: type,
-          totalScore: Number(totalScore),
-          modalScores: modalScore.map((i) => ({ modalId: i.modalId, score: i.modalScore })),
-          language,
-        });
-        if (structured) setReportData(structured);
-      });
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
   }, [push]);
 
   if (!survey) return null;
 
   return (
     <div>
-      <SurveyReport survey={survey} reportData={reportData} language={language} aiAnalysis={aiAnalysis} />
+      <SurveyReport survey={survey} language={language} aiAnalysis={aiAnalysis} isLoading={isLoading} />
     </div>
   );
 }
