@@ -24,7 +24,11 @@ export default function Signin() {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      if (error.message.toLowerCase().includes("not confirmed") || error.message.toLowerCase().includes("email not confirmed")) {
+        setError("لم يتم تأكيد البريد الإلكتروني بعد. تحقق من صندوق الوارد (وراجع مجلد السبام).");
+      } else {
+        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+      }
       setLoading(false);
       return;
     }

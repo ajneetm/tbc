@@ -98,6 +98,41 @@
     "survey": {
       "newSurveryButton": "New Survey"
     },
+    "entry": {
+      "title": "Business Readiness Assessment",
+      "subtitle": "How would you like to proceed?",
+      "guestTitle": "Without Registration",
+      "guestDesc": "Start the test directly without any data",
+      "guestCta": "Start Now →",
+      "registerTitle": "Create Account",
+      "registerDesc": "Register your data, save your results and track your progress",
+      "registerCta": "Register →"
+    },
+    "registerForm": {
+      "title": "Create New Account",
+      "subtitle": "After registration, you will proceed directly to the test",
+      "back": "← Back",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "nameNote": "(EN)",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "At least 6 characters",
+      "phoneLabel": "Phone Number",
+      "phoneOptional": "(Optional)",
+      "required": "Required",
+      "invalidEmail": "Invalid email address",
+      "passwordMin": "At least 6 characters",
+      "alreadyRegistered": "This email is already registered",
+      "submit": "Register and Continue to Test →",
+      "submitting": "Registering...",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "emailSentTitle": "Check your inbox!",
+      "emailSentDesc": "We sent a confirmation link to your email. Click it to activate your account, then sign in.",
+      "emailSentSpam": "Don't see it? Check your spam or junk folder.",
+      "goToSignIn": "Go to Sign In"
+    },
     "form": {
       "title": "Test Form",
       "description": "Please fill out the form below to start the test.",

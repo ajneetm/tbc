@@ -95,6 +95,41 @@
     "survey": {
       "newSurveryButton": "اختبار جديد"
     },
+    "entry": {
+      "title": "اختبار قياس الجاهزية التجارية",
+      "subtitle": "كيف تريد المتابعة؟",
+      "guestTitle": "بدون تسجيل",
+      "guestDesc": "ابدأ الاختبار مباشرة بدون أي بيانات",
+      "guestCta": "ابدأ الآن ←",
+      "registerTitle": "إنشاء حساب",
+      "registerDesc": "سجّل بياناتك واحفظ نتائجك ومتابعة تقدمك",
+      "registerCta": "تسجيل ←"
+    },
+    "registerForm": {
+      "title": "إنشاء حساب جديد",
+      "subtitle": "بعد التسجيل ستنتقل مباشرة للاختبار",
+      "back": "← رجوع",
+      "firstName": "الاسم الأول",
+      "lastName": "الاسم الأخير",
+      "nameNote": "(EN)",
+      "emailLabel": "البريد الإلكتروني",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "6 أحرف على الأقل",
+      "phoneLabel": "رقم الهاتف",
+      "phoneOptional": "(اختياري)",
+      "required": "مطلوب",
+      "invalidEmail": "بريد إلكتروني غير صحيح",
+      "passwordMin": "6 أحرف على الأقل",
+      "alreadyRegistered": "هذا البريد مسجل مسبقاً",
+      "submit": "تسجيل والمتابعة للاختبار ←",
+      "submitting": "جاري التسجيل...",
+      "haveAccount": "لديك حساب؟",
+      "signIn": "سجّل دخولك",
+      "emailSentTitle": "راجع بريدك الإلكتروني!",
+      "emailSentDesc": "أرسلنا رابط تأكيد إلى بريدك. اضغط عليه لتفعيل حسابك، ثم سجّل دخولك.",
+      "emailSentSpam": "ما وصلك الإيميل؟ راجع مجلد السبام أو البريد غير المرغوب.",
+      "goToSignIn": "الذهاب لتسجيل الدخول"
+    },
     "form": {
       "title": "اختبار",
       "description": "يرجى إدخال البيانات التالية لبدء الاختبار.",

@@ -8,8 +8,10 @@ import { updateAssessmentStarted } from "@/store/assessmentForm/AssessmentForm";
 import { handleNewChat } from "../chatbot/helpers/chats";
 import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 import { supabase } from "@/lib/supabase";
+import { useTranslations, useLocale } from "next-intl";
+import { Zap, UserPlus, MailCheck } from "lucide-react";
 
-type Step = "entry" | "register" | "setup" | "survey";
+type Step = "entry" | "register" | "emailSent" | "setup" | "survey";
 
 export interface GuestInfo {
   firstName: string;
@@ -49,6 +51,9 @@ function AssessmentController() {
   const { isAssessmentStarted } = useSelector((state) => state.assessmentForm);
   const { user, loading } = useSupabaseAuth();
   const dispatch = useDispatch();
+  const t = useTranslations("assessment");
+  const locale = useLocale();
+  const dir = locale === "ar" ? "rtl" : "ltr";
 
   const [step, setStep] = useState<Step>("entry");
   const [regData, setRegData] = useState({
@@ -80,11 +85,11 @@ function AssessmentController() {
 
   const validate = () => {
     const errors: Record<string, string> = {};
-    if (!regData.firstName.trim()) errors.firstName = "مطلوب";
-    if (!regData.lastName.trim()) errors.lastName = "مطلوب";
+    if (!regData.firstName.trim()) errors.firstName = t("registerForm.required");
+    if (!regData.lastName.trim()) errors.lastName = t("registerForm.required");
     if (!regData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(regData.email))
-      errors.email = "بريد إلكتروني غير صحيح";
-    if (regData.password.length < 6) errors.password = "6 أحرف على الأقل";
+      errors.email = t("registerForm.invalidEmail");
+    if (regData.password.length < 6) errors.password = t("registerForm.passwordMin");
     setRegErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -104,19 +109,19 @@ function AssessmentController() {
       },
     });
     if (error) {
-      setRegError(error.message === "User already registered" ? "هذا البريد مسجل مسبقاً" : error.message);
+      setRegError(error.message === "User already registered" ? t("registerForm.alreadyRegistered") : error.message);
     } else {
-      setStep("setup");
+      setStep("emailSent");
     }
     setRegLoading(false);
   };
 
   // ── Entry screen ──
   if (step === "entry" && !user) return (
-    <div dir="rtl" className="mx-auto mt-5 max-w-[580px] px-4">
+    <div dir={dir} className="mx-auto mt-5 max-w-[580px] px-4">
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">اختبار قياس الجاهزية التجارية</h1>
-        <p className="text-gray-500 text-sm">كيف تريد المتابعة؟</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("entry.title")}</h1>
+        <p className="text-gray-500 text-sm">{t("entry.subtitle")}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -124,23 +129,27 @@ function AssessmentController() {
         {/* Anonymous */}
         <button
           onClick={() => setStep("setup")}
-          className="group bg-white border-2 border-gray-200 text-gray-900 rounded-2xl p-6 text-right hover:border-black transition"
+          className="group bg-white border-2 border-gray-200 text-gray-900 rounded-2xl p-6 text-start hover:border-black transition"
         >
-          <div className="text-3xl mb-3">⚡</div>
-          <h2 className="font-bold text-lg mb-1">بدون تسجيل</h2>
-          <p className="text-gray-500 text-sm leading-relaxed">ابدأ الاختبار مباشرة بدون أي بيانات</p>
-          <div className="mt-4 text-xs text-gray-400 group-hover:text-black transition">ابدأ الآن ←</div>
+          <div className="mb-3">
+            <Zap className="w-8 h-8 text-gray-700" />
+          </div>
+          <h2 className="font-bold text-lg mb-1">{t("entry.guestTitle")}</h2>
+          <p className="text-gray-500 text-sm leading-relaxed">{t("entry.guestDesc")}</p>
+          <div className="mt-4 text-xs text-gray-400 group-hover:text-black transition">{t("entry.guestCta")}</div>
         </button>
 
         {/* Register */}
         <button
           onClick={() => setStep("register")}
-          className="group bg-black text-white rounded-2xl p-6 text-right hover:bg-gray-900 transition"
+          className="group bg-black text-white rounded-2xl p-6 text-start hover:bg-gray-900 transition"
         >
-          <div className="text-3xl mb-3">📋</div>
-          <h2 className="font-bold text-lg mb-1">إنشاء حساب</h2>
-          <p className="text-gray-400 text-sm leading-relaxed">سجّل بياناتك واحفظ نتائجك ومتابعة تقدمك</p>
-          <div className="mt-4 text-xs text-gray-500 group-hover:text-gray-400 transition">تسجيل ←</div>
+          <div className="mb-3">
+            <UserPlus className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="font-bold text-lg mb-1">{t("entry.registerTitle")}</h2>
+          <p className="text-gray-400 text-sm leading-relaxed">{t("entry.registerDesc")}</p>
+          <div className="mt-4 text-xs text-gray-500 group-hover:text-gray-400 transition">{t("entry.registerCta")}</div>
         </button>
 
       </div>
@@ -149,14 +158,14 @@ function AssessmentController() {
 
   // ── Register form ──
   if (step === "register") return (
-    <div dir="rtl" className="mx-auto mt-5 max-w-[580px] px-4">
+    <div dir={dir} className="mx-auto mt-5 max-w-[580px] px-4">
       <button onClick={() => setStep("entry")} className="text-sm text-gray-400 hover:text-black mb-5 flex items-center gap-1">
-        ← رجوع
+        {t("registerForm.back")}
       </button>
 
       <div className="bg-white rounded-2xl border border-gray-200 p-7 shadow-sm">
-        <h2 className="font-bold text-xl mb-1">إنشاء حساب جديد</h2>
-        <p className="text-gray-400 text-sm mb-6">بعد التسجيل ستنتقل مباشرة للاختبار</p>
+        <h2 className="font-bold text-xl mb-1">{t("registerForm.title")}</h2>
+        <p className="text-gray-400 text-sm mb-6">{t("registerForm.subtitle")}</p>
 
         <form onSubmit={handleRegister} className="space-y-4">
 
@@ -164,8 +173,8 @@ function AssessmentController() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
-                الاسم الأول <span className="text-red-500">*</span>
-                <span className="text-gray-400 font-normal"> (EN)</span>
+                {t("registerForm.firstName")} <span className="text-red-500">*</span>
+                <span className="text-gray-400 font-normal"> {t("registerForm.nameNote")}</span>
               </label>
               <input
                 type="text"
@@ -179,8 +188,8 @@ function AssessmentController() {
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
-                الاسم الأخير <span className="text-red-500">*</span>
-                <span className="text-gray-400 font-normal"> (EN)</span>
+                {t("registerForm.lastName")} <span className="text-red-500">*</span>
+                <span className="text-gray-400 font-normal"> {t("registerForm.nameNote")}</span>
               </label>
               <input
                 type="text"
@@ -196,7 +205,7 @@ function AssessmentController() {
 
           {/* Email */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">البريد الإلكتروني <span className="text-red-500">*</span></label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t("registerForm.emailLabel")} <span className="text-red-500">*</span></label>
             <input
               type="email"
               value={regData.email}
@@ -210,12 +219,12 @@ function AssessmentController() {
 
           {/* Password */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">كلمة المرور <span className="text-red-500">*</span></label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">{t("registerForm.passwordLabel")} <span className="text-red-500">*</span></label>
             <input
               type="password"
               value={regData.password}
               onChange={(e) => setRegData(p => ({ ...p, password: e.target.value }))}
-              placeholder="6 أحرف على الأقل"
+              placeholder={t("registerForm.passwordPlaceholder")}
               dir="ltr"
               className={`w-full border rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black ${regErrors.password ? "border-red-400" : "border-gray-300"}`}
             />
@@ -225,7 +234,7 @@ function AssessmentController() {
           {/* Phone */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              رقم الهاتف <span className="text-gray-400 font-normal">(اختياري)</span>
+              {t("registerForm.phoneLabel")} <span className="text-gray-400 font-normal">{t("registerForm.phoneOptional")}</span>
             </label>
             <div className="flex gap-2">
               <select
@@ -258,14 +267,34 @@ function AssessmentController() {
             disabled={regLoading}
             className="w-full bg-black text-white rounded-xl py-3 text-sm font-bold hover:bg-gray-800 disabled:opacity-50 transition"
           >
-            {regLoading ? "جاري التسجيل..." : "تسجيل والمتابعة للاختبار ←"}
+            {regLoading ? t("registerForm.submitting") : t("registerForm.submit")}
           </button>
 
           <p className="text-center text-xs text-gray-400">
-            لديك حساب؟{" "}
-            <a href="/auth/signin" className="text-black font-medium hover:underline">سجّل دخولك</a>
+            {t("registerForm.haveAccount")}{" "}
+            <a href="/auth/signin" className="text-black font-medium hover:underline">{t("registerForm.signIn")}</a>
           </p>
         </form>
+      </div>
+    </div>
+  );
+
+  // ── Email sent ──
+  if (step === "emailSent") return (
+    <div dir={dir} className="mx-auto mt-5 max-w-[480px] px-4 text-center">
+      <div className="bg-white rounded-2xl border border-gray-200 p-10 shadow-sm">
+        <div className="flex justify-center mb-4">
+          <MailCheck className="w-16 h-16 text-green-500" />
+        </div>
+        <h2 className="font-bold text-xl text-gray-900 mb-2">{t("registerForm.emailSentTitle")}</h2>
+        <p className="text-gray-500 text-sm leading-relaxed mb-2">{t("registerForm.emailSentDesc")}</p>
+        <p className="text-gray-400 text-xs mb-6">{t("registerForm.emailSentSpam")}</p>
+        <a
+          href="/auth/signin"
+          className="inline-block bg-black text-white text-sm font-bold px-8 py-2.5 rounded-xl hover:bg-gray-800 transition"
+        >
+          {t("registerForm.goToSignIn")}
+        </a>
       </div>
     </div>
   );

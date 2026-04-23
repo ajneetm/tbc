@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { CheckCircle2, Circle, Lock, Star, Trophy, ThumbsUp, TrendingUp } from "lucide-react";
 
 type Question = { q: string; options: string[]; correct: number };
 type DayQuestions = Question[];
@@ -155,7 +156,16 @@ export default function QuizPage() {
                   unlocked ? "bg-yellow-50 border-yellow-200 text-yellow-700" :
                   "bg-gray-50 border-gray-200 text-gray-300"
                 }`}>
-                  {done ? "✅" : unlocked ? "🟡" : "🔒"}<br />يوم {d}
+                  <span className="flex justify-center mb-0.5">
+                    {done ? (
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                    ) : unlocked ? (
+                      <Circle className="w-4 h-4 text-yellow-500 fill-yellow-400" />
+                    ) : (
+                      <Lock className="w-4 h-4 text-gray-400" />
+                    )}
+                  </span>
+                  يوم {d}
                 </div>
               );
             })}
@@ -165,7 +175,9 @@ export default function QuizPage() {
         {/* Locked */}
         {currentDay === 0 && (
           <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center">
-            <p className="text-5xl mb-4">🔒</p>
+            <div className="flex justify-center mb-4">
+              <Lock className="w-16 h-16 text-gray-300" />
+            </div>
             <p className="font-bold text-gray-700 text-lg mb-1">الاختبار مقفل حالياً</p>
             <p className="text-gray-400 text-sm">سيُفتح قريباً من قِبل الإدارة</p>
           </div>
@@ -174,7 +186,9 @@ export default function QuizPage() {
         {/* All done */}
         {currentDay > 0 && alreadyDoneAll && !result && (
           <div className="bg-white rounded-2xl border border-green-200 p-12 text-center">
-            <p className="text-5xl mb-4">🎉</p>
+            <div className="flex justify-center mb-4">
+              <Star className="w-16 h-16 text-green-500 fill-green-400" />
+            </div>
             <p className="font-bold text-gray-900 text-lg mb-1">أحسنت! أكملت جميع الأيام المتاحة</p>
             <p className="text-gray-400 text-sm">تابع الداشبورد لمعرفة متى يُفتح اليوم التالي</p>
             <button onClick={() => router.push("/user")}
@@ -187,7 +201,15 @@ export default function QuizPage() {
         {/* Result */}
         {result && (
           <div className="bg-white rounded-2xl border border-green-200 p-10 text-center">
-            <p className="text-5xl mb-4">{result.score === result.total ? "🏆" : result.score >= result.total / 2 ? "👏" : "💪"}</p>
+            <div className="flex justify-center mb-4">
+              {result.score === result.total ? (
+                <Trophy className="w-16 h-16 text-yellow-500 fill-yellow-400" />
+              ) : result.score >= result.total / 2 ? (
+                <ThumbsUp className="w-16 h-16 text-blue-500 fill-blue-100" />
+              ) : (
+                <TrendingUp className="w-16 h-16 text-orange-400" />
+              )}
+            </div>
             <p className="font-bold text-gray-900 text-3xl mb-1">{result.score} / {result.total}</p>
             <p className="text-gray-500 text-sm mb-6">
               {result.score === result.total ? "ممتاز! إجاباتك كلها صحيحة" :

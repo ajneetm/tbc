@@ -13,14 +13,42 @@ import {
 import clockBackground from "../../../public/images/dashboard/chat/clock-bg.png";
 import Link from "next/link";
 
+const reportTitles: Record<string, Record<string, string>> = {
+  ar: {
+    explorers: "اختبار قياس جاهزية مستكشف السوق",
+    entrepreneurs: "اختبار قياس القوة التجارية",
+    companies: "اختبار قياس الأداء المؤسسي",
+  },
+  en: {
+    explorers: "Market Explorer Readiness Assessment",
+    entrepreneurs: "Business Strength Assessment",
+    companies: "Institutional Performance Assessment",
+  },
+};
+
+const participantLabels: Record<string, Record<string, string>> = {
+  ar: {
+    explorers: "مستكشف السوق",
+    entrepreneurs: "رائد أعمال",
+    companies: "شركة قائمة",
+  },
+  en: {
+    explorers: "Market Explorer",
+    entrepreneurs: "Entrepreneur",
+    companies: "Established Company",
+  },
+};
+
 function SurveyReport({
   survey,
   language,
+  surveyType,
   aiAnalysis,
   isLoading,
 }: {
   survey: Survey;
   language?: "ar" | "en";
+  surveyType?: string;
   aiAnalysis?: string;
   isLoading?: boolean;
 }) {
@@ -29,6 +57,11 @@ function SurveyReport({
 
   const isRtl = language === "ar";
   const dir = isRtl ? "rtl" : "ltr";
+  const lang = language ?? "ar";
+
+  const type = surveyType || survey.type || "entrepreneurs";
+  const reportTitle = reportTitles[lang]?.[type] ?? reportTitles.ar.entrepreneurs;
+  const participantLabel = participantLabels[lang]?.[type] ?? participantLabels.ar.entrepreneurs;
 
   const modalRatio = ((Number(score) / 360) * 100).toFixed(2);
   const chartData = useMemo(() => {
@@ -48,11 +81,14 @@ function SurveyReport({
     <div dir={dir} className="min-h-screen bg-gray-50 font-[Tajawal] print:bg-white">
       <style>{`
         @media print {
-          header, .header, nav, .no-print, .sticky-navbar { display: none !important; }
-          body { background: white !important; font-family: 'MontserratArabic', Arial, sans-serif; }
-          .max-w-4xl { max-width: 100% !important; padding: 0 !important; }
+          header, .header, nav, footer, .no-print, .sticky-navbar,
+          [class*="sticky-navbar"], [class*="Navbar"] { display: none !important; }
+          body { background: white !important; margin: 0 !important; }
+          .min-h-screen { min-height: unset !important; }
+          .max-w-4xl { max-width: 100% !important; padding: 0 16px !important; }
+          .rounded-2xl, .rounded-xl { border-radius: 8px !important; }
           .shadow-sm, .shadow-md { box-shadow: none !important; }
-          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
         .ai-report h2 { font-size: 1.1rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #1f2937; }
         .ai-report p  { color: #374151; line-height: 1.85; margin-bottom: 0.75rem; font-size: 0.95rem; }
@@ -62,6 +98,24 @@ function SurveyReport({
       `}</style>
 
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 print:px-6 print:py-4">
+
+        {/* ── Report Header ── */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 print:rounded-none print:border-0 print:border-b-2 print:border-gray-800">
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">
+            {isRtl ? "تقرير تقييم جاهزية الأعمال" : "Business Readiness Assessment Report"}
+          </p>
+          <h1 className="text-xl font-bold text-gray-900 mb-3">{reportTitle}</h1>
+          <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600">
+            <span>
+              <span className="font-semibold text-gray-800">{isRtl ? "المشارك: " : "Participant: "}</span>
+              {participantLabel}
+            </span>
+            <span>
+              <span className="font-semibold text-gray-800">{isRtl ? "الدرجة الإجمالية: " : "Overall Score: "}</span>
+              {score} {isRtl ? "من 360" : "/ 360"} ({modalRatio}%)
+            </span>
+          </div>
+        </div>
 
         {/* ── Score Hero ── */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -115,35 +169,25 @@ function SurveyReport({
           )}
         </div>
 
-        {/* ── Print button ── */}
-        <div className="flex justify-center pb-4 no-print">
+        {/* ── Print + CTA buttons ── */}
+        <div className="no-print flex flex-wrap justify-center gap-3 pb-4">
           <button
+            type="button"
             onClick={() => window.print()}
-            className="rounded-xl bg-black px-10 py-3 text-white font-semibold hover:bg-gray-800 transition-colors shadow-md"
+            className="rounded-xl bg-black px-10 py-3 text-white text-sm font-semibold hover:bg-gray-800 transition-colors shadow-md"
           >
             {isRtl ? "طباعة التقرير" : "Print Report"}
           </button>
-        </div>
 
-        {/* ── Subscribe CTA (non-logged-in users only) ── */}
-        {!user && (
-          <div className="no-print bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 text-center text-white space-y-4">
-            <p className="text-xl font-bold">
-              {isRtl ? "أنشئ حسابك واحفظ نتائجك" : "Create your account and save your results"}
-            </p>
-            <p className="text-gray-400 text-sm">
-              {isRtl
-                ? "سجّل مجاناً لمتابعة تقدّمك ومقارنة نتائجك مع مرور الوقت"
-                : "Sign up for free to track your progress and compare results over time"}
-            </p>
+          {!user && (
             <Link
               href="/auth/signup"
-              className="inline-block bg-white text-black font-semibold px-8 py-3 rounded-xl hover:bg-gray-100 transition-colors"
+              className="rounded-xl border-2 border-black bg-white px-10 py-3 text-black text-sm font-semibold hover:bg-gray-50 transition-colors shadow-md"
             >
               {isRtl ? "إنشاء حساب مجاني" : "Create Free Account"}
             </Link>
-          </div>
-        )}
+          )}
+        </div>
 
       </div>
     </div>

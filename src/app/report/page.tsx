@@ -173,7 +173,7 @@ export default function ReportPage() {
 
   return (
     <div>
-      <SurveyReport survey={survey} language={language} aiAnalysis={aiAnalysis} isLoading={isLoading} />
+      <SurveyReport survey={survey} language={language} surveyType={survey.type} aiAnalysis={aiAnalysis} isLoading={isLoading} />
     </div>
   );
 }
