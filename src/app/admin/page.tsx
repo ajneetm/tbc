@@ -4,10 +4,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import * as XLSX from "xlsx";
+import { FolderOpen, User, CheckCircle2, Clock } from "lucide-react";
 
 const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase());
 
-type Tab = "overview" | "users" | "surveys" | "quiz-control" | "trainers" | "workshops" | "consultations";
+type Tab = "overview" | "users" | "surveys" | "quiz-control" | "trainers" | "workshops" | "consultations" | "evaluation" | "projects";
 
 const surveyTypeLabel = (t: string) =>
   t === "explorers" ? "مستكشف" : t === "entrepreneurs" ? "رائد أعمال" : "صاحب شركة/مدير تنفيذي";
@@ -49,6 +50,18 @@ export default function AdminPage() {
   const [replyText, setReplyText] = useState("");
   const [replyLoading, setReplyLoading] = useState(false);
 
+  // Workshop Evaluation
+  const [evaluationOpen, setEvaluationOpen] = useState(false);
+  const [evaluationLoading, setEvaluationLoading] = useState(false);
+  const [evaluationMsg, setEvaluationMsg] = useState("");
+  const [evaluations, setEvaluations] = useState<any[]>([]);
+
+  // Projects
+  const [adminProjects, setAdminProjects] = useState<any[]>([]);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [projectEvals, setProjectEvals] = useState<any[]>([]);
+  const [projectEvalsLoading, setProjectEvalsLoading] = useState(false);
+
   // Courses (الدورات)
   const [workshops, setWorkshops] = useState<any[]>([]);
   const [selectedWorkshop, setSelectedWorkshop] = useState<any>(null);
@@ -81,7 +94,7 @@ export default function AdminPage() {
 
   const fetchAll = async () => {
     setLoadingData(true);
-    const [usersRes, surveysRes, progressRes, settingsRes, trainersRes, workshopsRes, consultRes] = await Promise.all([
+    const [usersRes, surveysRes, progressRes, settingsRes, trainersRes, workshopsRes, consultRes, evalSettingsRes, evalsRes, projectsRes] = await Promise.all([
       fetch("/api/admin/users").then((r) => r.json()).catch(() => ({ users: [] })),
       supabase.from("survey_results").select("*").order("created_at", { ascending: false }),
       supabase.from("quiz_progress").select("*").order("updated_at", { ascending: false }),
@@ -89,6 +102,9 @@ export default function AdminPage() {
       supabase.from("trainers").select("*").order("created_at", { ascending: false }),
       supabase.from("workshops").select("*, workshop_materials(count), workshop_enrollments(count)").order("created_at", { ascending: false }),
       supabase.from("consultations").select("*").order("created_at", { ascending: false }),
+      supabase.from("evaluation_settings").select("is_open").eq("id", 1).maybeSingle(),
+      supabase.from("workshop_evaluations").select("*").order("created_at", { ascending: false }),
+      supabase.from("projects").select("*").order("created_at", { ascending: false }),
     ]);
     if (usersRes.users) setSiteUsers(usersRes.users);
     if (surveysRes.data) setSurveyResults(surveysRes.data);
@@ -97,6 +113,9 @@ export default function AdminPage() {
     if (trainersRes.data) setTrainers(trainersRes.data);
     if (workshopsRes.data) setWorkshops(workshopsRes.data);
     if (consultRes.data) setConsultations(consultRes.data);
+    setEvaluationOpen(evalSettingsRes.data?.is_open ?? false);
+    if (evalsRes.data) setEvaluations(evalsRes.data);
+    if (projectsRes.data) setAdminProjects(projectsRes.data);
     setLoadingData(false);
   };
 
@@ -333,6 +352,46 @@ export default function AdminPage() {
     await fetchWorkshopDetails(selectedWorkshop);
   };
 
+  // ── Evaluation toggle ──
+  const toggleEvaluation = async () => {
+    setEvaluationLoading(true);
+    const newState = !evaluationOpen;
+    const { error } = await supabase.from("evaluation_settings")
+      .update({ is_open: newState, updated_at: new Date().toISOString() })
+      .eq("id", 1);
+    if (!error) {
+      setEvaluationOpen(newState);
+      setEvaluationMsg(newState ? "تم فتح التقييم ✓" : "تم إغلاق التقييم ✓");
+    } else {
+      setEvaluationMsg("حدث خطأ");
+    }
+    setEvaluationLoading(false);
+    setTimeout(() => setEvaluationMsg(""), 3000);
+  };
+
+  // ── Projects ──
+  const toggleProjectActive = async (id: string, isActive: boolean) => {
+    await supabase.from("projects").update({ is_active: !isActive }).eq("id", id);
+    setAdminProjects((prev) => prev.map((p) => p.id === id ? { ...p, is_active: !isActive } : p));
+    if (selectedProject?.id === id) setSelectedProject((p: any) => ({ ...p, is_active: !isActive }));
+  };
+
+  const deleteProject = async (id: string) => {
+    if (!confirm("حذف المشروع وجميع تقييماته؟")) return;
+    await supabase.from("project_evaluations").delete().eq("project_id", id);
+    await supabase.from("projects").delete().eq("id", id);
+    setAdminProjects((prev) => prev.filter((p) => p.id !== id));
+    setSelectedProject(null);
+  };
+
+  const openProjectDetail = async (project: any) => {
+    setSelectedProject(project);
+    setProjectEvalsLoading(true);
+    const { data } = await supabase.from("project_evaluations").select("*").eq("project_id", project.id).order("created_at", { ascending: false });
+    setProjectEvals(data || []);
+    setProjectEvalsLoading(false);
+  };
+
   // ── Excel ──
   const exportExcel = async () => {
     if (!surveyResults.length) { alert("لا توجد نتائج"); return; }
@@ -377,6 +436,8 @@ export default function AdminPage() {
     { key: "quiz-control",   label: "الاختبار اليومي",  icon: "📅" },
     { key: "workshops",      label: "الدورات",          icon: "🎓" },
     { key: "consultations",  label: "الاستشارات",       icon: "💬" },
+    { key: "evaluation",     label: "تقييم الورشة",     icon: "📝" },
+    { key: "projects",       label: "تقييم المشاريع",   icon: "🗂️" },
   ];
 
   const activeTabObj = tabs.find(t => t.key === activeTab)!;
@@ -1173,6 +1234,268 @@ export default function AdminPage() {
                   )}
                 </div>
               </>
+            )}
+
+          </div>
+        )}
+
+        {/* ── Evaluation ── */}
+        {activeTab === "evaluation" && (
+          <div className="space-y-6">
+
+            {/* Toggle card */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-bold text-lg">تحكم بتقييم الورشة</h2>
+                  <p className="text-gray-400 text-sm mt-0.5">
+                    الحالة: <span className={`font-bold ${evaluationOpen ? "text-green-600" : "text-red-600"}`}>
+                      {evaluationOpen ? "🟢 مفتوح" : "🔒 مغلق"}
+                    </span>
+                  </p>
+                </div>
+                <button
+                  onClick={toggleEvaluation}
+                  disabled={evaluationLoading}
+                  className={`px-6 py-3 rounded-xl text-sm font-bold transition-all disabled:opacity-50 ${
+                    evaluationOpen
+                      ? "bg-red-600 text-white hover:bg-red-700"
+                      : "bg-green-600 text-white hover:bg-green-700"
+                  }`}
+                >
+                  {evaluationLoading ? "..." : evaluationOpen ? "🔒 إغلاق التقييم" : "🟢 فتح التقييم"}
+                </button>
+              </div>
+              {evaluationMsg && (
+                <p className="mt-4 text-sm font-medium text-green-700 bg-green-50 rounded-lg py-2 px-4">{evaluationMsg}</p>
+              )}
+            </div>
+
+            {/* Averages summary */}
+            {evaluations.length > 0 && (() => {
+              const avg = (key: string) => {
+                const vals = evaluations.map((e) => e[key]).filter(Boolean);
+                return vals.length ? (vals.reduce((a: number, b: number) => a + b, 0) / vals.length).toFixed(1) : "—";
+              };
+              return (
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <h3 className="font-bold mb-4">متوسط التقييمات ({evaluations.length} مشارك)</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {[
+                      { key: "trainer_rating",      label: "أداء المدرب" },
+                      { key: "interaction_rating",  label: "التفاعل الجماعي" },
+                      { key: "content_rating",      label: "جودة المحتوى" },
+                      { key: "facilities_rating",   label: "التجهيزات" },
+                      { key: "benefit_rating",      label: "مدى الاستفادة" },
+                    ].map(({ key, label }) => (
+                      <div key={key} className="bg-gray-50 rounded-xl p-4 text-center border border-gray-100">
+                        <p className="text-2xl font-bold text-black">{avg(key)}</p>
+                        <p className="text-xs text-gray-500 mt-1">{label}</p>
+                        <p className="text-xs text-gray-300">من 5</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Evaluations table */}
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="font-bold">التقييمات الواردة ({evaluations.length})</h2>
+              </div>
+              {evaluations.length === 0 ? (
+                <p className="text-center text-gray-400 py-12 text-sm">لا توجد تقييمات بعد</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50 text-gray-500 text-xs">
+                      <tr>
+                        <th className="px-4 py-2 text-right">الاسم</th>
+                        <th className="px-4 py-2 text-center">المدرب</th>
+                        <th className="px-4 py-2 text-center">التفاعل</th>
+                        <th className="px-4 py-2 text-center">المحتوى</th>
+                        <th className="px-4 py-2 text-center">التجهيزات</th>
+                        <th className="px-4 py-2 text-center">الاستفادة</th>
+                        <th className="px-4 py-2 text-right">ملاحظات</th>
+                        <th className="px-4 py-2 text-right">التاريخ</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {evaluations.map((ev) => (
+                        <tr key={ev.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-3 font-medium">{ev.user_name || <span className="text-gray-300 text-xs">مجهول</span>}</td>
+                          <td className="px-4 py-3 text-center font-bold">{ev.trainer_rating}/5</td>
+                          <td className="px-4 py-3 text-center font-bold">{ev.interaction_rating}/5</td>
+                          <td className="px-4 py-3 text-center font-bold">{ev.content_rating}/5</td>
+                          <td className="px-4 py-3 text-center font-bold">{ev.facilities_rating}/5</td>
+                          <td className="px-4 py-3 text-center font-bold">{ev.benefit_rating}/5</td>
+                          <td className="px-4 py-3 text-gray-500 text-xs max-w-[200px] truncate">{ev.comments || "—"}</td>
+                          <td className="px-4 py-3 text-gray-400 text-xs">{new Date(ev.created_at).toLocaleDateString("ar-SA")}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+          </div>
+        )}
+
+        {/* ── Projects ── */}
+        {activeTab === "projects" && (
+          <div className="space-y-5">
+
+            {selectedProject ? (
+              <div className="space-y-5">
+                <button onClick={() => { setSelectedProject(null); setProjectEvals([]); }}
+                  className="text-sm text-gray-500 hover:text-black flex items-center gap-1">← رجوع للمشاريع</button>
+
+                {/* Project info */}
+                <div className="bg-white rounded-xl border border-gray-200 p-5">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h2 className="font-bold text-lg">{selectedProject.title}</h2>
+                      {selectedProject.description && <p className="text-gray-400 text-sm mt-1">{selectedProject.description}</p>}
+                      <div className="mt-3 flex items-center gap-2 flex-wrap">
+                        <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1">
+                          <User className="w-3 h-3" /> {selectedProject.owner_name || "مجهول"}
+                        </span>
+                        <span className={`text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1 ${selectedProject.is_active ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                          {selectedProject.is_active
+                            ? <><CheckCircle2 className="w-3 h-3" /> نشط</>
+                            : <><Clock className="w-3 h-3" /> بانتظار الموافقة</>}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0 mr-4">
+                      <button onClick={() => toggleProjectActive(selectedProject.id, selectedProject.is_active)}
+                        className={`text-xs px-3 py-1.5 rounded-lg font-medium transition ${selectedProject.is_active ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-green-600 text-white hover:bg-green-700"}`}>
+                        {selectedProject.is_active ? "إخفاء" : "نشر"}
+                      </button>
+                      <button onClick={() => deleteProject(selectedProject.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">حذف</button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Evaluations for this project */}
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                  <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+                    <h3 className="font-bold">التقييمات الواردة ({projectEvals.length})</h3>
+                    {projectEvalsLoading && <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />}
+                  </div>
+
+                  {/* Averages */}
+                  {projectEvals.length > 0 && (() => {
+                    const avg = (key: string) => {
+                      const vals = projectEvals.map((e) => e[key]).filter(Boolean);
+                      return vals.length ? (vals.reduce((a: number, b: number) => a + b, 0) / vals.length).toFixed(1) : "—";
+                    };
+                    const overall = (() => {
+                      const keys = ["originality_rating", "feasibility_rating", "presentation_rating", "impact_rating"];
+                      const allVals = projectEvals.flatMap((e) => keys.map((k) => e[k]).filter(Boolean));
+                      return allVals.length ? (allVals.reduce((a, b) => a + b, 0) / allVals.length).toFixed(1) : "—";
+                    })();
+                    return (
+                      <div className="p-5 border-b border-gray-100">
+                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                          <div className="sm:col-span-1 bg-black text-white rounded-xl p-4 text-center">
+                            <p className="text-2xl font-bold">{overall}</p>
+                            <p className="text-xs text-gray-300 mt-1">المتوسط العام</p>
+                          </div>
+                          {[
+                            { key: "originality_rating",   label: "الأصالة" },
+                            { key: "feasibility_rating",   label: "الجدوى" },
+                            { key: "presentation_rating",  label: "التقديم" },
+                            { key: "impact_rating",        label: "الأثر" },
+                          ].map(({ key, label }) => (
+                            <div key={key} className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                              <p className="text-xl font-bold text-black">{avg(key)}</p>
+                              <p className="text-xs text-gray-500 mt-1">{label}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {projectEvals.length === 0 && !projectEvalsLoading ? (
+                    <p className="text-center text-gray-400 py-10 text-sm">لا توجد تقييمات بعد</p>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {projectEvals.map((ev) => (
+                        <div key={ev.id} className="px-5 py-4">
+                          <div className="flex flex-wrap gap-3 items-center mb-2">
+                            <div className="flex gap-2">
+                              {[
+                                { key: "originality_rating", label: "الأصالة" },
+                                { key: "feasibility_rating", label: "الجدوى" },
+                                { key: "presentation_rating", label: "التقديم" },
+                                { key: "impact_rating", label: "الأثر" },
+                              ].map(({ key, label }) => (
+                                <span key={key} className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                                  {label}: {ev[key]}/5
+                                </span>
+                              ))}
+                            </div>
+                            <span className="text-xs text-gray-400 mr-auto">{new Date(ev.created_at).toLocaleDateString("ar-SA")}</span>
+                          </div>
+                          {ev.comments && <p className="text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-2 mt-1">{ev.comments}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            ) : (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="bg-yellow-50 text-yellow-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> بانتظار الموافقة: {adminProjects.filter((p) => !p.is_active).length}
+                  </span>
+                  <span className="bg-green-50 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> نشط: {adminProjects.filter((p) => p.is_active).length}
+                  </span>
+                </div>
+
+                {adminProjects.length === 0 ? (
+                  <div className="bg-white rounded-xl border border-dashed border-gray-200 p-14 text-center">
+                    <FolderOpen className="w-14 h-14 text-gray-300 mx-auto mb-3" />
+                    <p className="font-bold text-gray-700">لا توجد مشاريع مقدّمة بعد</p>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                    <div className="px-5 py-3 border-b border-gray-100">
+                      <h2 className="font-bold">المشاريع المقدّمة ({adminProjects.length})</h2>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      {adminProjects.map((project) => (
+                        <div key={project.id} className="px-5 py-4 flex items-center justify-between gap-4 hover:bg-gray-50 transition">
+                          <div className="flex-1 min-w-0 cursor-pointer" onClick={() => openProjectDetail(project)}>
+                            <p className="font-medium text-sm">{project.title}</p>
+                            <div className="flex gap-2 mt-1 items-center flex-wrap">
+                              <span className="text-xs text-gray-400 flex items-center gap-1"><User className="w-3 h-3" /> {project.owner_name || "مجهول"}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${project.is_active ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+                                {project.is_active ? "نشط" : "بانتظار الموافقة"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button onClick={() => toggleProjectActive(project.id, project.is_active)}
+                              className={`text-xs px-3 py-1.5 rounded-lg font-medium transition ${project.is_active ? "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600" : "bg-green-600 text-white hover:bg-green-700"}`}>
+                              {project.is_active ? "إخفاء" : "نشر"}
+                            </button>
+                            <button onClick={() => openProjectDetail(project)} className="text-xs text-primary hover:underline">تفاصيل</button>
+                            <button onClick={() => deleteProject(project.id)} className="text-xs text-red-400 hover:text-red-600">حذف</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
 
           </div>

@@ -33,6 +33,10 @@ export default function UserDashboard() {
   const [surveyResults, setSurveyResults] = useState<any[]>([]);
   const [quizProgress, setQuizProgress] = useState<any>(null);
 
+  // Evaluation
+  const [evaluationOpen, setEvaluationOpen] = useState(false);
+  const [evaluationSubmitted, setEvaluationSubmitted] = useState(false);
+
   // Certificates
   const [certificates, setCertificates] = useState<any[]>([]);
 
@@ -65,7 +69,7 @@ export default function UserDashboard() {
         phone: meta.phone || "",
       });
 
-      const [allWsRes, enrollRes, certsRes, resultsRes, quizRes, progressRes, consultRes] = await Promise.all([
+      const [allWsRes, enrollRes, certsRes, resultsRes, quizRes, progressRes, consultRes, evalSettingsRes, evalSubmittedRes] = await Promise.all([
         supabase.from("workshops").select("id, name, description, category, duration, discount_percent, discount_code, created_at").order("created_at", { ascending: false }),
         supabase.from("workshop_enrollments").select("workshop_id").ilike("user_email", email),
         supabase.from("certificates").select("*").ilike("trainee_email", email).order("issued_at", { ascending: false }),
@@ -73,6 +77,8 @@ export default function UserDashboard() {
         supabase.from("quiz_settings").select("current_day").eq("id", 1).maybeSingle(),
         supabase.from("quiz_progress").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("consultations").select("*").ilike("user_email", email).order("created_at", { ascending: false }),
+        supabase.from("evaluation_settings").select("is_open").eq("id", 1).maybeSingle(),
+        supabase.from("workshop_evaluations").select("id").eq("user_id", user.id).maybeSingle(),
       ]);
 
       if (allWsRes.data) setWorkshops(allWsRes.data);
@@ -82,6 +88,8 @@ export default function UserDashboard() {
       if (quizRes.data) setQuizCurrentDay(quizRes.data.current_day);
       if (progressRes.data) setQuizProgress(progressRes.data);
       if (consultRes.data) setConsultations(consultRes.data);
+      setEvaluationOpen(evalSettingsRes.data?.is_open ?? false);
+      setEvaluationSubmitted(!!evalSubmittedRes.data);
       setLoading(false);
     };
     init();
@@ -445,6 +453,40 @@ export default function UserDashboard() {
                           </div>
                         );
                       })}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Workshop evaluation card */}
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div className="px-5 lg:px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                  <div>
+                    <h2 className="font-bold text-sm lg:text-base">📝 تقييم الورشة</h2>
+                    <p className="text-xs text-gray-400 mt-0.5">قيّم تجربتك في نهاية الورشة</p>
+                  </div>
+                  {evaluationSubmitted && (
+                    <span className="bg-green-50 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">تم التقييم ✓</span>
+                  )}
+                </div>
+                <div className="p-5 lg:p-6">
+                  {evaluationSubmitted ? (
+                    <div className="text-center py-4">
+                      <p className="text-3xl mb-2">✅</p>
+                      <p className="text-gray-500 text-sm">شكراً على تقييمك! تم استلامه بنجاح.</p>
+                    </div>
+                  ) : !evaluationOpen ? (
+                    <div className="text-center py-4">
+                      <p className="text-3xl mb-2">🔒</p>
+                      <p className="text-gray-500 text-sm">التقييم مقفل حالياً — سيُفتح من قِبل الإدارة في نهاية الورشة</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-3 py-2">
+                      <p className="text-gray-600 text-sm text-center">التقييم متاح الآن! شاركنا رأيك في الورشة.</p>
+                      <Link href="/evaluation"
+                        className="bg-black text-white text-sm font-bold px-8 py-2.5 rounded-xl hover:bg-gray-800 transition">
+                        ابدأ التقييم ←
+                      </Link>
                     </div>
                   )}
                 </div>
