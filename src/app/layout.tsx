@@ -27,12 +27,12 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={cn(
-          inter.className,
-          "h-screen",
-          locale === "ar" ? "font-tajawal" : "font-inter"
-        )}
-        style={{ fontFamily: locale === "ar" ? "'MontserratArabic', sans-serif" : inter.style.fontFamily }}
+        className={cn("h-screen", locale === "ar" ? "font-tajawal" : "font-inter")}
+        style={{
+          fontFamily: locale === "ar"
+            ? `'MontserratArabic', ${inter.style.fontFamily}`
+            : `${inter.style.fontFamily}, 'MontserratArabic', sans-serif`,
+        }}
       >
         <NextIntlClientProvider>
           <StoreProviders>{children}</StoreProviders>

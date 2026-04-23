@@ -12,7 +12,9 @@
     "accreditation": "Accreditation",
     "contact": "Contact",
     "signIn": "Sign In",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "dashboard": "Dashboard",
+    "welcome": "Welcome"
   },
   "home": {
     "metadata": {

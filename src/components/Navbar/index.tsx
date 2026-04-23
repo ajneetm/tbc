@@ -179,7 +179,7 @@ export default function Navbar() {
                     ) : (
                       <div className="space-y-1">
                         <Link href={dashboardPath} className="block font-semibold text-primary" onClick={() => setNavigationOpen(false)}>
-                          {currentLocale === "ar" ? "لوحة التحكم" : "Dashboard"}
+                          {t("dashboard")}
                         </Link>
                         <button onClick={handleSignOut} className="block font-semibold text-gray-500">
                           {t("signOut")}
@@ -216,7 +216,7 @@ export default function Navbar() {
                 {user && userMenuOpen && (
                   <div className="absolute ltr:right-0 rtl:left-0 top-full mt-2 w-52 rounded-xl bg-white border border-gray-100 shadow-xl py-2 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-xs text-gray-400">مرحباً</p>
+                      <p className="text-xs text-gray-400">{t("welcome")}</p>
                       <p className="text-sm font-semibold text-gray-800 truncate">{user.email}</p>
                     </div>
                     <Link
@@ -227,7 +227,7 @@ export default function Navbar() {
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-400" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
                       </svg>
-                      {currentLocale === "ar" ? "لوحة التحكم" : "Dashboard"}
+                      {t("dashboard")}
                     </Link>
                     <button
                       onClick={handleSignOut}
