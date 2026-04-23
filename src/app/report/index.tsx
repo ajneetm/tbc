@@ -47,7 +47,13 @@ function SurveyReport({
   return (
     <div dir={dir} className="min-h-screen bg-gray-50 font-[Tajawal] print:bg-white">
       <style>{`
-        @media print { .no-print { display: none !important; } body { font-family: 'Tajawal', Arial, sans-serif; } }
+        @media print {
+          header, .header, nav, .no-print, .sticky-navbar { display: none !important; }
+          body { background: white !important; font-family: 'MontserratArabic', Arial, sans-serif; }
+          .max-w-4xl { max-width: 100% !important; padding: 0 !important; }
+          .shadow-sm, .shadow-md { box-shadow: none !important; }
+          * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
         .ai-report h2 { font-size: 1.1rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #1f2937; }
         .ai-report p  { color: #374151; line-height: 1.85; margin-bottom: 0.75rem; font-size: 0.95rem; }
         .ai-report ul, .ai-report ol { padding-inline-start: 1.5rem; margin-bottom: 0.75rem; }

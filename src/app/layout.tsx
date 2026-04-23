@@ -27,7 +27,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={cn("h-screen", locale === "ar" ? "font-tajawal" : "font-inter")}
+        className={cn("min-h-screen", locale === "ar" ? "font-tajawal" : "font-inter")}
         style={{
           fontFamily: locale === "ar"
             ? `'MontserratArabic', ${inter.style.fontFamily}`
