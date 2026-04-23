@@ -9,7 +9,7 @@ import { handleNewChat } from "../chatbot/helpers/chats";
 import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 import { supabase } from "@/lib/supabase";
 import { useTranslations, useLocale } from "next-intl";
-import { Zap, UserPlus, MailCheck } from "lucide-react";
+import { PlayCircle, UserPlus, MailCheck } from "lucide-react";
 
 type Step = "entry" | "register" | "emailSent" | "setup" | "survey";
 
@@ -132,7 +132,7 @@ function AssessmentController() {
           className="group bg-white border-2 border-gray-200 text-gray-900 rounded-2xl p-6 text-start hover:border-black transition"
         >
           <div className="mb-3">
-            <Zap className="w-8 h-8 text-gray-700" />
+            <PlayCircle className="w-8 h-8 text-gray-700" />
           </div>
           <h2 className="font-bold text-lg mb-1">{t("entry.guestTitle")}</h2>
           <p className="text-gray-500 text-sm leading-relaxed">{t("entry.guestDesc")}</p>

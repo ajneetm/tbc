@@ -16,7 +16,6 @@ import Link from "next/link";
 function SurveyReport({
   survey,
   language,
-  surveyType,
   aiAnalysis,
   isLoading,
 }: {

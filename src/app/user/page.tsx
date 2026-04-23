@@ -13,7 +13,7 @@ const surveyTypeLabel = (t: string) =>
 
 export default function UserDashboard() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<Tab>("profile");
+  const [activeTab, setActiveTab] = useState<Tab>("workshops");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authUser, setAuthUser] = useState<any>(null);
@@ -90,6 +90,18 @@ export default function UserDashboard() {
       if (consultRes.data) setConsultations(consultRes.data);
       setEvaluationOpen(evalSettingsRes.data?.is_open ?? false);
       setEvaluationSubmitted(!!evalSubmittedRes.data);
+
+      // Auto-open workshop if enrolled in exactly one
+      const enrolledWorkshopIds = new Set((enrollRes.data || []).map((r: any) => r.workshop_id).filter(Boolean));
+      if (enrolledWorkshopIds.size === 1 && allWsRes.data) {
+        const ws = allWsRes.data.find((w: any) => enrolledWorkshopIds.has(w.id));
+        if (ws) {
+          const { data: mats } = await supabase.from("workshop_materials").select("*").eq("workshop_id", ws.id).order("created_at");
+          setSelectedWorkshop(ws);
+          setWorkshopMaterials(mats || []);
+        }
+      }
+
       setLoading(false);
     };
     init();
