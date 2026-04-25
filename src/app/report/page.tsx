@@ -11,6 +11,7 @@ import {
 } from "@/components/dashboard/chatbot/MessageTemplates/constents";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
+import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 
 const SESSION_SURVEY_DATA = "SESSION_SURVEY_DATA";
 
@@ -98,7 +99,26 @@ export default function ReportPage() {
   const [language, setLanguage] = useState<"ar" | "en">("ar");
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailSending, setEmailSending] = useState(false);
+  const [autoSentTo, setAutoSentTo] = useState<string | null>(null);
   const { push } = useRouter();
+  const { user } = useSupabaseAuth();
+
+  const sendReport = (to: string, ai: string, score: string, lang: string) => {
+    return fetch("/api/send-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        to,
+        totalScore: Number(score),
+        percentage: ((Number(score) / 360) * 100).toFixed(1),
+        language: lang,
+        aiContent: ai,
+      }),
+    });
+  };
 
   useEffect(() => {
     const modalScoreRaw = sessionStorage.getItem(SESSION_STORAGE_SCORE_KEY);
@@ -169,11 +189,64 @@ export default function ReportPage() {
       .finally(() => setIsLoading(false));
   }, [push]);
 
+  // Auto-send email once AI is ready and user is known
+  useEffect(() => {
+    if (!aiAnalysis || !survey || autoSentTo) return;
+    const toEmail = user?.email || survey.email;
+    if (!toEmail) return;
+    setAutoSentTo(toEmail);
+    sendReport(toEmail, aiAnalysis, survey.score, language).catch(() => {});
+  }, [aiAnalysis, user, survey]);
+
+  const handleManualSend = async () => {
+    if (!emailInput.trim() || !survey || !aiAnalysis) return;
+    setEmailSending(true);
+    await sendReport(emailInput.trim(), aiAnalysis, survey.score, language).catch(() => {});
+    setEmailSent(true);
+    setEmailSending(false);
+  };
+
   if (!survey) return null;
+
+  const isAr = language === "ar";
 
   return (
     <div>
       <SurveyReport survey={survey} language={language} aiAnalysis={aiAnalysis} isLoading={isLoading} />
+
+      {/* Email prompt — only when not auto-sent */}
+      {!isLoading && aiAnalysis && !autoSentTo && (
+        <div dir={isAr ? "rtl" : "ltr"} className="max-w-lg mx-auto px-4 pb-16">
+          <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col sm:flex-row gap-3 items-center">
+            <p className="text-sm text-gray-600 flex-shrink-0">
+              {isAr ? "أرسل التقرير على بريدك" : "Send report to your email"}
+            </p>
+            <input
+              type="email"
+              value={emailInput}
+              onChange={(e) => setEmailInput(e.target.value)}
+              placeholder={isAr ? "بريدك الإلكتروني" : "your@email.com"}
+              className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black min-w-0"
+            />
+            <button
+              onClick={handleManualSend}
+              disabled={emailSending || emailSent || !emailInput.trim()}
+              className="px-5 py-2 bg-black text-white text-sm font-bold rounded-xl disabled:opacity-40 hover:bg-gray-800 transition flex-shrink-0"
+            >
+              {emailSending ? "..." : emailSent ? "✓" : isAr ? "إرسال" : "Send"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation for auto-sent */}
+      {!isLoading && autoSentTo && (
+        <div dir={isAr ? "rtl" : "ltr"} className="max-w-lg mx-auto px-4 pb-16 text-center">
+          <p className="text-sm text-gray-400">
+            {isAr ? `✓ أُرسل التقرير إلى ${autoSentTo}` : `✓ Report sent to ${autoSentTo}`}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
