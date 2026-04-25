@@ -111,20 +111,16 @@ export default function EvaluatePage() {
           {project.description && <p className="text-gray-500 text-sm mt-1">{project.description}</p>}
         </div>
 
-        {/* اسم المشروع */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-4">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">اسم المشروع</label>
-          <input type="text" value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black bg-gray-50" />
-        </div>
-
-        {/* اسم الشخص */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-4">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">اسم الشخص</label>
-          <input type="text" value={personName}
-            onChange={(e) => setPersonName(e.target.value)}
-            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black bg-gray-50" />
+        {/* اسم المشروع + الشخص — read only */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-4 flex gap-4">
+          <div className="flex-1">
+            <p className="text-xs text-gray-400 mb-1">اسم المشروع</p>
+            <p className="font-bold text-gray-900 text-sm">{projectName}</p>
+          </div>
+          <div className="flex-1">
+            <p className="text-xs text-gray-400 mb-1">المقيِّم</p>
+            <p className="font-bold text-gray-900 text-sm">{personName || "—"}</p>
+          </div>
         </div>
 
         {/* Criteria */}

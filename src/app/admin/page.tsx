@@ -1508,14 +1508,20 @@ export default function AdminPage() {
                       {projectEvals.map((ev) => {
                         const CRIT = ["purpose","return","obtainability","design","users","competition","timeline"];
                         const CRIT_LABELS: Record<string,string> = { purpose:"الغرض", return:"العائد", obtainability:"التمكن", design:"التصميم", users:"المستخدمون", competition:"المنافسون", timeline:"الخط الزمني" };
+                        const evaluator = siteUsers.find((u) => u.id === ev.evaluator_id);
                         return (
                           <div key={ev.id} className="px-5 py-4 space-y-3">
-                            <div className="flex items-center justify-between">
-                              <div>
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex-1 min-w-0">
                                 {ev.project_name && <p className="font-bold text-sm">{ev.project_name}</p>}
-                                {ev.person_name && <p className="text-xs text-gray-500">{ev.person_name}</p>}
+                                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                  {ev.person_name && <span className="text-xs text-gray-600 font-medium">{ev.person_name}</span>}
+                                  {evaluator && (
+                                    <span className="text-xs text-gray-400" dir="ltr">({evaluator.email})</span>
+                                  )}
+                                </div>
                               </div>
-                              <span className="text-xs text-gray-400">{new Date(ev.created_at).toLocaleDateString("ar-SA")}</span>
+                              <span className="text-xs text-gray-400 flex-shrink-0">{new Date(ev.created_at).toLocaleDateString("ar-SA")}</span>
                             </div>
                             <div className="flex flex-wrap gap-2">
                               {CRIT.map((k) => ev[`${k}_rating`] != null && (
@@ -1571,7 +1577,7 @@ export default function AdminPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            <button onClick={() => setQrProject(project)}
+                            <button onClick={() => window.open(`/admin/qr/${project.id}`, "_blank")}
                               className="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-medium hover:bg-gray-800 transition flex items-center gap-1">
                               <QrCode className="w-3 h-3" /> QR
                             </button>
