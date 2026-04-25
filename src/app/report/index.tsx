@@ -13,6 +13,32 @@ import {
 import clockBackground from "../../../public/images/dashboard/chat/clock-bg.png";
 import Link from "next/link";
 
+const reportTitles: Record<string, Record<string, string>> = {
+  ar: {
+    explorers: "اختبار قياس جاهزية مستكشف السوق",
+    entrepreneurs: "اختبار قياس القوة التجارية",
+    companies: "اختبار قياس الأداء المؤسسي",
+  },
+  en: {
+    explorers: "Market Explorer Readiness Assessment",
+    entrepreneurs: "Business Strength Assessment",
+    companies: "Institutional Performance Assessment",
+  },
+};
+
+const participantLabels: Record<string, Record<string, string>> = {
+  ar: {
+    explorers: "مستكشف السوق",
+    entrepreneurs: "رائد أعمال",
+    companies: "شركة قائمة",
+  },
+  en: {
+    explorers: "Market Explorer",
+    entrepreneurs: "Entrepreneur",
+    companies: "Established Company",
+  },
+};
+
 function SurveyReport({
   survey,
   language,
@@ -29,6 +55,10 @@ function SurveyReport({
 
   const isRtl = language === "ar";
   const dir = isRtl ? "rtl" : "ltr";
+  const lang = language ?? "ar";
+  const type = survey.type || "entrepreneurs";
+  const reportTitle = reportTitles[lang]?.[type] ?? reportTitles.ar.entrepreneurs;
+  const participantLabel = participantLabels[lang]?.[type] ?? participantLabels.ar.entrepreneurs;
   const modalRatio = ((Number(score) / 360) * 100).toFixed(2);
 
   const [showEmailInput, setShowEmailInput] = useState(false);
@@ -106,6 +136,24 @@ function SurveyReport({
       `}</style>
 
       <div id="report-area" className="max-w-4xl mx-auto px-4 py-8 space-y-6 print:px-6 print:py-4">
+
+        {/* ── Report Header ── */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1">
+            {isRtl ? "تقرير تقييم جاهزية الأعمال" : "Business Readiness Assessment Report"}
+          </p>
+          <h1 className="text-xl font-bold text-gray-900 mb-3">{reportTitle}</h1>
+          <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-600">
+            <span>
+              <span className="font-semibold text-gray-800">{isRtl ? "المشارك: " : "Participant: "}</span>
+              {participantLabel}
+            </span>
+            <span>
+              <span className="font-semibold text-gray-800">{isRtl ? "الدرجة الإجمالية: " : "Overall Score: "}</span>
+              {score} {isRtl ? "من 360" : "/ 360"} ({modalRatio}%)
+            </span>
+          </div>
+        </div>
 
         {/* ── Score Hero ── */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
