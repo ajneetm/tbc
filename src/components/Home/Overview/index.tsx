@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Graphic from "./Graphic";
+import OverviewVideo from "./OverviewVideo";
 import { getTranslations } from "next-intl/server";
 export default async function Overview() {
   const t = await getTranslations("home.overview");
@@ -12,14 +13,7 @@ export default async function Overview() {
         <section className="py-12">
           <div className="-mx-4 mb-8 flex flex-wrap">
             <div className="mb-8 h-full w-full px-4 lg:mb-0 lg:w-6/12 xl:w-5/12">
-              <div className="aspect-video w-full overflow-hidden rounded-xl">
-                <iframe
-                  src="https://drive.google.com/file/d/13VpmPVUv25sqiyvM9j8z_3X-TXaNsVud/preview"
-                  className="h-full w-full"
-                  allow="autoplay"
-                  allowFullScreen
-                />
-              </div>
+              <OverviewVideo />
             </div>
             <div className="hidden px-4 xl:block xl:w-1/12"></div>
 
