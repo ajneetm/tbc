@@ -13,14 +13,11 @@ export default async function Overview() {
           <div className="-mx-4 mb-8 flex flex-wrap">
             <div className="mb-8 h-full w-full px-4 lg:mb-0 lg:w-6/12 xl:w-5/12">
               <div className="aspect-video w-full overflow-hidden rounded-xl">
-                <video
-                  src="/tbc.mp4"
-                  className="h-full w-full object-cover"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  controls
+                <iframe
+                  src="https://drive.google.com/file/d/13VpmPVUv25sqiyvM9j8z_3X-TXaNsVud/preview"
+                  className="h-full w-full"
+                  allow="autoplay"
+                  allowFullScreen
                 />
               </div>
             </div>
