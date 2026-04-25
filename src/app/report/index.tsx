@@ -2,7 +2,7 @@
 
 import { Survey } from "@/app/libs/api/survey";
 import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   PolarAngleAxis,
   PolarRadiusAxis,
@@ -30,6 +30,13 @@ function SurveyReport({
   const isRtl = language === "ar";
   const dir = isRtl ? "rtl" : "ltr";
   const modalRatio = ((Number(score) / 360) * 100).toFixed(2);
+
+  const [showEmailInput, setShowEmailInput] = useState(false);
+  const [emailTo, setEmailTo] = useState(user?.email || "");
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailDone, setEmailDone] = useState(false);
+  const [emailError, setEmailError] = useState("");
+
   const chartData = useMemo(() => {
     const elements: { modalId: string; score: number }[] = [];
     data.forEach((item) => {
@@ -43,11 +50,41 @@ function SurveyReport({
     return elements;
   }, [data]);
 
+  const handleSendEmail = async () => {
+    if (!emailTo) return;
+    setEmailSending(true);
+    setEmailError("");
+    try {
+      const res = await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: emailTo,
+          totalScore: score,
+          percentage: modalRatio,
+          language,
+          aiContent: aiAnalysis || "",
+        }),
+      });
+      if (res.ok) {
+        setEmailDone(true);
+      } else {
+        setEmailError(isRtl ? "حدث خطأ، حاول مرة أخرى" : "An error occurred, please try again");
+      }
+    } catch {
+      setEmailError(isRtl ? "حدث خطأ، حاول مرة أخرى" : "An error occurred, please try again");
+    }
+    setEmailSending(false);
+  };
+
+  const btnClass = "rounded-xl border-2 border-black bg-white px-7 py-3 text-black text-sm font-semibold hover:bg-black hover:text-white transition-colors shadow-sm";
+
   return (
     <div dir={dir} className="min-h-screen bg-gray-50 font-[Tajawal] print:bg-white">
       <style>{`
         @media print {
-          header, .header, nav, footer, .no-print, .sticky-navbar,
+          .no-print { display: none !important; }
+          header, .header, nav, footer, .sticky-navbar,
           [class*="sticky-navbar"], [class*="Navbar"] { display: none !important; }
           body { background: white !important; margin: 0 !important; }
           .min-h-screen { min-height: unset !important; }
@@ -106,10 +143,7 @@ function SurveyReport({
               <p className="text-sm">{isRtl ? "جارٍ إنشاء تقريرك..." : "Generating your report..."}</p>
             </div>
           ) : aiAnalysis ? (
-            <div
-              className="ai-report"
-              dangerouslySetInnerHTML={{ __html: aiAnalysis }}
-            />
+            <div className="ai-report" dangerouslySetInnerHTML={{ __html: aiAnalysis }} />
           ) : (
             <p className="text-gray-400 text-sm text-center py-8">
               {isRtl ? "لم يتم إنشاء التقرير" : "Report could not be generated"}
@@ -117,23 +151,59 @@ function SurveyReport({
           )}
         </div>
 
-        {/* ── Print + CTA buttons ── */}
-        <div className="no-print flex flex-wrap justify-center gap-3 pb-4">
-          <button
-            type="button"
-            onClick={() => window.print()}
-            className="rounded-xl bg-black px-10 py-3 text-white text-sm font-semibold hover:bg-gray-800 transition-colors shadow-md"
-          >
-            {isRtl ? "طباعة التقرير" : "Print Report"}
-          </button>
+        {/* ── Action buttons ── */}
+        <div className="no-print space-y-4 pb-6">
+          <div className="flex flex-wrap justify-center gap-3">
+            {/* Print */}
+            <button type="button" onClick={() => window.print()} className={btnClass}>
+              {isRtl ? "طباعة الاختبار" : "Print Report"}
+            </button>
 
-          {!user && (
-            <Link
-              href="/auth/signup"
-              className="rounded-xl border-2 border-black bg-white px-10 py-3 text-black text-sm font-semibold hover:bg-gray-50 transition-colors shadow-md"
+            {/* Email toggle */}
+            <button
+              type="button"
+              onClick={() => { setShowEmailInput(v => !v); setEmailDone(false); setEmailError(""); }}
+              className={btnClass}
             >
-              {isRtl ? "إنشاء حساب مجاني" : "Create Free Account"}
+              {isRtl ? "ارسال الاختبار عبر الايميل" : "Send Report via Email"}
+            </button>
+
+            {/* Services / signup */}
+            <Link href="/auth/signup" className={btnClass}>
+              {isRtl ? "للحصول على المزيد من الخدمات" : "Get More Services"}
             </Link>
+          </div>
+
+          {/* Email input (shown when toggle clicked) */}
+          {showEmailInput && (
+            <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+              {emailDone ? (
+                <p className="text-center text-green-600 font-semibold text-sm">
+                  {isRtl ? "تم إرسال التقرير بنجاح ✓" : "Report sent successfully ✓"}
+                </p>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={emailTo}
+                    onChange={e => setEmailTo(e.target.value)}
+                    placeholder={isRtl ? "البريد الإلكتروني" : "Email address"}
+                    dir="ltr"
+                    className="flex-1 border border-gray-300 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black"
+                  />
+                  <button
+                    onClick={handleSendEmail}
+                    disabled={emailSending || !emailTo}
+                    className="rounded-xl bg-black text-white px-5 py-2.5 text-sm font-bold disabled:opacity-50 hover:bg-gray-800 transition"
+                  >
+                    {emailSending
+                      ? (isRtl ? "جاري الإرسال..." : "Sending...")
+                      : (isRtl ? "إرسال" : "Send")}
+                  </button>
+                </div>
+              )}
+              {emailError && <p className="text-red-500 text-xs mt-2 text-center">{emailError}</p>}
+            </div>
           )}
         </div>
 

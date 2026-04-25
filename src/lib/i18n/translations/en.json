@@ -203,7 +203,28 @@
     },
     "title": "Assessment",
     "description": "Please fill out the form below to start the test.",
-    "button": "Start Test"
+    "button": "Start Test",
+    "cards": {
+      "subtitle": "Choose the category that best represents you to start your assessment from the right place, tailored to your current business reality.",
+      "explorers": {
+        "title": "Explorers",
+        "line1": "I'm in the exploration stage, looking for the right opportunity to launch.",
+        "line2": "This category is for those who haven't started yet and want to assess their readiness and discover available opportunities.",
+        "button": "I'm an Explorer"
+      },
+      "entrepreneurs": {
+        "title": "Entrepreneurs",
+        "line1": "I have a business idea, a semi-ready project, or an actual start in the market.",
+        "line2": "This category is for those who want to evaluate their idea or business model, and identify strengths and weaknesses before scaling or full launch.",
+        "button": "I'm an Entrepreneur"
+      },
+      "companies": {
+        "title": "Business Owners",
+        "line1": "I have an established company and need to evaluate overall performance.",
+        "line2": "This category is for business owners who want to review operational reality, analyze strengths and improvement areas, and identify growth opportunities.",
+        "button": "I'm a Business Owner"
+      }
+    }
   },
   "auth": {
     "signin": {
