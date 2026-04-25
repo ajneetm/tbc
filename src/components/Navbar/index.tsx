@@ -106,16 +106,27 @@ export default function Navbar() {
 
             {/* Nav links */}
             <div>
-              <button
-                onClick={() => setNavigationOpen(!navigationOpen)}
-                name="navbarToggler"
-                aria-label="navbarToggler"
-                className="absolute ltr:right-4 rtl:left-4 top-1/2 block translate-y-[-50%] rounded-lg px-3 py-[6px] ring-primary focus:ring-2 lg:hidden"
-              >
-                <span className={`relative my-[6px] block h-[2px] w-[30px] bg-dark ${navigationOpen ? "top-[7px] rotate-45" : ""}`} />
-                <span className={`relative my-[6px] block h-[2px] w-[30px] bg-dark ${navigationOpen ? "opacity-0" : ""}`} />
-                <span className={`relative my-[6px] block h-[2px] w-[30px] bg-dark ${navigationOpen ? "top-[-8px] rotate-[135deg]" : ""}`} />
-              </button>
+              <div className="absolute ltr:right-4 rtl:left-4 top-1/2 translate-y-[-50%] flex items-center gap-2 lg:hidden">
+                {/* Language toggle next to hamburger */}
+                <button
+                  onClick={() => setUserLocale(currentLocale === "en" ? "ar" : "en")}
+                  className="rounded-lg bg-black px-3 py-[6px] text-white text-xs font-bold tracking-wide"
+                >
+                  {currentLocale === "en" ? "AR" : "EN"}
+                </button>
+
+                {/* Hamburger */}
+                <button
+                  onClick={() => setNavigationOpen(!navigationOpen)}
+                  name="navbarToggler"
+                  aria-label="navbarToggler"
+                  className="rounded-lg px-3 py-[6px] ring-primary focus:ring-2"
+                >
+                  <span className={`relative my-[6px] block h-[2px] w-[30px] bg-dark ${navigationOpen ? "top-[7px] rotate-45" : ""}`} />
+                  <span className={`relative my-[6px] block h-[2px] w-[30px] bg-dark ${navigationOpen ? "opacity-0" : ""}`} />
+                  <span className={`relative my-[6px] block h-[2px] w-[30px] bg-dark ${navigationOpen ? "top-[-8px] rotate-[135deg]" : ""}`} />
+                </button>
+              </div>
 
               <nav
                 id="navbarCollapse"
@@ -164,11 +175,6 @@ export default function Navbar() {
                       )}
                     </li>
                   ))}
-
-                  {/* Mobile: language toggle */}
-                  <button className="p-2 lg:hidden" onClick={() => setUserLocale(currentLocale === "en" ? "ar" : "en")}>
-                    {currentLocale === "en" ? "AR" : "EN"}
-                  </button>
 
                   {/* Mobile: auth link */}
                   <li className="block p-2 lg:hidden">
