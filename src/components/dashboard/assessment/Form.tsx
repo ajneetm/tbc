@@ -60,7 +60,7 @@ const AssessmentForm = () => {
         {cards.map(({ type, key }) => (
           <div
             key={type}
-            className="flex flex-col bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-black transition"
+            className="flex flex-col bg-white border-2 border-[#F04438] rounded-2xl p-6 transition"
           >
             <div className="flex-1">
               <h2 className="font-bold text-lg text-gray-900 mb-4">
