@@ -19,7 +19,7 @@ export default function ResultsPage() {
 
   const load = async () => {
     const [projRes, evalsRes] = await Promise.all([
-      supabase.from("projects").select("id, title, owner_name, is_active").eq("is_active", true),
+      supabase.from("projects").select("id, title, owner_name, is_active"),
       supabase.from("project_evaluations").select("project_id, purpose_rating, return_rating, obtainability_rating, design_rating, users_rating, competition_rating, timeline_rating"),
     ]);
 
@@ -99,7 +99,7 @@ export default function ResultsPage() {
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-white border-t-transparent" />
           </div>
         ) : ranked.length === 0 ? (
-          <p className="text-center text-gray-500 py-24">لا توجد مشاريع نشطة بعد</p>
+          <p className="text-center text-gray-500 py-24">لا توجد مشاريع بعد</p>
         ) : (
           <div className="space-y-3">
             {ranked.map((proj, i) => (
