@@ -8,12 +8,16 @@ const CRITERIA: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const { to, projectName, personName, averages, overall } = await req.json();
+    const { to, projectName, personName, averages, overall, notes } = await req.json();
     if (!to || !projectName) return NextResponse.json({ error: "missing fields" }, { status: 400 });
 
     const rows = Object.entries(CRITERIA).map(([key, label]) => {
       const val = averages[key] ?? "—";
-      return `<tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#555;">${label}</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;font-weight:bold;text-align:center;">${val}/10</td></tr>`;
+      const keyNotes: string[] = notes?.[key] ?? [];
+      const notesHtml = keyNotes.length
+        ? `<ul style="margin:6px 0 0;padding:0 16px;list-style:disc;">${keyNotes.map((n) => `<li style="font-size:11px;color:#888;margin-bottom:3px;">${n}</li>`).join("")}</ul>`
+        : "";
+      return `<tr><td style="padding:10px 16px;border-bottom:1px solid #f0f0f0;color:#555;vertical-align:top;">${label}${notesHtml}</td><td style="padding:10px 16px;border-bottom:1px solid #f0f0f0;font-weight:bold;text-align:center;vertical-align:top;">${val}/10</td></tr>`;
     }).join("");
 
     const html = `

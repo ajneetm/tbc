@@ -41,6 +41,13 @@ export default function ProjectReportPage() {
 
   const averages = Object.fromEntries(CRIT.map((k) => [k, avg(k)]));
 
+  const notes = Object.fromEntries(
+    CRIT.map((k) => [
+      k,
+      evals.map((e) => e[`${k}_notes`]).filter((n): n is string => !!n?.trim()),
+    ])
+  );
+
   const handleSendEmail = async () => {
     if (!emailTo.trim() || !project) return;
     setSending(true);
@@ -54,6 +61,7 @@ export default function ProjectReportPage() {
           personName: project.owner_name || null,
           averages,
           overall,
+          notes,
         }),
       });
       setSent(true);
@@ -139,9 +147,20 @@ export default function ProjectReportPage() {
                 <p className="text-xs text-gray-400 font-medium mb-3">التفاصيل</p>
                 <div className="divide-y divide-gray-100 rounded-xl border border-gray-100 overflow-hidden">
                   {CRIT.map((k) => (
-                    <div key={k} className="flex items-center justify-between px-5 py-3.5 bg-white">
-                      <span className="text-sm text-gray-700">{CRIT_LABELS[k]}</span>
-                      <span className="font-bold text-gray-900 text-sm">{avg(k)}/10</span>
+                    <div key={k} className="px-5 py-3.5 bg-white">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-700">{CRIT_LABELS[k]}</span>
+                        <span className="font-bold text-gray-900 text-sm">{avg(k)}/10</span>
+                      </div>
+                      {notes[k]?.length > 0 && (
+                        <ul className="mt-2 space-y-1">
+                          {notes[k].map((n, i) => (
+                            <li key={i} className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-1.5">
+                              {n}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   ))}
                 </div>
