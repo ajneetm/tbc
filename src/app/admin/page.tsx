@@ -913,9 +913,11 @@ export default function AdminPage() {
                   <tbody className="divide-y divide-gray-100">
                     {quizProgress.map((p) => {
                       const user = siteUsers.find((u) => u.id === p.user_id);
-                      const sc: (number | null)[] = p.scores ?? [null, null, null, null, null];
-                      const totalScore = sc.reduce<number>((sum, s) => sum + (s ?? 0), 0);
+                      const sc: (number | null)[] = Array.isArray(p.scores) ? p.scores : [null, null, null, null, null];
+                      const scoredDays = sc.filter((s, i) => p.submitted?.[i] && s !== null);
+                      const totalScore = scoredDays.reduce<number>((sum, s) => sum + (s as number), 0);
                       const doneCount = (p.submitted as boolean[])?.filter(Boolean).length ?? 0;
+                      const scoredCount = scoredDays.length;
                       return (
                         <tr key={p.id} className="hover:bg-gray-50">
                           <td className="px-4 py-3">
@@ -925,19 +927,25 @@ export default function AdminPage() {
                           {[0, 1, 2, 3, 4].map((i) => (
                             <td key={i} className="px-4 py-3 text-center">
                               {p.submitted?.[i] ? (
-                                <span className={`inline-block font-bold text-sm px-2 py-0.5 rounded-lg ${sc[i] !== null && sc[i]! >= 7 ? "bg-green-100 text-green-700" : sc[i] !== null && sc[i]! >= 5 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-600"}`}>
-                                  {sc[i] ?? 0}/10
-                                </span>
+                                sc[i] !== null ? (
+                                  <span className={`inline-block font-bold text-sm px-2 py-0.5 rounded-lg ${sc[i]! >= 7 ? "bg-green-100 text-green-700" : sc[i]! >= 5 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-600"}`}>
+                                    {sc[i]}/10
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-lg">تم</span>
+                                )
                               ) : (
                                 <span className="text-gray-300 text-sm">—</span>
                               )}
                             </td>
                           ))}
                           <td className="px-4 py-3 text-center">
-                            {doneCount > 0 ? (
+                            {scoredCount > 0 ? (
                               <span className="font-bold text-sm bg-black text-white px-3 py-1 rounded-lg">
-                                {totalScore}/{doneCount * 10}
+                                {totalScore}/{scoredCount * 10}
                               </span>
+                            ) : doneCount > 0 ? (
+                              <span className="text-xs text-gray-400">تم {doneCount}/5</span>
                             ) : <span className="text-gray-300 text-sm">—</span>}
                           </td>
                           <td className="px-4 py-3 text-gray-400 text-xs">{p.updated_at ? new Date(p.updated_at).toLocaleDateString("ar-SA") : "—"}</td>

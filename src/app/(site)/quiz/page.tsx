@@ -128,9 +128,11 @@ export default function QuizPage() {
 
     const existing = await supabase.from("quiz_progress").select("id").eq("user_id", userId).maybeSingle();
     if (existing.data) {
-      await supabase.from("quiz_progress").update({ submitted: newSubmitted, scores: newScores, updated_at: new Date().toISOString() }).eq("user_id", userId);
+      const { error: updateErr } = await supabase.from("quiz_progress").update({ submitted: newSubmitted, scores: newScores, updated_at: new Date().toISOString() }).eq("user_id", userId);
+      if (updateErr) console.error("quiz update error:", updateErr.message);
     } else {
-      await supabase.from("quiz_progress").insert({ user_id: userId, submitted: newSubmitted, scores: newScores, updated_at: new Date().toISOString() });
+      const { error: insertErr } = await supabase.from("quiz_progress").insert({ user_id: userId, submitted: newSubmitted, scores: newScores, updated_at: new Date().toISOString() });
+      if (insertErr) console.error("quiz insert error:", insertErr.message);
     }
 
     setSubmitted(newSubmitted);
