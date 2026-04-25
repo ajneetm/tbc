@@ -932,7 +932,7 @@ export default function AdminPage() {
                                     {sc[i]}/10
                                   </span>
                                 ) : (
-                                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-lg">تم</span>
+                                  <span className="text-gray-300 text-sm">—</span>
                                 )
                               ) : (
                                 <span className="text-gray-300 text-sm">—</span>
