@@ -60,20 +60,22 @@ const AssessmentForm = () => {
         {cards.map(({ type, key }) => (
           <div
             key={type}
-            className="flex flex-col bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-black transition group"
+            className="flex flex-col bg-white border-2 border-gray-200 rounded-2xl p-6 hover:border-black transition"
           >
-            <h2 className="font-bold text-xl text-gray-900 mb-3">
-              {t(`cards.${key}.title`)}
-            </h2>
-            <p className="text-gray-700 text-sm leading-relaxed mb-2">
-              {t(`cards.${key}.line1`)}
-            </p>
-            <p className="text-gray-500 text-sm leading-relaxed flex-1 mb-6">
-              {t(`cards.${key}.line2`)}
-            </p>
+            <div className="flex-1">
+              <h2 className="font-bold text-lg text-gray-900 mb-4">
+                {t(`cards.${key}.title`)}
+              </h2>
+              <p className="text-gray-700 text-sm leading-relaxed mb-2">
+                {t(`cards.${key}.line1`)}
+              </p>
+              <p className="text-gray-500 text-sm leading-relaxed">
+                {t(`cards.${key}.line2`)}
+              </p>
+            </div>
             <button
               onClick={() => startSurvey(type)}
-              className="w-full rounded-xl border-2 border-black bg-white py-3 text-sm font-bold text-black hover:bg-black hover:text-white transition"
+              className="mt-6 w-full rounded-xl border-2 border-black bg-white py-3 text-sm font-bold text-black hover:bg-black hover:text-white transition"
             >
               {t(`cards.${key}.button`)}
             </button>
