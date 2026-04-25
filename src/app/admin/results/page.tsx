@@ -16,6 +16,7 @@ export default function ResultsPage() {
   const [ranked, setRanked] = useState<RankedProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string | null>(null);
 
   const load = async () => {
     const [projRes, evalsRes] = await Promise.all([
@@ -23,8 +24,15 @@ export default function ResultsPage() {
       supabase.from("project_evaluations").select("project_id, purpose_rating, return_rating, obtainability_rating, design_rating, users_rating, competition_rating, timeline_rating"),
     ]);
 
+    if (projRes.error || evalsRes.error) {
+      setDebugInfo(`خطأ — projects: ${projRes.error?.message || "ok"} | evals: ${evalsRes.error?.message || "ok"}`);
+      setLoading(false);
+      return;
+    }
+
     const projects = projRes.data || [];
     const evals = evalsRes.data || [];
+    setDebugInfo(`مشاريع: ${projects.length} | تقييمات: ${evals.length}`);
 
     const results: RankedProject[] = projects.map((p) => {
       const pEvals = evals.filter((e) => e.project_id === p.id);
@@ -92,6 +100,9 @@ export default function ResultsPage() {
         <div className="text-center mb-12">
           <p className="text-gray-500 text-sm mb-2">The Business Clock</p>
           <h1 className="text-4xl font-black">نتائج تقييم المشاريع</h1>
+          {debugInfo && (
+            <p className="text-xs text-gray-600 mt-3 bg-white/5 rounded-lg px-3 py-1.5 inline-block">{debugInfo}</p>
+          )}
         </div>
 
         {loading ? (
