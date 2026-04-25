@@ -1448,7 +1448,11 @@ export default function AdminPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-shrink-0 mr-4">
+                    <div className="flex items-center gap-2 flex-shrink-0 mr-4 flex-wrap justify-end">
+                      <button onClick={() => window.open(`/admin/project-report/${selectedProject.id}`, "_blank")}
+                        className="text-xs bg-gray-900 text-white px-3 py-1.5 rounded-lg font-medium hover:bg-gray-700 transition">
+                        تقرير
+                      </button>
                       <button onClick={() => toggleProjectActive(selectedProject.id, selectedProject.is_active)}
                         className={`text-xs px-3 py-1.5 rounded-lg font-medium transition ${selectedProject.is_active ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-green-600 text-white hover:bg-green-700"}`}>
                         {selectedProject.is_active ? "إخفاء" : "نشر"}
@@ -1552,6 +1556,10 @@ export default function AdminPage() {
                   <span className="bg-green-50 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" /> نشط: {adminProjects.filter((p) => p.is_active).length}
                   </span>
+                  <button onClick={() => window.open("/admin/results", "_blank")}
+                    className="mr-auto text-xs bg-black text-white px-4 py-1.5 rounded-lg font-bold hover:bg-gray-800 transition">
+                    🏆 النتائج
+                  </button>
                 </div>
 
                 {adminProjects.length === 0 ? (
