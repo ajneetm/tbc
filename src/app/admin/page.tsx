@@ -19,6 +19,16 @@ export default function AdminPage() {
   const [authLoading, setAuthLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>("overview");
 
+  useEffect(() => {
+    const saved = localStorage.getItem("admin_tab") as Tab;
+    if (saved) setActiveTab(saved);
+  }, []);
+
+  const changeTab = (tab: Tab) => {
+    setActiveTab(tab);
+    localStorage.setItem("admin_tab", tab);
+  };
+
   // Data
   const [siteUsers, setSiteUsers] = useState<any[]>([]);
   const [surveyResults, setSurveyResults] = useState<any[]>([]);
@@ -384,6 +394,31 @@ export default function AdminPage() {
     setSelectedProject(null);
   };
 
+  const deleteSurvey = async (id: string) => {
+    if (!confirm("حذف هذا الاختبار نهائياً؟")) return;
+    await supabase.from("survey_results").delete().eq("id", id);
+    setSurveyResults(prev => prev.filter(r => r.id !== id));
+    if (selectedSurvey?.id === id) setSelectedSurvey(null);
+  };
+
+  const deleteQuizProgress = async (id: string) => {
+    if (!confirm("حذف تقدم هذا المستخدم؟")) return;
+    await supabase.from("quiz_progress").delete().eq("id", id);
+    setQuizProgress(prev => prev.filter(p => p.id !== id));
+  };
+
+  const deleteConsultation = async (id: string) => {
+    if (!confirm("حذف هذه الاستشارة نهائياً؟")) return;
+    await supabase.from("consultations").delete().eq("id", id);
+    setConsultations(prev => prev.filter(c => c.id !== id));
+  };
+
+  const deleteEvaluation = async (id: string) => {
+    if (!confirm("حذف هذا التقييم؟")) return;
+    await supabase.from("workshop_evaluations").delete().eq("id", id);
+    setEvaluations(prev => prev.filter(e => e.id !== id));
+  };
+
   const openProjectDetail = async (project: any) => {
     setSelectedProject(project);
     setProjectEvalsLoading(true);
@@ -463,7 +498,7 @@ export default function AdminPage() {
           {tabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => changeTab(tab.key)}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all text-right ${
                 activeTab === tab.key ? "bg-white text-black" : "text-gray-400 hover:bg-white/10 hover:text-white"
               }`}
@@ -631,7 +666,12 @@ export default function AdminPage() {
                           <td className="px-4 py-3 font-bold">{r.total_score}/360</td>
                           <td className="px-4 py-3 text-primary font-bold">{r.percentage}%</td>
                           <td className="px-4 py-3 text-gray-400 text-xs">{new Date(r.created_at).toLocaleDateString("ar-SA")}</td>
-                          <td className="px-4 py-3"><button onClick={() => setSelectedSurvey(r)} className="text-xs text-primary hover:underline">تفاصيل</button></td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <button onClick={() => setSelectedSurvey(r)} className="text-xs text-primary hover:underline">تفاصيل</button>
+                              <button onClick={() => deleteSurvey(r.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">حذف</button>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -908,6 +948,7 @@ export default function AdminPage() {
                       <th className="px-4 py-2 text-center">اليوم 5</th>
                       <th className="px-4 py-2 text-center font-bold">المجموع</th>
                       <th className="px-4 py-2 text-right">آخر تحديث</th>
+                      <th className="px-4 py-2"></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
@@ -949,6 +990,9 @@ export default function AdminPage() {
                             ) : <span className="text-gray-300 text-sm">—</span>}
                           </td>
                           <td className="px-4 py-3 text-gray-400 text-xs">{p.updated_at ? new Date(p.updated_at).toLocaleDateString("ar-SA") : "—"}</td>
+                          <td className="px-4 py-3">
+                            <button onClick={() => deleteQuizProgress(p.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">حذف</button>
+                          </td>
                         </tr>
                       );
                     })}
@@ -1001,10 +1045,14 @@ export default function AdminPage() {
                             <p className="text-xs text-gray-400">{c.user_name} · {c.user_email}</p>
                             <p className="text-xs text-gray-300 mt-0.5">{new Date(c.created_at).toLocaleDateString("ar-SA", { year: "numeric", month: "long", day: "numeric" })}</p>
                           </div>
-                          {c.status !== "closed" && (
-                            <button onClick={() => closeConsultation(c.id)}
-                              className="text-xs text-gray-400 hover:text-gray-600 flex-shrink-0">إغلاق</button>
-                          )}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {c.status !== "closed" && (
+                              <button onClick={() => closeConsultation(c.id)}
+                                className="text-xs text-gray-400 hover:text-gray-600">إغلاق</button>
+                            )}
+                            <button onClick={() => deleteConsultation(c.id)}
+                              className="text-xs text-red-500 hover:text-red-700 font-medium">حذف</button>
+                          </div>
                         </div>
                         <p className="text-gray-700 text-sm leading-relaxed bg-gray-50 rounded-xl px-4 py-3">{c.message}</p>
 
@@ -1344,6 +1392,7 @@ export default function AdminPage() {
                         <th className="px-4 py-2 text-center">الاستفادة</th>
                         <th className="px-4 py-2 text-right">ملاحظات</th>
                         <th className="px-4 py-2 text-right">التاريخ</th>
+                        <th className="px-4 py-2"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -1357,6 +1406,9 @@ export default function AdminPage() {
                           <td className="px-4 py-3 text-center font-bold">{ev.benefit_rating}/5</td>
                           <td className="px-4 py-3 text-gray-500 text-xs max-w-[200px] truncate">{ev.comments || "—"}</td>
                           <td className="px-4 py-3 text-gray-400 text-xs">{new Date(ev.created_at).toLocaleDateString("ar-SA")}</td>
+                          <td className="px-4 py-3">
+                            <button onClick={() => deleteEvaluation(ev.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">حذف</button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
