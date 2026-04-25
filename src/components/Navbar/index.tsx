@@ -139,7 +139,11 @@ export default function Navbar() {
                         <Link
                           href={item?.external ? item.href : `/${item?.href}`}
                           onClick={() => setNavigationOpen(false)}
-                          className={`${pathUrl === `/${item?.href}` ? "text-primary" : ""} flex py-2 text-base text-black group-hover:text-primary lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 ${item?.href?.startsWith("#") ? "menu-scroll" : ""}`}
+                          className={
+                            item.highlight
+                              ? "flex items-center rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-white hover:bg-primary/90 lg:my-auto lg:py-1.5"
+                              : `${pathUrl === `/${item?.href}` ? "text-primary" : ""} flex py-2 text-base text-black group-hover:text-primary lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 ${item?.href?.startsWith("#") ? "menu-scroll" : ""}`
+                          }
                         >
                           {t(item?.title)}
                         </Link>

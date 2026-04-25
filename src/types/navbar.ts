@@ -3,6 +3,7 @@ export type NavbarItem = {
   title: string;
   href?: string;
   external?: boolean;
+  highlight?: boolean;
   submenu?: Submenu[];
 };
 
