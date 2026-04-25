@@ -470,6 +470,21 @@ export default function UserDashboard() {
                 </div>
               </div>
 
+              {/* Project evaluation card */}
+              <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div className="px-5 lg:px-6 py-4 border-b border-gray-100">
+                  <h2 className="font-bold text-sm lg:text-base">🗂️ تقييم المشاريع</h2>
+                  <p className="text-xs text-gray-400 mt-0.5">قدّم مشروعك وقيّم مشاريع زملائك</p>
+                </div>
+                <div className="p-5 lg:p-6 flex flex-col items-center gap-3 py-4">
+                  <p className="text-gray-600 text-sm text-center">يمكنك رفع مشروعك وتقييم مشاريع المشاركين الآخرين.</p>
+                  <Link href="/projects"
+                    className="bg-black text-white text-sm font-bold px-8 py-2.5 rounded-xl hover:bg-gray-800 transition">
+                    فتح تقييم المشاريع ←
+                  </Link>
+                </div>
+              </div>
+
               {/* Workshop evaluation card */}
               <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                 <div className="px-5 lg:px-6 py-4 border-b border-gray-100 flex items-center justify-between">
