@@ -1465,31 +1465,33 @@ export default function AdminPage() {
 
                   {/* Averages */}
                   {projectEvals.length > 0 && (() => {
+                    const CRIT = ["purpose","return","obtainability","design","users","competition","timeline"];
+                    const CRIT_LABELS: Record<string,string> = { purpose:"الغرض", return:"العائد", obtainability:"التمكن", design:"التصميم", users:"المستخدمون", competition:"المنافسون", timeline:"الخط الزمني" };
                     const avg = (key: string) => {
-                      const vals = projectEvals.map((e) => e[key]).filter(Boolean);
+                      const vals = projectEvals.map((e) => e[`${key}_rating`]).filter((v) => v != null);
                       return vals.length ? (vals.reduce((a: number, b: number) => a + b, 0) / vals.length).toFixed(1) : "—";
                     };
-                    const overall = (() => {
-                      const keys = ["originality_rating", "feasibility_rating", "presentation_rating", "impact_rating"];
-                      const allVals = projectEvals.flatMap((e) => keys.map((k) => e[k]).filter(Boolean));
-                      return allVals.length ? (allVals.reduce((a, b) => a + b, 0) / allVals.length).toFixed(1) : "—";
-                    })();
+                    const allVals = projectEvals.flatMap((e) => CRIT.map((k) => e[`${k}_rating`]).filter((v) => v != null));
+                    const overall = allVals.length ? (allVals.reduce((a, b) => a + b, 0) / allVals.length).toFixed(1) : "—";
                     return (
                       <div className="p-5 border-b border-gray-100">
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                           <div className="sm:col-span-1 bg-black text-white rounded-xl p-4 text-center">
                             <p className="text-2xl font-bold">{overall}</p>
-                            <p className="text-xs text-gray-300 mt-1">المتوسط العام</p>
+                            <p className="text-xs text-gray-300 mt-1">المتوسط العام /10</p>
                           </div>
-                          {[
-                            { key: "originality_rating",   label: "الأصالة" },
-                            { key: "feasibility_rating",   label: "الجدوى" },
-                            { key: "presentation_rating",  label: "التقديم" },
-                            { key: "impact_rating",        label: "الأثر" },
-                          ].map(({ key, label }) => (
-                            <div key={key} className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
-                              <p className="text-xl font-bold text-black">{avg(key)}</p>
-                              <p className="text-xs text-gray-500 mt-1">{label}</p>
+                          {CRIT.slice(0,3).map((k) => (
+                            <div key={k} className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                              <p className="text-xl font-bold">{avg(k)}</p>
+                              <p className="text-xs text-gray-500 mt-1">{CRIT_LABELS[k]}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                          {CRIT.slice(3).map((k) => (
+                            <div key={k} className="bg-gray-50 rounded-xl p-3 text-center border border-gray-100">
+                              <p className="text-xl font-bold">{avg(k)}</p>
+                              <p className="text-xs text-gray-500 mt-1">{CRIT_LABELS[k]}</p>
                             </div>
                           ))}
                         </div>
@@ -1501,26 +1503,33 @@ export default function AdminPage() {
                     <p className="text-center text-gray-400 py-10 text-sm">لا توجد تقييمات بعد</p>
                   ) : (
                     <div className="divide-y divide-gray-100">
-                      {projectEvals.map((ev) => (
-                        <div key={ev.id} className="px-5 py-4">
-                          <div className="flex flex-wrap gap-3 items-center mb-2">
-                            <div className="flex gap-2">
-                              {[
-                                { key: "originality_rating", label: "الأصالة" },
-                                { key: "feasibility_rating", label: "الجدوى" },
-                                { key: "presentation_rating", label: "التقديم" },
-                                { key: "impact_rating", label: "الأثر" },
-                              ].map(({ key, label }) => (
-                                <span key={key} className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                                  {label}: {ev[key]}/5
+                      {projectEvals.map((ev) => {
+                        const CRIT = ["purpose","return","obtainability","design","users","competition","timeline"];
+                        const CRIT_LABELS: Record<string,string> = { purpose:"الغرض", return:"العائد", obtainability:"التمكن", design:"التصميم", users:"المستخدمون", competition:"المنافسون", timeline:"الخط الزمني" };
+                        return (
+                          <div key={ev.id} className="px-5 py-4 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                {ev.project_name && <p className="font-bold text-sm">{ev.project_name}</p>}
+                                {ev.person_name && <p className="text-xs text-gray-500">{ev.person_name}</p>}
+                              </div>
+                              <span className="text-xs text-gray-400">{new Date(ev.created_at).toLocaleDateString("ar-SA")}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {CRIT.map((k) => ev[`${k}_rating`] != null && (
+                                <span key={k} className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full font-medium">
+                                  {CRIT_LABELS[k]}: {ev[`${k}_rating`]}/10
                                 </span>
                               ))}
                             </div>
-                            <span className="text-xs text-gray-400 mr-auto">{new Date(ev.created_at).toLocaleDateString("ar-SA")}</span>
+                            {CRIT.map((k) => ev[`${k}_notes`] && (
+                              <p key={k} className="text-xs text-gray-500 bg-gray-50 rounded-lg px-3 py-1.5">
+                                <span className="font-semibold">{CRIT_LABELS[k]}:</span> {ev[`${k}_notes`]}
+                              </p>
+                            ))}
                           </div>
-                          {ev.comments && <p className="text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-2 mt-1">{ev.comments}</p>}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

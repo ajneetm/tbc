@@ -4,16 +4,15 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ClipboardList } from "lucide-react";
 
-const EVAL_CATEGORIES = [
-  { id: "originality_rating",   label: "الأصالة والإبداع" },
-  { id: "feasibility_rating",   label: "الجدوى والتطبيق العملي" },
-  { id: "presentation_rating",  label: "جودة العرض والتقديم" },
-  { id: "impact_rating",        label: "الأثر والقيمة المتوقعة" },
+const CRITERIA = [
+  { id: "purpose",       label: "الغرض" },
+  { id: "return",        label: "العائد" },
+  { id: "obtainability", label: "التمكن" },
+  { id: "design",        label: "التصميم" },
+  { id: "users",         label: "المستخدمون" },
+  { id: "competition",   label: "المنافسون" },
+  { id: "timeline",      label: "الخط الزمني" },
 ];
-
-const SCORE_LABELS: Record<number, string> = {
-  1: "ضعيف", 2: "مقبول", 3: "متوسط", 4: "جيد جداً", 5: "ممتاز",
-};
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -21,21 +20,20 @@ export default function ProjectsPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [userName, setUserName] = useState("");
 
-  // My project submission
   const [myProject, setMyProject] = useState<any>(null);
   const [projectTitle, setProjectTitle] = useState("");
   const [projectDesc, setProjectDesc] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitDone, setSubmitDone] = useState(false);
 
-  // Projects list
   const [projects, setProjects] = useState<any[]>([]);
   const [myEvaluations, setMyEvaluations] = useState<Set<string>>(new Set());
 
-  // Active evaluation form
   const [evaluatingProject, setEvaluatingProject] = useState<any>(null);
+  const [evalProjectName, setEvalProjectName] = useState("");
+  const [evalPersonName, setEvalPersonName] = useState("");
   const [ratings, setRatings] = useState<Record<string, number>>({});
-  const [comments, setComments] = useState("");
+  const [notes, setNotes] = useState<Record<string, string>>({});
   const [evalSubmitting, setEvalSubmitting] = useState(false);
 
   useEffect(() => {
@@ -78,24 +76,30 @@ export default function ProjectsPage() {
 
   const openEval = (project: any) => {
     setEvaluatingProject(project);
+    setEvalProjectName(project.title);
+    setEvalPersonName(userName);
     setRatings({});
-    setComments("");
+    setNotes({});
   };
 
+  const allRated = CRITERIA.every((c) => ratings[c.id] >= 1);
+
   const submitEvaluation = async () => {
-    if (!userId || !evaluatingProject) return;
-    const allRated = EVAL_CATEGORIES.every((c) => ratings[c.id] >= 1);
-    if (!allRated) return;
+    if (!userId || !evaluatingProject || !allRated) return;
     setEvalSubmitting(true);
-    await supabase.from("project_evaluations").insert({
+
+    const payload: any = {
       project_id: evaluatingProject.id,
       evaluator_id: userId,
-      originality_rating:   ratings["originality_rating"],
-      feasibility_rating:   ratings["feasibility_rating"],
-      presentation_rating:  ratings["presentation_rating"],
-      impact_rating:        ratings["impact_rating"],
-      comments: comments.trim() || null,
+      project_name: evalProjectName.trim() || evaluatingProject.title,
+      person_name: evalPersonName.trim() || null,
+    };
+    CRITERIA.forEach((c) => {
+      payload[`${c.id}_rating`] = ratings[c.id];
+      payload[`${c.id}_notes`]  = notes[c.id]?.trim() || null;
     });
+
+    await supabase.from("project_evaluations").insert(payload);
     setMyEvaluations((prev) => new Set([...prev, evaluatingProject.id]));
     setEvaluatingProject(null);
     setEvalSubmitting(false);
@@ -107,13 +111,10 @@ export default function ProjectsPage() {
     </div>
   );
 
-  const allRated = EVAL_CATEGORIES.every((c) => ratings[c.id] >= 1);
-
   return (
     <div dir="rtl" className="min-h-screen bg-gray-50 pt-28 pb-16 px-4">
       <div className="mx-auto max-w-xl space-y-5">
 
-        {/* Header */}
         <div className="mb-2">
           <h1 className="text-2xl font-bold text-gray-900">تقييم المشاريع</h1>
           <p className="text-gray-400 text-sm mt-1">قدّم مشروعك وقيّم مشاريع زملائك</p>
@@ -122,7 +123,6 @@ export default function ProjectsPage() {
         {/* My project */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <h2 className="font-bold text-sm text-gray-800 mb-3">مشروعي</h2>
-
           {myProject ? (
             <div className={`rounded-xl px-4 py-3 text-sm border ${myProject.is_active ? "bg-green-50 border-green-200" : "bg-yellow-50 border-yellow-200"}`}>
               <p className="font-bold text-gray-900">{myProject.title}</p>
@@ -158,10 +158,9 @@ export default function ProjectsPage() {
           )}
         </div>
 
-        {/* Projects to evaluate */}
+        {/* Projects list */}
         <div>
           <h2 className="font-bold text-sm text-gray-700 mb-3">مشاريع الزملاء</h2>
-
           {projects.length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-200 p-10 text-center">
               <ClipboardList className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -205,52 +204,77 @@ export default function ProjectsPage() {
       {evaluatingProject && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 px-4 pb-4 sm:pb-0">
           <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-5 space-y-4">
+            <div className="p-5 space-y-5">
+
+              {/* Header */}
               <div className="flex items-center justify-between">
-                <h3 className="font-bold text-gray-900">{evaluatingProject.title}</h3>
+                <h3 className="font-bold text-gray-900">نموذج التقييم</h3>
                 <button onClick={() => setEvaluatingProject(null)}
-                  className="text-gray-400 hover:text-black text-2xl leading-none w-8 h-8 flex items-center justify-center">
-                  ×
-                </button>
+                  className="text-gray-400 hover:text-black text-2xl leading-none w-8 h-8 flex items-center justify-center">×</button>
               </div>
 
-              {EVAL_CATEGORIES.map((cat) => (
-                <div key={cat.id}>
-                  <p className="font-semibold text-sm text-gray-800 mb-3">{cat.label}</p>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((val) => {
+              {/* اسم المشروع */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">اسم المشروع</label>
+                <input
+                  type="text"
+                  value={evalProjectName}
+                  onChange={(e) => setEvalProjectName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black bg-gray-50"
+                />
+              </div>
+
+              {/* اسم الشخص */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">اسم الشخص</label>
+                <input
+                  type="text"
+                  value={evalPersonName}
+                  onChange={(e) => setEvalPersonName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black bg-gray-50"
+                />
+              </div>
+
+              {/* Criteria */}
+              {CRITERIA.map((cat) => (
+                <div key={cat.id} className="border border-gray-100 rounded-2xl p-4 space-y-3">
+                  <p className="font-bold text-sm text-gray-800">{cat.label}</p>
+
+                  {/* 1-10 buttons */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {Array.from({ length: 10 }, (_, i) => i + 1).map((val) => {
                       const selected = ratings[cat.id] === val;
                       return (
-                        <button key={val} type="button"
+                        <button
+                          key={val}
+                          type="button"
                           onClick={() => setRatings((p) => ({ ...p, [cat.id]: val }))}
-                          className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-xl border text-xs font-bold transition ${
+                          className={`w-9 h-9 rounded-xl text-sm font-bold transition border ${
                             selected
-                              ? "border-black bg-black text-white"
-                              : "border-gray-200 bg-gray-50 text-gray-500 hover:border-gray-400"
+                              ? "bg-black text-white border-black"
+                              : "bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-400"
                           }`}
                         >
-                          <span className="text-base font-extrabold">{val}</span>
-                          <span className={`text-[10px] leading-tight text-center ${selected ? "text-gray-200" : "text-gray-400"}`}>
-                            {SCORE_LABELS[val]}
-                          </span>
+                          {val}
                         </button>
                       );
                     })}
                   </div>
+
+                  {/* Notes */}
+                  <textarea
+                    rows={2}
+                    value={notes[cat.id] || ""}
+                    onChange={(e) => setNotes((p) => ({ ...p, [cat.id]: e.target.value }))}
+                    placeholder="ملاحظة..."
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black bg-gray-50 resize-none"
+                  />
                 </div>
               ))}
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">ملاحظات (اختياري)</label>
-                <textarea value={comments} onChange={(e) => setComments(e.target.value)} rows={2}
-                  placeholder="أضف ملاحظاتك أو اقتراحاتك للمشروع..."
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black bg-gray-50 resize-none"
-                />
-              </div>
-
               {!allRated && (
                 <p className="text-center text-xs text-gray-400">
-                  {EVAL_CATEGORIES.filter((c) => !ratings[c.id]).length} معيار متبقي
+                  {CRITERIA.filter((c) => !ratings[c.id]).length} معيار لم يُقيَّم بعد
                 </p>
               )}
 
@@ -265,6 +289,7 @@ export default function ProjectsPage() {
                   إلغاء
                 </button>
               </div>
+
             </div>
           </div>
         </div>
