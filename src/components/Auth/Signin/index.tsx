@@ -25,9 +25,9 @@ export default function Signin() {
 
     if (error) {
       if (error.message.toLowerCase().includes("not confirmed") || error.message.toLowerCase().includes("email not confirmed")) {
-        setError("لم يتم تأكيد البريد الإلكتروني بعد. تحقق من صندوق الوارد (وراجع مجلد السبام).");
+        setError(t("validation.emailNotConfirmed"));
       } else {
-        setError("البريد الإلكتروني أو كلمة المرور غير صحيحة");
+        setError(t("validation.invalid"));
       }
       setLoading(false);
       return;
@@ -68,7 +68,7 @@ export default function Signin() {
                     <div className="w-full px-4 sm:w-1/2">
                       <div className="mb-10">
                         <label className="mb-2 block text-sm font-medium text-dark">
-                          البريد الإلكتروني
+                          {t("emailLabel")}
                         </label>
                         <input
                           type="email"
@@ -122,7 +122,7 @@ export default function Signin() {
                           </Link>
                         </p>
                         <Link href="/auth/forget-password" className="text-sm text-primary hover:underline">
-                          نسيت كلمة المرور؟
+                          {t("forgotPassword")}
                         </Link>
                       </div>
                     </div>

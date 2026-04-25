@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
 
 export default function ResetPasswordPage() {
+  const t = useTranslations("auth.resetPassword");
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
@@ -13,7 +15,6 @@ export default function ResetPasswordPage() {
   const [done, setDone] = useState(false);
 
   useEffect(() => {
-    // Handle Supabase recovery token from URL hash
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
         setReady(true);
@@ -22,7 +23,6 @@ export default function ResetPasswordPage() {
       }
     });
 
-    // Also check existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });
@@ -32,17 +32,17 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError("");
     if (password !== rePassword) {
-      setError("كلمتا المرور غير متطابقتين");
+      setError(t("passwordMismatch"));
       return;
     }
     if (password.length < 8) {
-      setError("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+      setError(t("passwordTooShort"));
       return;
     }
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      setError("حدث خطأ، حاول مرة أخرى");
+      setError(t("genericError"));
     } else {
       setDone(true);
       setTimeout(() => router.push("/auth/signin"), 2500);
@@ -55,9 +55,8 @@ export default function ResetPasswordPage() {
       <div className="px-4 xl:container">
         <div className="border-b pb-24">
           <div className="mx-auto max-w-[750px] rounded border bg-white px-6 py-10 sm:p-[70px] text-center">
-            <div className="text-5xl mb-4">✅</div>
-            <h2 className="text-xl font-bold mb-2">تم تغيير كلمة المرور</h2>
-            <p className="text-gray-500 text-sm">سيتم تحويلك لصفحة تسجيل الدخول...</p>
+            <h2 className="text-xl font-bold mb-2">{t("successTitle")}</h2>
+            <p className="text-gray-500 text-sm">{t("successMessage")}</p>
           </div>
         </div>
       </div>
@@ -70,7 +69,7 @@ export default function ResetPasswordPage() {
         <div className="border-b pb-24">
           <div className="mx-auto max-w-[750px] rounded border bg-white px-6 py-10 sm:p-[70px] text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4" />
-            <p className="text-gray-500 text-sm">جاري التحقق من الرابط...</p>
+            <p className="text-gray-500 text-sm">{t("verifying")}</p>
           </div>
         </div>
       </div>
@@ -83,17 +82,16 @@ export default function ResetPasswordPage() {
         <div className="border-b pb-24">
           <div className="mx-auto max-w-[750px] rounded border bg-white px-6 py-10 sm:p-[70px]">
             <div className="mb-8 text-center">
-              <div className="text-4xl mb-3">🔐</div>
               <h1 className="font-heading mb-3 text-2xl font-medium text-black sm:text-3xl xl:text-[40px] xl:leading-tight">
-                تعيين كلمة مرور جديدة
+                {t("newTitle")}
               </h1>
-              <p className="text-gray-500 text-sm">أدخل كلمة المرور الجديدة</p>
+              <p className="text-gray-500 text-sm">{t("newDescription")}</p>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6 pb-7">
                 <input
                   type="password"
-                  placeholder="كلمة المرور الجديدة (8 أحرف على الأقل)"
+                  placeholder={t("passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -101,7 +99,7 @@ export default function ResetPasswordPage() {
                 />
                 <input
                   type="password"
-                  placeholder="تأكيد كلمة المرور"
+                  placeholder={t("confirmPlaceholder")}
                   value={rePassword}
                   onChange={(e) => setRePassword(e.target.value)}
                   required
@@ -115,7 +113,7 @@ export default function ResetPasswordPage() {
                   disabled={loading}
                   className="inline-flex items-center justify-center rounded bg-primary px-14 py-[14px] text-sm font-semibold text-white disabled:opacity-50"
                 >
-                  {loading ? "جاري الحفظ..." : "حفظ كلمة المرور"}
+                  {loading ? t("saving") : t("button")}
                 </button>
               </div>
             </form>

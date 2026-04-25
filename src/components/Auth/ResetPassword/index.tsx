@@ -1,9 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
 
 const ResetPassword = () => {
+  const t = useTranslations("auth.resetPassword");
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
@@ -22,17 +24,17 @@ const ResetPassword = () => {
     e.preventDefault();
     setError("");
     if (password !== rePassword) {
-      setError("كلمتا المرور غير متطابقتين");
+      setError(t("passwordMismatch"));
       return;
     }
     if (password.length < 8) {
-      setError("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+      setError(t("passwordTooShort"));
       return;
     }
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      setError("حدث خطأ، حاول مرة أخرى");
+      setError(t("genericError"));
     } else {
       router.push("/auth/signin");
     }
@@ -48,14 +50,14 @@ const ResetPassword = () => {
           <div className="mx-auto max-w-[750px] rounded border bg-white px-6 py-10 sm:p-[70px]">
             <div className="mb-8 text-center">
               <h1 className="font-heading mb-3 text-2xl font-medium text-black sm:text-3xl xl:text-[40px] xl:leading-tight">
-                تعيين كلمة مرور جديدة
+                {t("newTitle")}
               </h1>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6 pb-7">
                 <input
                   type="password"
-                  placeholder="كلمة المرور الجديدة"
+                  placeholder={t("passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -63,7 +65,7 @@ const ResetPassword = () => {
                 />
                 <input
                   type="password"
-                  placeholder="تأكيد كلمة المرور"
+                  placeholder={t("confirmPlaceholder")}
                   value={rePassword}
                   onChange={(e) => setRePassword(e.target.value)}
                   required
@@ -75,7 +77,7 @@ const ResetPassword = () => {
                   disabled={loading}
                   className="inline-flex items-center justify-center rounded bg-primary px-14 py-[14px] text-sm font-semibold text-white disabled:opacity-50"
                 >
-                  {loading ? "..." : "حفظ كلمة المرور"}
+                  {loading ? t("saving") : t("button")}
                 </button>
               </div>
             </form>

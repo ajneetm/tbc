@@ -82,7 +82,10 @@
         "message": {
           "placeholder": "Tell me about your project"
         },
-        "button": "Send Message"
+        "button": "Send Message",
+        "success": "Your message has been sent successfully ✓",
+        "error": "An error occurred, please try again",
+        "sending": "Sending..."
       }
     }
   },
@@ -210,8 +213,11 @@
       "signup": "Don't have an account yet?",
       "signupLink": "Sign up",
       "signinButton": "Sign In Now",
+      "forgotPassword": "Forgot your password?",
+      "emailLabel": "Email",
       "validation": {
-        "invalid": "Invalid username or password",
+        "invalid": "Invalid email or password",
+        "emailNotConfirmed": "Your email has not been confirmed yet. Check your inbox (and spam folder).",
         "success": "Logged in successfully"
       },
       "form": {
@@ -235,6 +241,8 @@
       "signin": "Already have an account?",
       "signinLink": "Sign in",
       "signupButton": "Sign Up Now",
+      "alreadyRegistered": "This email is already registered",
+      "genericError": "An error occurred, please try again",
       "form": {
         "first_name": {
           "label": "First Name",
@@ -288,6 +296,9 @@
       "title": "Forgot Password",
       "description": "Enter the email address associated with your account and we'll send you a link to reset your password.",
       "button": "Send Reset Link",
+      "emailSentTitle": "Check your email",
+      "emailSentMessage": "We sent a password reset link to",
+      "error": "An error occurred, please verify your email and try again",
       "form": {
         "email": {
           "label": "Email",
@@ -304,6 +315,17 @@
       "title": "Update Password",
       "description": "Enter your new password",
       "button": "Save Password",
+      "newTitle": "Set a New Password",
+      "newDescription": "Enter your new password below",
+      "passwordPlaceholder": "New password (at least 8 characters)",
+      "confirmPlaceholder": "Confirm password",
+      "saving": "Saving...",
+      "verifying": "Verifying link...",
+      "passwordMismatch": "Passwords do not match",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "genericError": "An error occurred, please try again",
+      "successTitle": "Password Changed",
+      "successMessage": "You will be redirected to the sign in page...",
       "form": {
         "password": {
           "label": "Password",

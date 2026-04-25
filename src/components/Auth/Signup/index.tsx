@@ -24,11 +24,11 @@ export default function Signup() {
     setError("");
 
     if (form.password !== form.rePassword) {
-      setError("كلمتا المرور غير متطابقتين");
+      setError(t("form.rePassword.invalid"));
       return;
     }
     if (form.password.length < 8) {
-      setError("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+      setError(t("form.password.min"));
       return;
     }
 
@@ -47,8 +47,8 @@ export default function Signup() {
 
     if (error) {
       setError(error.message === "User already registered"
-        ? "هذا البريد الإلكتروني مسجّل مسبقاً"
-        : "حدث خطأ، حاول مرة أخرى");
+        ? t("alreadyRegistered")
+        : t("genericError"));
     } else {
       router.push("/auth/signin");
     }

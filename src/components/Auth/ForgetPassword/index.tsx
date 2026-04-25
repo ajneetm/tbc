@@ -20,7 +20,7 @@ const ForgetPassword = () => {
     });
 
     if (error) {
-      setError("حدث خطأ، تأكد من البريد الإلكتروني وحاول مرة أخرى");
+      setError(t("error"));
     } else {
       setSent(true);
     }
@@ -33,10 +33,9 @@ const ForgetPassword = () => {
         <div className="px-4 xl:container">
           <div className="border-b pb-24">
             <div className="mx-auto max-w-[750px] rounded border bg-white px-6 py-10 sm:p-[70px] text-center">
-              <div className="text-5xl mb-4">📧</div>
-              <h2 className="text-xl font-bold mb-2">تحقق من بريدك الإلكتروني</h2>
+              <h2 className="text-xl font-bold mb-2">{t("emailSentTitle")}</h2>
               <p className="text-body-color">
-                أرسلنا رابط إعادة تعيين كلمة المرور على <strong>{email}</strong>
+                {t("emailSentMessage")} <strong>{email}</strong>
               </p>
             </div>
           </div>

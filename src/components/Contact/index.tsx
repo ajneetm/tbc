@@ -105,16 +105,16 @@ export default function Contact({ joinUs = false }: { joinUs?: boolean }) {
                 <div className="w-full px-4">
                   <div className="pt-4 text-center">
                     {status === "success" ? (
-                      <p className="text-green-400 font-semibold">تم إرسال رسالتك بنجاح ✓</p>
+                      <p className="text-green-400 font-semibold">{t("form.success")}</p>
                     ) : status === "error" ? (
-                      <p className="text-red-400 font-semibold">حدث خطأ، حاول مرة أخرى</p>
+                      <p className="text-red-400 font-semibold">{t("form.error")}</p>
                     ) : (
                       <button
                         type="submit"
                         disabled={status === "loading"}
                         className="mx-auto inline-flex items-center justify-center rounded-full bg-primary px-9 py-4 font-semibold text-white transition duration-300 ease-in-out hover:bg-opacity-90 hover:shadow-signUp disabled:opacity-60"
                       >
-                        {status === "loading" ? "جاري الإرسال..." : t("form.button")}
+                        {status === "loading" ? t("form.sending") : t("form.button")}
                       </button>
                     )}
                   </div>
