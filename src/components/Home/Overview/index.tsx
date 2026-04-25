@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Graphic from "./Graphic";
-import VideoComponent from "@/components/Common/VideoComponent";
 import { getTranslations } from "next-intl/server";
 export default async function Overview() {
   const t = await getTranslations("home.overview");
@@ -13,12 +12,15 @@ export default async function Overview() {
         <section className="py-12">
           <div className="-mx-4 mb-8 flex flex-wrap">
             <div className="mb-8 h-full w-full px-4 lg:mb-0 lg:w-6/12 xl:w-5/12">
-              <div>
-                <VideoComponent
-                  className="w-full"
-                  width={"560"}
-                  height="315"
-                  src="https://www.youtube.com/embed/YVZVFUbZ2CY?si=Ml2Xuph0puhtB_6G&autoplay=1&mute=1&loop=1&playlist=YVZVFUbZ2CY&rel=0"
+              <div className="aspect-video w-full overflow-hidden rounded-xl">
+                <video
+                  src="/tbc.mp4"
+                  className="h-full w-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  controls
                 />
               </div>
             </div>
