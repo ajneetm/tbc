@@ -2,12 +2,11 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { MailCheck } from "lucide-react";
 
 export default function Signup() {
   const t = useTranslations("auth.signup");
-  const router = useRouter();
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -18,6 +17,7 @@ export default function Signup() {
   const [visible, setVisible] = useState({ password: false, rePassword: false });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,13 +50,38 @@ export default function Signup() {
         ? t("alreadyRegistered")
         : t("genericError"));
     } else {
-      router.push("/auth/signin");
+      setEmailSent(true);
     }
     setLoading(false);
   };
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [key]: e.target.value });
+
+  if (emailSent) {
+    return (
+      <section className="pt-[120px] lg:pt-[240px]">
+        <div className="px-4 xl:container">
+          <div className="border-b pb-24">
+            <div className="mx-auto max-w-[560px] rounded-2xl border border-gray-200 bg-white px-8 py-12 shadow-sm text-center">
+              <div className="flex justify-center mb-5">
+                <MailCheck className="w-16 h-16 text-green-500" />
+              </div>
+              <h2 className="font-bold text-xl text-gray-900 mb-2">{t("emailSentTitle")}</h2>
+              <p className="text-gray-500 text-sm leading-relaxed mb-2">{t("emailSentDesc")}</p>
+              <p className="text-gray-400 text-xs mb-8">{t("emailSentSpam")}</p>
+              <Link
+                href="/auth/signin"
+                className="inline-block bg-black text-white text-sm font-bold px-8 py-3 rounded-xl hover:bg-gray-800 transition"
+              >
+                {t("goToSignIn")}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="pt-[120px] lg:pt-[240px]">

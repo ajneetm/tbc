@@ -264,6 +264,10 @@
       "signupButton": "Sign Up Now",
       "alreadyRegistered": "This email is already registered",
       "genericError": "An error occurred, please try again",
+      "emailSentTitle": "Check your inbox!",
+      "emailSentDesc": "We sent a confirmation link to your email. Click it to activate your account, then sign in.",
+      "emailSentSpam": "Don't see it? Check your spam or junk folder.",
+      "goToSignIn": "Go to Sign In",
       "form": {
         "first_name": {
           "label": "First Name",
