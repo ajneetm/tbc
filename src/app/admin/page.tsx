@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import * as XLSX from "xlsx";
-import { FolderOpen, User, CheckCircle2, Clock } from "lucide-react";
+import { FolderOpen, User, CheckCircle2, Clock, QrCode, X } from "lucide-react";
+import QRCode from "react-qr-code";
 
 const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase());
 
@@ -69,6 +70,7 @@ export default function AdminPage() {
   // Projects
   const [adminProjects, setAdminProjects] = useState<any[]>([]);
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [qrProject, setQrProject] = useState<any>(null);
   const [projectEvals, setProjectEvals] = useState<any[]>([]);
   const [projectEvalsLoading, setProjectEvalsLoading] = useState(false);
 
@@ -1569,6 +1571,10 @@ export default function AdminPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
+                            <button onClick={() => setQrProject(project)}
+                              className="text-xs bg-black text-white px-3 py-1.5 rounded-lg font-medium hover:bg-gray-800 transition flex items-center gap-1">
+                              <QrCode className="w-3 h-3" /> QR
+                            </button>
                             <button onClick={() => toggleProjectActive(project.id, project.is_active)}
                               className={`text-xs px-3 py-1.5 rounded-lg font-medium transition ${project.is_active ? "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600" : "bg-green-600 text-white hover:bg-green-700"}`}>
                               {project.is_active ? "إخفاء" : "نشر"}
@@ -1589,6 +1595,33 @@ export default function AdminPage() {
 
       </div>
       </main>
+
+      {/* QR Modal */}
+      {qrProject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => setQrProject(null)}>
+          <div className="bg-white rounded-3xl p-10 text-center max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-right">
+                <p className="text-xs text-gray-400">رمز تقييم مشروع</p>
+                <p className="font-bold text-gray-900">{qrProject.title}</p>
+              </div>
+              <button onClick={() => setQrProject(null)} className="text-gray-400 hover:text-black">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex justify-center p-4 bg-white rounded-2xl border border-gray-100">
+              <QRCode
+                value={`${typeof window !== "undefined" ? window.location.origin : "https://thebusinessclock.com"}/evaluate/${qrProject.id}`}
+                size={220}
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-4 break-all" dir="ltr">
+              /evaluate/{qrProject.id}
+            </p>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
