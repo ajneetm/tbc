@@ -76,6 +76,7 @@ export default function QuizPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [currentDay, setCurrentDay] = useState(0);
   const [submitted, setSubmitted] = useState<boolean[]>([false, false, false, false, false]);
+  const [scores, setScores] = useState<(number | null)[]>([null, null, null, null, null]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ score: number; total: number } | null>(null);
@@ -90,13 +91,15 @@ export default function QuizPage() {
 
       const [settingsRes, progressRes] = await Promise.all([
         supabase.from("quiz_settings").select("current_day").eq("id", 1).single(),
-        supabase.from("quiz_progress").select("submitted").eq("user_id", uid).maybeSingle(),
+        supabase.from("quiz_progress").select("submitted, scores").eq("user_id", uid).maybeSingle(),
       ]);
 
       const day = settingsRes.data?.current_day ?? 0;
       const sub: boolean[] = progressRes.data?.submitted ?? [false, false, false, false, false];
+      const sc: (number | null)[] = progressRes.data?.scores ?? [null, null, null, null, null];
       setCurrentDay(day);
       setSubmitted(sub);
+      setScores(sc);
       setLoading(false);
     };
     init();
@@ -120,17 +123,21 @@ export default function QuizPage() {
     const score = questions.filter((q, i) => answers[i] === q.correct).length;
     const newSubmitted = [...submitted];
     newSubmitted[activeDay - 1] = true;
+    const newScores = [...scores];
+    newScores[activeDay - 1] = score;
 
     const existing = await supabase.from("quiz_progress").select("id").eq("user_id", userId).maybeSingle();
     if (existing.data) {
-      await supabase.from("quiz_progress").update({ submitted: newSubmitted, updated_at: new Date().toISOString() }).eq("user_id", userId);
+      await supabase.from("quiz_progress").update({ submitted: newSubmitted, scores: newScores, updated_at: new Date().toISOString() }).eq("user_id", userId);
     } else {
-      await supabase.from("quiz_progress").insert({ user_id: userId, submitted: newSubmitted, updated_at: new Date().toISOString() });
+      await supabase.from("quiz_progress").insert({ user_id: userId, submitted: newSubmitted, scores: newScores, updated_at: new Date().toISOString() });
     }
 
     setSubmitted(newSubmitted);
+    setScores(newScores);
     setResult({ score, total: questions.length });
     setSubmitting(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (loading) return (

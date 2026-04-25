@@ -901,13 +901,20 @@ export default function AdminPage() {
                   <thead className="bg-gray-50 text-gray-500 text-xs">
                     <tr>
                       <th className="px-4 py-2 text-right">المستخدم</th>
-                      <th className="px-4 py-2 text-right">أيام مكتملة</th>
+                      <th className="px-4 py-2 text-center">اليوم 1</th>
+                      <th className="px-4 py-2 text-center">اليوم 2</th>
+                      <th className="px-4 py-2 text-center">اليوم 3</th>
+                      <th className="px-4 py-2 text-center">اليوم 4</th>
+                      <th className="px-4 py-2 text-center">اليوم 5</th>
+                      <th className="px-4 py-2 text-center font-bold">المجموع</th>
                       <th className="px-4 py-2 text-right">آخر تحديث</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {quizProgress.map((p) => {
                       const user = siteUsers.find((u) => u.id === p.user_id);
+                      const sc: (number | null)[] = p.scores ?? [null, null, null, null, null];
+                      const totalScore = sc.reduce<number>((sum, s) => sum + (s ?? 0), 0);
                       const doneCount = (p.submitted as boolean[])?.filter(Boolean).length ?? 0;
                       return (
                         <tr key={p.id} className="hover:bg-gray-50">
@@ -915,13 +922,23 @@ export default function AdminPage() {
                             <p className="font-medium">{user?.name || "—"}</p>
                             <p className="text-xs text-gray-400" dir="ltr">{user?.email || p.user_id}</p>
                           </td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-1">
-                              {[0, 1, 2, 3, 4].map((i) => (
-                                <span key={i} className={`w-6 h-6 rounded-full text-xs flex items-center justify-center font-bold ${p.submitted?.[i] ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-300"}`}>{i + 1}</span>
-                              ))}
-                            </div>
-                            <p className="text-xs text-gray-400 mt-1">{doneCount}/5 أيام</p>
+                          {[0, 1, 2, 3, 4].map((i) => (
+                            <td key={i} className="px-4 py-3 text-center">
+                              {p.submitted?.[i] ? (
+                                <span className={`inline-block font-bold text-sm px-2 py-0.5 rounded-lg ${sc[i] !== null && sc[i]! >= 7 ? "bg-green-100 text-green-700" : sc[i] !== null && sc[i]! >= 5 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-600"}`}>
+                                  {sc[i] ?? 0}/10
+                                </span>
+                              ) : (
+                                <span className="text-gray-300 text-sm">—</span>
+                              )}
+                            </td>
+                          ))}
+                          <td className="px-4 py-3 text-center">
+                            {doneCount > 0 ? (
+                              <span className="font-bold text-sm bg-black text-white px-3 py-1 rounded-lg">
+                                {totalScore}/{doneCount * 10}
+                              </span>
+                            ) : <span className="text-gray-300 text-sm">—</span>}
                           </td>
                           <td className="px-4 py-3 text-gray-400 text-xs">{p.updated_at ? new Date(p.updated_at).toLocaleDateString("ar-SA") : "—"}</td>
                         </tr>
