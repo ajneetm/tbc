@@ -24,7 +24,14 @@ export default function ProjectReportPage() {
         supabase.from("projects").select("*").eq("id", id).single(),
         supabase.from("project_evaluations").select("*").eq("project_id", id),
       ]);
-      if (projRes.data) setProject(projRes.data);
+      if (projRes.data) {
+        setProject(projRes.data);
+        if (projRes.data.owner_id) {
+          const usersRes = await fetch("/api/admin/users").then((r) => r.json()).catch(() => ({ users: [] }));
+          const owner = (usersRes.users || []).find((u: any) => u.id === projRes.data.owner_id);
+          if (owner?.email) setEmailTo(owner.email);
+        }
+      }
       setEvals(evalsRes.data || []);
       setLoading(false);
     };

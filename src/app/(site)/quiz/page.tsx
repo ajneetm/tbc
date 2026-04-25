@@ -74,6 +74,8 @@ export default function QuizPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [currentDay, setCurrentDay] = useState(0);
   const [submitted, setSubmitted] = useState<boolean[]>([false, false, false, false, false]);
   const [scores, setScores] = useState<(number | null)[]>([null, null, null, null, null]);
@@ -88,6 +90,9 @@ export default function QuizPage() {
 
       const uid = session.user.id;
       setUserId(uid);
+      setUserEmail(session.user.email ?? null);
+      const meta = session.user.user_metadata || {};
+      setUserName(meta.first_name || meta.full_name?.split(" ")[0] || null);
 
       const [settingsRes, progressRes] = await Promise.all([
         supabase.from("quiz_settings").select("current_day").eq("id", 1).single(),
@@ -140,6 +145,14 @@ export default function QuizPage() {
     setResult({ score, total: questions.length });
     setSubmitting(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (userEmail) {
+      fetch("/api/quiz-result", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to: userEmail, name: userName, day: activeDay, score, total: questions.length }),
+      }).catch(() => {});
+    }
   };
 
   if (loading) return (
