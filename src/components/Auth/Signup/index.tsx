@@ -60,26 +60,22 @@ export default function Signup() {
 
   if (emailSent) {
     return (
-      <section className="pt-[120px] lg:pt-[240px]">
-        <div className="px-4 xl:container">
-          <div className="border-b pb-24">
-            <div className="mx-auto max-w-[560px] rounded-2xl border border-gray-200 bg-white px-8 py-12 shadow-sm text-center">
-              <div className="flex justify-center mb-5">
-                <MailCheck className="w-16 h-16 text-green-500" />
-              </div>
-              <h2 className="font-bold text-xl text-gray-900 mb-2">{t("emailSentTitle")}</h2>
-              <p className="text-gray-500 text-sm leading-relaxed mb-2">{t("emailSentDesc")}</p>
-              <p className="text-gray-400 text-xs mb-8">{t("emailSentSpam")}</p>
-              <Link
-                href="/auth/signin"
-                className="inline-block bg-black text-white text-sm font-bold px-8 py-3 rounded-xl hover:bg-gray-800 transition"
-              >
-                {t("goToSignIn")}
-              </Link>
-            </div>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-50 px-4">
+        <div className="w-full max-w-[480px] rounded-2xl border border-gray-200 bg-white px-8 py-12 shadow-sm text-center">
+          <div className="flex justify-center mb-5">
+            <MailCheck className="w-16 h-16 text-green-500" />
           </div>
+          <h2 className="font-bold text-xl text-gray-900 mb-2">{t("emailSentTitle")}</h2>
+          <p className="text-gray-500 text-sm leading-relaxed mb-2">{t("emailSentDesc")}</p>
+          <p className="text-gray-400 text-xs mb-8">{t("emailSentSpam")}</p>
+          <Link
+            href="/auth/signin"
+            className="inline-block bg-black text-white text-sm font-bold px-8 py-3 rounded-xl hover:bg-gray-800 transition"
+          >
+            {t("goToSignIn")}
+          </Link>
         </div>
-      </section>
+      </div>
     );
   }
 
