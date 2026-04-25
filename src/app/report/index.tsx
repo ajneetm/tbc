@@ -83,9 +83,14 @@ function SurveyReport({
     <div dir={dir} className="min-h-screen bg-gray-50 font-[Tajawal] print:bg-white">
       <style>{`
         @media print {
-          .no-print { display: none !important; }
+          /* Override the global print-result.css that hides body * */
+          #report-area,
+          #report-area * { visibility: visible !important; }
+          #report-area { position: static !important; transform: none !important; }
+
+          .no-print { display: none !important; visibility: hidden !important; }
           header, .header, nav, footer, .sticky-navbar,
-          [class*="sticky-navbar"], [class*="Navbar"] { display: none !important; }
+          [class*="sticky-navbar"], [class*="Navbar"] { display: none !important; visibility: hidden !important; }
           body { background: white !important; margin: 0 !important; }
           .min-h-screen { min-height: unset !important; }
           .max-w-4xl { max-width: 100% !important; padding: 0 16px !important; }
@@ -100,7 +105,7 @@ function SurveyReport({
         .ai-report strong { color: #111827; }
       `}</style>
 
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 print:px-6 print:py-4">
+      <div id="report-area" className="max-w-4xl mx-auto px-4 py-8 space-y-6 print:px-6 print:py-4">
 
         {/* ── Score Hero ── */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

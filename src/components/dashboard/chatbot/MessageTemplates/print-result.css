@@ -4,9 +4,7 @@
   }
 
   #printableArea,
-  #printableArea *,
-  #report-area,
-  #report-area * {
+  #printableArea * {
     visibility: visible;
   }
 
