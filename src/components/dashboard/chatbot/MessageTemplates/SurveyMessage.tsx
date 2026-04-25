@@ -113,7 +113,7 @@ function SurveyMessage({
           : currentQuestion?.question_ar}
       </p>
       <div className="mt-2 flex w-full gap-[10px] max-md:flex-wrap">
-        {surveyAnswers.map((answer) => (
+        {[...surveyAnswers].reverse().map((answer) => (
           <button
             disabled={isAnswerDisabled}
             onClick={() => handleAnswer(answer.id, answer.score)}
