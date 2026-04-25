@@ -141,7 +141,7 @@ export default function Navbar() {
                           onClick={() => setNavigationOpen(false)}
                           className={
                             item.highlight
-                              ? "flex py-2 text-base font-semibold text-white bg-primary px-3 rounded-md lg:mr-0 lg:inline-flex lg:px-3 lg:py-6 hover:bg-primary/90"
+                              ? "flex py-2 text-base font-semibold text-white bg-[#F04438] px-3 rounded-md lg:mr-0 lg:inline-flex lg:px-3 lg:py-6 hover:bg-[#d03b2f]"
                               : `${pathUrl === `/${item?.href}` ? "text-primary" : ""} flex py-2 text-base text-black group-hover:text-primary lg:mr-0 lg:inline-flex lg:px-0 lg:py-6 ${item?.href?.startsWith("#") ? "menu-scroll" : ""}`
                           }
                         >
