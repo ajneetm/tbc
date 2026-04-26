@@ -194,15 +194,16 @@ export default function ReportPage() {
     if (!aiAnalysis || !survey || autoSentTo) return;
     const toEmail = user?.email || survey.email;
     if (!toEmail) return;
-    setAutoSentTo(toEmail);
-    sendReport(toEmail, aiAnalysis, survey.score, language).catch(() => {});
-  }, [aiAnalysis, user, survey]);
+    sendReport(toEmail, aiAnalysis, survey.score, language)
+      .then((res) => { if (res.ok) setAutoSentTo(toEmail); })
+      .catch(() => {});
+  }, [aiAnalysis, user, survey, language]);
 
   const handleManualSend = async () => {
     if (!emailInput.trim() || !survey || !aiAnalysis) return;
     setEmailSending(true);
-    await sendReport(emailInput.trim(), aiAnalysis, survey.score, language).catch(() => {});
-    setEmailSent(true);
+    const res = await sendReport(emailInput.trim(), aiAnalysis, survey.score, language).catch(() => null);
+    if (res?.ok) setEmailSent(true);
     setEmailSending(false);
   };
 
