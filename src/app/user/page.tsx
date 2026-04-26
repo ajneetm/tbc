@@ -56,7 +56,7 @@ export default function UserDashboard() {
       const email = user.email?.toLowerCase() || "";
       if (ADMIN_EMAILS.includes(email)) { router.replace("/admin"); return; }
 
-      const { data: trainer } = await supabase.from("trainers").select("status").ilike("email", email).single();
+      const { data: trainer } = await supabase.from("trainers").select("status").ilike("email", email).maybeSingle();
       if (trainer?.status === "active") { router.replace("/trainer"); return; }
 
       setAuthUser(user);

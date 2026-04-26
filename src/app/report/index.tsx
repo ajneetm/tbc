@@ -103,7 +103,8 @@ function SurveyReport({
       if (res.ok) {
         setEmailDone(true);
       } else {
-        setEmailError(isRtl ? "حدث خطأ، حاول مرة أخرى" : "An error occurred, please try again");
+        const body = await res.json().catch(() => ({}));
+        setEmailError(body?.error || (isRtl ? "حدث خطأ، حاول مرة أخرى" : "An error occurred, please try again"));
       }
     } catch {
       setEmailError(isRtl ? "حدث خطأ، حاول مرة أخرى" : "An error occurred, please try again");
