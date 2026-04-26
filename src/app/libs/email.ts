@@ -10,10 +10,11 @@ type EmailPayload = {
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmail = async (data: EmailPayload) => {
-  return resend.emails.send({
+  const { error } = await resend.emails.send({
     from: data.from ?? process.env.EMAIL_FROM ?? "The Business Clock <noreply@thebusinessclock.com>",
     to: data.to,
     subject: data.subject,
     html: data.html,
   });
+  if (error) throw new Error(error.message);
 };
