@@ -318,18 +318,41 @@ export default function UserDashboard() {
                   </div>
                   <div className="divide-y divide-gray-100">
                     {surveyResults.map((r, i) => (
-                      <div key={r.id} className="px-5 py-3 flex items-center gap-4">
-                        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-500 text-xs flex-shrink-0">
-                          {surveyResults.length - i}
+                      <div key={r.id}>
+                        <div className="px-5 py-3 flex items-center gap-4">
+                          <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center font-bold text-gray-500 text-xs flex-shrink-0">
+                            {surveyResults.length - i}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{surveyTypeLabel(r.survey_type)}</p>
+                            <p className="text-xs text-gray-400">{new Date(r.created_at).toLocaleDateString("ar-SA")}</p>
+                          </div>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <div className="text-left">
+                              <p className="font-bold text-base">{r.percentage}%</p>
+                              <p className="text-xs text-gray-400">{r.total_score}/360</p>
+                            </div>
+                            {r.ai_analysis && (
+                              <button
+                                onClick={() => {
+                                  const el = document.getElementById(`report-${r.id}`);
+                                  if (el) el.classList.toggle("hidden");
+                                }}
+                                className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-gray-600 transition"
+                              >
+                                التقرير
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{surveyTypeLabel(r.survey_type)}</p>
-                          <p className="text-xs text-gray-400">{new Date(r.created_at).toLocaleDateString("ar-SA")}</p>
-                        </div>
-                        <div className="text-left flex-shrink-0">
-                          <p className="font-bold text-base">{r.percentage}%</p>
-                          <p className="text-xs text-gray-400">{r.total_score}/360</p>
-                        </div>
+                        {r.ai_analysis && (
+                          <div id={`report-${r.id}`} className="hidden px-5 pb-5">
+                            <div
+                              className="prose prose-sm max-w-none text-gray-700 bg-gray-50 rounded-xl p-4 text-sm leading-relaxed"
+                              dangerouslySetInnerHTML={{ __html: r.ai_analysis }}
+                            />
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

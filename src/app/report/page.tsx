@@ -12,6 +12,8 @@ import {
 import { remark } from "remark";
 import remarkHtml from "remark-html";
 import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
+import { supabase } from "@/lib/supabase";
+import { CheckCircle2, Send } from "lucide-react";
 
 const SESSION_SURVEY_DATA = "SESSION_SURVEY_DATA";
 
@@ -207,6 +209,26 @@ export default function ReportPage() {
         body: JSON.stringify({ ...payload, to: adminEmail }),
       }).catch(() => {});
     }
+
+    // حفظ التقرير في Supabase
+    if (user) {
+      supabase
+        .from("survey_results")
+        .select("id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single()
+        .then(({ data }) => {
+          if (data?.id) {
+            supabase
+              .from("survey_results")
+              .update({ ai_analysis: aiAnalysis })
+              .eq("id", data.id)
+              .then(() => {});
+          }
+        });
+    }
   }, [aiAnalysis, user, survey, language]);
 
   const handleManualSend = async () => {
@@ -236,32 +258,51 @@ export default function ReportPage() {
       <SurveyReport survey={survey} language={language} aiAnalysis={aiAnalysis} isLoading={isLoading} />
 
       {!isLoading && aiAnalysis && (
-        <div dir={isAr ? "rtl" : "ltr"} className="max-w-lg mx-auto px-4 pb-16 text-center">
-          {autoSentTo ? (
-            <p className="text-sm text-gray-400">
-              {isAr ? `✓ أُرسل التقرير إلى ${autoSentTo}` : `✓ Report sent to ${autoSentTo}`}
-            </p>
-          ) : (
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col sm:flex-row gap-3 items-center">
-              <p className="text-sm text-gray-600 flex-shrink-0">
-                {isAr ? "أرسل التقرير على بريدك" : "Send report to your email"}
+        <div dir={isAr ? "rtl" : "ltr"} className="max-w-lg mx-auto px-4 pb-20">
+
+          {/* كارد تأكيد الإرسال */}
+          {autoSentTo && (
+            <div className="bg-white border border-green-100 rounded-3xl p-8 text-center shadow-sm mb-4">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="w-9 h-9 text-green-500" />
+                </div>
+              </div>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">
+                {isAr ? "تم إرسال التقرير!" : "Report Sent!"}
+              </h3>
+              <p className="text-gray-500 text-sm mb-1">
+                {isAr ? "أُرسل تقريرك إلى" : "Your report was sent to"}
               </p>
+              <p className="font-bold text-gray-800 text-sm" dir="ltr">{autoSentTo}</p>
+            </div>
+          )}
+
+          {/* إرسال لبريد آخر / إرسال إذا ما كان عنده أوتوسند */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-5">
+            <p className="text-sm font-medium text-gray-700 mb-3">
+              {autoSentTo
+                ? (isAr ? "إرسال إلى بريد آخر" : "Send to another email")
+                : (isAr ? "أرسل التقرير على بريدك" : "Send report to your email")}
+            </p>
+            <div className="flex gap-2">
               <input
                 type="email"
                 value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder={isAr ? "بريدك الإلكتروني" : "your@email.com"}
-                className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-black min-w-0"
+                onChange={(e) => { setEmailInput(e.target.value); setEmailSent(false); }}
+                placeholder={isAr ? "البريد الإلكتروني" : "email@example.com"}
+                className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black min-w-0"
               />
               <button
                 onClick={handleManualSend}
-                disabled={emailSending || emailSent || !emailInput.trim()}
-                className="px-5 py-2 bg-black text-white text-sm font-bold rounded-xl disabled:opacity-40 hover:bg-gray-800 transition flex-shrink-0"
+                disabled={emailSending || !emailInput.trim()}
+                className="px-4 py-2.5 bg-black text-white text-sm font-bold rounded-xl disabled:opacity-40 hover:bg-gray-800 transition flex items-center gap-1.5 flex-shrink-0"
               >
-                {emailSending ? "..." : emailSent ? "✓" : isAr ? "إرسال" : "Send"}
+                {emailSending ? "..." : emailSent ? "✓" : <><Send className="w-3.5 h-3.5" />{isAr ? "إرسال" : "Send"}</>}
               </button>
             </div>
-          )}
+          </div>
+
         </div>
       )}
     </div>
