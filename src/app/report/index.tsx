@@ -2,7 +2,7 @@
 
 import { Survey } from "@/app/libs/api/survey";
 import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   PolarAngleAxis,
   PolarRadiusAxis,
