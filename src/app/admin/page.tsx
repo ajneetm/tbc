@@ -390,8 +390,8 @@ export default function AdminPage() {
 
   const deleteProject = async (id: string) => {
     if (!confirm("حذف المشروع وجميع تقييماته؟")) return;
-    await supabase.from("project_evaluations").delete().eq("project_id", id);
-    await supabase.from("projects").delete().eq("id", id);
+    const { error: projError } = await supabase.from("projects").delete().eq("id", id);
+    if (projError) { alert("فشل حذف المشروع: " + projError.message); return; }
     setAdminProjects((prev) => prev.filter((p) => p.id !== id));
     setSelectedProject(null);
   };
