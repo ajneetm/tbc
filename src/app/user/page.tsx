@@ -444,7 +444,7 @@ export default function UserDashboard() {
                       <p className="text-gray-500 text-sm">الاختبارات اليومية ستُفتح قريباً من قِبل الإدارة</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-5 gap-2">
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                       {[1, 2, 3, 4, 5].map((day) => {
                         const unlocked = day <= quizCurrentDay;
                         const done = quizProgress?.submitted?.[day - 1] === true;

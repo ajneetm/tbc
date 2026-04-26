@@ -49,6 +49,7 @@ export default function AdminPage() {
   const [userMessage, setUserMessage] = useState({ text: "", ok: true });
   const [showAddUser, setShowAddUser] = useState(false);
   const [impersonating, setImpersonating] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Trainers
   const [newTrainer, setNewTrainer] = useState({ name: "", email: "", phone: "", specialty: "", bio: "" });
@@ -482,8 +483,13 @@ export default function AdminPage() {
   return (
     <div dir="rtl" className="h-screen overflow-hidden bg-gray-100 font-[Tajawal] flex">
 
+      {/* ── Mobile overlay ── */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 bg-black/50 z-20 lg:hidden" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* ── Sidebar ── */}
-      <aside className="w-64 flex-shrink-0 bg-black flex flex-col h-full overflow-y-auto">
+      <aside className={`fixed lg:static inset-y-0 right-0 z-30 w-64 flex-shrink-0 bg-black flex flex-col h-full overflow-y-auto transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"}`}>
 
         {/* Brand */}
         <div className="px-5 py-5 border-b border-white/10">
@@ -534,12 +540,15 @@ export default function AdminPage() {
       <main className="flex-1 overflow-y-auto h-full">
 
         {/* Top bar */}
-        <div className="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10 flex items-center justify-between">
-          <h1 className="font-bold text-gray-900">{activeTabObj.icon} {activeTabObj.label}</h1>
+        <div className="bg-white border-b border-gray-200 px-4 lg:px-8 py-3 lg:py-4 sticky top-0 z-10 flex items-center justify-between gap-3">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition">
+            <div className="w-5 h-0.5 bg-gray-700 mb-1" /><div className="w-5 h-0.5 bg-gray-700 mb-1" /><div className="w-5 h-0.5 bg-gray-700" />
+          </button>
+          <h1 className="font-bold text-gray-900 text-sm lg:text-base">{activeTabObj.icon} {activeTabObj.label}</h1>
           {loadingData && <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />}
         </div>
 
-      <div className="p-8">
+      <div className="p-4 lg:p-8">
 
         {/* ── Overview ── */}
         {activeTab === "overview" && (
@@ -581,7 +590,7 @@ export default function AdminPage() {
             {/* Latest results */}
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               <div className="px-5 py-3 border-b border-gray-100"><h2 className="font-bold">آخر الاختبارات</h2></div>
-              <table className="w-full text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-sm">
                 <thead className="bg-gray-50 text-gray-500 text-xs">
                   <tr>
                     <th className="px-4 py-2 text-right">الاسم</th>
@@ -600,7 +609,7 @@ export default function AdminPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </div>
           </div>
         )}
@@ -647,7 +656,7 @@ export default function AdminPage() {
                 {surveyResults.length === 0 ? (
                   <p className="text-center text-gray-400 py-12">لا توجد نتائج بعد</p>
                 ) : (
-                  <table className="w-full text-sm">
+                  <div className="overflow-x-auto"><table className="w-full text-sm">
                     <thead className="bg-gray-50 text-gray-500 text-xs">
                       <tr>
                         <th className="px-4 py-2 text-right">الاسم</th>
@@ -677,7 +686,7 @@ export default function AdminPage() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
+                  </table></div>
                 )}
               </div>
             )}
@@ -728,7 +737,7 @@ export default function AdminPage() {
               ) : siteUsers.length === 0 ? (
                 <p className="text-center text-gray-400 py-12">لا يوجد مستخدمون بعد</p>
               ) : (
-                <table className="w-full text-sm">
+                <div className="overflow-x-auto"><table className="w-full text-sm">
                   <thead className="bg-gray-50 text-gray-500 text-xs">
                     <tr>
                       <th className="px-4 py-2 text-right">الاسم</th>
@@ -786,7 +795,7 @@ export default function AdminPage() {
                       );
                     })}
                   </tbody>
-                </table>
+                </table></div>
               )}
             </div>
           </div>
@@ -803,7 +812,7 @@ export default function AdminPage() {
                   <span className="text-yellow-600 font-bold text-sm">⏳ طلبات تسجيل جديدة</span>
                   <span className="bg-yellow-500 text-white text-xs rounded-full px-2 py-0.5 font-bold">{trainers.filter(t => t.status === "pending").length}</span>
                 </div>
-                <table className="w-full text-sm">
+                <div className="overflow-x-auto"><table className="w-full text-sm">
                   <thead className="text-gray-500 text-xs">
                     <tr>
                       <th className="px-4 py-2 text-right">الاسم</th>
@@ -831,7 +840,7 @@ export default function AdminPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></div>
               </div>
             )}
 
@@ -872,7 +881,7 @@ export default function AdminPage() {
               {trainers.filter(t => t.status !== "pending").length === 0 ? (
                 <p className="text-center text-gray-400 py-12 text-sm">لا يوجد مدربون بعد</p>
               ) : (
-                <table className="w-full text-sm">
+                <div className="overflow-x-auto"><table className="w-full text-sm">
                   <thead className="bg-gray-50 text-gray-500 text-xs">
                     <tr>
                       <th className="px-4 py-2 text-right">الاسم</th>
@@ -902,7 +911,7 @@ export default function AdminPage() {
                       </tr>
                     ))}
                   </tbody>
-                </table>
+                </table></div>
               )}
             </div>
           </div>
@@ -939,7 +948,7 @@ export default function AdminPage() {
               {quizProgress.length === 0 ? (
                 <p className="text-center text-gray-400 py-10 text-sm">لا يوجد مشاركون بعد</p>
               ) : (
-                <table className="w-full text-sm">
+                <div className="overflow-x-auto"><table className="w-full text-sm">
                   <thead className="bg-gray-50 text-gray-500 text-xs">
                     <tr>
                       <th className="px-4 py-2 text-right">المستخدم</th>
@@ -999,7 +1008,7 @@ export default function AdminPage() {
                       );
                     })}
                   </tbody>
-                </table>
+                </table></div>
               )}
             </div>
           </div>
