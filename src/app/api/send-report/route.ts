@@ -3,14 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { to, totalScore, percentage, language, aiContent } = await req.json();
+    const { to, totalScore, percentage, language, aiContent, userName, userEmail } = await req.json();
 
     if (!to) return NextResponse.json({ error: "Email required" }, { status: 400 });
 
+    const isAdminCopy = !!userEmail;
     const isAr = language === "ar";
-    const subject = isAr
-      ? `تقريرك من ساعة العمل — ${totalScore}/360 (${percentage}%)`
-      : `Your Business Clock Report — ${totalScore}/360 (${percentage}%)`;
+    const subject = isAdminCopy
+      ? `نسخة تقرير — ${userName || userEmail} — ${totalScore}/360 (${percentage}%)`
+      : isAr
+        ? `تقريرك من ساعة العمل — ${totalScore}/360 (${percentage}%)`
+        : `Your Business Clock Report — ${totalScore}/360 (${percentage}%)`;
 
     const html = `<!DOCTYPE html>
 <html dir="${isAr ? "rtl" : "ltr"}" lang="${isAr ? "ar" : "en"}">
@@ -39,6 +42,10 @@ export async function POST(req: NextRequest) {
       <p>ساعة العمل</p>
     </div>
     <div class="body">
+      ${isAdminCopy ? `<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;">
+        <strong>المستخدم:</strong> ${userName || "—"}<br/>
+        <strong>الإيميل:</strong> ${userEmail}
+      </div>` : ""}
       <div class="score-box">
         <div class="num">${totalScore} / 360</div>
         <div class="sub">${percentage}% — ${isAr ? "النسبة الإجمالية" : "Overall Percentage"}</div>

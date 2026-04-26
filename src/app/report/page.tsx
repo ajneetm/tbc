@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import SurveyReport from ".";
 import { Survey } from "@/app/libs/api/survey";
@@ -11,6 +11,7 @@ import {
 } from "@/components/dashboard/chatbot/MessageTemplates/constents";
 import { remark } from "remark";
 import remarkHtml from "remark-html";
+import { useSupabaseAuth } from "@/app/context/SupabaseAuthContext";
 
 const SESSION_SURVEY_DATA = "SESSION_SURVEY_DATA";
 
@@ -99,6 +100,8 @@ export default function ReportPage() {
   const [aiAnalysis, setAiAnalysis] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const { push } = useRouter();
+  const { user } = useSupabaseAuth();
+  const adminNotifiedRef = useRef(false);
 
   useEffect(() => {
     const modalScoreRaw = sessionStorage.getItem(SESSION_STORAGE_SCORE_KEY);
@@ -163,6 +166,24 @@ export default function ReportPage() {
         if (res.content) {
           const html = (await remark().use(remarkHtml).process(res.content)).toString();
           setAiAnalysis(html);
+
+          // أرسل نسخة للأدمن إذا المستخدم مسجل
+          if (user && !adminNotifiedRef.current) {
+            adminNotifiedRef.current = true;
+            fetch("/api/send-report", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                to: process.env.NEXT_PUBLIC_ADMIN_EMAIL || "ali@qatarccs.org",
+                totalScore: Number(totalScore),
+                percentage: ((Number(totalScore) / 360) * 100).toFixed(1),
+                language,
+                aiContent: html,
+                userName: user.user_metadata?.full_name || user.email,
+                userEmail: user.email,
+              }),
+            }).catch(() => {});
+          }
         }
       })
       .catch(() => {})
