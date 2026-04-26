@@ -1,6 +1,7 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
+
 function VideoComponent({
   src,
   width,
@@ -12,46 +13,69 @@ function VideoComponent({
   height: string;
   className?: string;
 }) {
-  const videoRef = useRef<HTMLIFrameElement>(null);
-  const [hasPlayed, setHasPlayed] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeReadyRef = useRef(false);
+  const shouldPlayRef = useRef(false);
   const t = useTranslations("home.overview");
+
+  const iframeSrc = useMemo(() => {
+    try {
+      const url = new URL(src);
+      url.searchParams.delete("autoplay");
+      url.searchParams.set("enablejsapi", "1");
+      return url.toString();
+    } catch {
+      return src;
+    }
+  }, [src]);
+
   useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const play = () =>
+      iframe.contentWindow?.postMessage(
+        JSON.stringify({ event: "command", func: "playVideo", args: "" }),
+        "*",
+      );
+
+    const onLoad = () => {
+      iframeReadyRef.current = true;
+      if (shouldPlayRef.current) play();
+    };
+    iframe.addEventListener("load", onLoad);
+
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !hasPlayed) {
-            const iframe = videoRef.current;
-            if (iframe) {
-              const src = iframe.src;
-              iframe.src = src;
-              setHasPlayed(true);
-            }
-          }
-        });
+        if (entries[0].isIntersecting) {
+          shouldPlayRef.current = true;
+          if (iframeReadyRef.current) play();
+          observer.disconnect();
+        }
       },
-      { threshold: 0.5 }, // Trigger when 50% of element is visible
+      { threshold: 0.3 },
     );
+    observer.observe(iframe);
 
-    if (videoRef.current) {
-      observer.observe(videoRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasPlayed]);
+    return () => {
+      iframe.removeEventListener("load", onLoad);
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <iframe
-      ref={videoRef}
+      ref={iframeRef}
       width={width}
       height={height}
       className={className}
-      src={src}
+      src={iframeSrc}
       title={t("videoIframeTitle")}
       frameBorder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       referrerPolicy="strict-origin-when-cross-origin"
       allowFullScreen
-    ></iframe>
+    />
   );
 }
 
