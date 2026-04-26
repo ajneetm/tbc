@@ -81,7 +81,8 @@ function SurveyReport({
   }, [data]);
 
   const handleSendEmail = async () => {
-    if (!emailTo) return;
+    const target = user?.email || emailTo;
+    if (!target) return;
     setEmailSending(true);
     setEmailError("");
     try {
@@ -89,7 +90,7 @@ function SurveyReport({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: emailTo,
+          to: target,
           totalScore: score,
           percentage: modalRatio,
           language,
@@ -221,20 +222,35 @@ function SurveyReport({
               {isRtl ? "ارسال الاختبار عبر الايميل" : "Send Report via Email"}
             </button>
 
-            {/* Services / signup */}
-            <Link href="/auth/signup" className={btnClass}>
-              {isRtl ? "للحصول على المزيد من الخدمات" : "Get More Services"}
-            </Link>
+            {/* Services / signup — guests only */}
+            {!user && (
+              <Link href="/auth/signup" className={btnClass}>
+                {isRtl ? "للحصول على المزيد من الخدمات" : "Get More Services"}
+              </Link>
+            )}
           </div>
 
-          {/* Email input (shown when toggle clicked) */}
+          {/* Email section */}
           {showEmailInput && (
             <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
               {emailDone ? (
                 <p className="text-center text-green-600 font-semibold text-sm">
                   {isRtl ? "تم إرسال التقرير بنجاح ✓" : "Report sent successfully ✓"}
                 </p>
+              ) : user ? (
+                /* Logged-in: send directly, no input */
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm text-gray-600 truncate">{user.email}</p>
+                  <button
+                    onClick={handleSendEmail}
+                    disabled={emailSending}
+                    className="rounded-xl bg-black text-white px-5 py-2.5 text-sm font-bold disabled:opacity-50 hover:bg-gray-800 transition flex-shrink-0"
+                  >
+                    {emailSending ? (isRtl ? "جاري الإرسال..." : "Sending...") : (isRtl ? "إرسال" : "Send")}
+                  </button>
+                </div>
               ) : (
+                /* Guest: show email input */
                 <div className="flex gap-2">
                   <input
                     type="email"
@@ -249,9 +265,7 @@ function SurveyReport({
                     disabled={emailSending || !emailTo}
                     className="rounded-xl bg-black text-white px-5 py-2.5 text-sm font-bold disabled:opacity-50 hover:bg-gray-800 transition"
                   >
-                    {emailSending
-                      ? (isRtl ? "جاري الإرسال..." : "Sending...")
-                      : (isRtl ? "إرسال" : "Send")}
+                    {emailSending ? (isRtl ? "جاري الإرسال..." : "Sending...") : (isRtl ? "إرسال" : "Send")}
                   </button>
                 </div>
               )}
