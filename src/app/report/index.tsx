@@ -81,8 +81,7 @@ function SurveyReport({
   }, [data]);
 
   const handleSendEmail = async () => {
-    const target = user?.email || emailTo;
-    if (!target) return;
+    if (!emailTo) return;
     setEmailSending(true);
     setEmailError("");
     try {
@@ -90,7 +89,7 @@ function SurveyReport({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          to: target,
+          to: emailTo,
           totalScore: score,
           percentage: modalRatio,
           language,
@@ -237,20 +236,7 @@ function SurveyReport({
                 <p className="text-center text-green-600 font-semibold text-sm">
                   {isRtl ? "تم إرسال التقرير بنجاح ✓" : "Report sent successfully ✓"}
                 </p>
-              ) : user ? (
-                /* Logged-in: send directly, no input */
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm text-gray-600 truncate">{user.email}</p>
-                  <button
-                    onClick={handleSendEmail}
-                    disabled={emailSending}
-                    className="rounded-xl bg-black text-white px-5 py-2.5 text-sm font-bold disabled:opacity-50 hover:bg-gray-800 transition flex-shrink-0"
-                  >
-                    {emailSending ? (isRtl ? "جاري الإرسال..." : "Sending...") : (isRtl ? "إرسال" : "Send")}
-                  </button>
-                </div>
               ) : (
-                /* Guest: show email input */
                 <div className="flex gap-2">
                   <input
                     type="email"
