@@ -405,8 +405,9 @@ export default function AdminPage() {
   };
 
   const deleteQuizProgress = async (id: string) => {
-    if (!confirm("حذف تقدم هذا المستخدم؟")) return;
-    await supabase.from("quiz_progress").delete().eq("id", id);
+    if (!confirm("حذف تقدم هذا المستخدم؟ سيتمكن من إعادة الاختبار من البداية.")) return;
+    const { error } = await supabase.from("quiz_progress").delete().eq("id", id);
+    if (error) { alert("فشل الحذف: " + error.message); return; }
     setQuizProgress(prev => prev.filter(p => p.id !== id));
   };
 
