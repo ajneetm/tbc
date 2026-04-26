@@ -103,11 +103,14 @@ function SurveyReport({
       if (res.ok) {
         setEmailDone(true);
       } else {
-        const body = await res.json().catch(() => ({}));
-        setEmailError(body?.error || (isRtl ? "حدث خطأ، حاول مرة أخرى" : "An error occurred, please try again"));
+        setEmailError(isRtl
+          ? "تعذّر إرسال التقرير، يرجى التواصل مع الإدارة على info@thebusinessclock.com"
+          : "Failed to send report, please contact us at info@thebusinessclock.com");
       }
     } catch {
-      setEmailError(isRtl ? "حدث خطأ، حاول مرة أخرى" : "An error occurred, please try again");
+      setEmailError(isRtl
+        ? "تعذّر إرسال التقرير، يرجى التواصل مع الإدارة على info@thebusinessclock.com"
+        : "Failed to send report, please contact us at info@thebusinessclock.com");
     }
     setEmailSending(false);
   };
