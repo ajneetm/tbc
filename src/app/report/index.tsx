@@ -63,6 +63,10 @@ function SurveyReport({
 
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [emailTo, setEmailTo] = useState(user?.email || "");
+
+  useEffect(() => {
+    if (user?.email && !emailTo) setEmailTo(user.email);
+  }, [user]);
   const [emailSending, setEmailSending] = useState(false);
   const [emailDone, setEmailDone] = useState(false);
   const [emailError, setEmailError] = useState("");
