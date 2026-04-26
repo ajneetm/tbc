@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     await sendEmail({
       to: adminEmail,
-      subject: `[Business Clock] تقييم جديد - ${name} (${percentage}%)`,
+      subject: `تقييم جديد — ${name} (${percentage}%)`,
       html: htmlContent,
     });
 

@@ -213,59 +213,17 @@ function SurveyReport({
         </div>
 
         {/* ── Action buttons ── */}
-        <div className="no-print space-y-4 pb-6">
+        <div className="no-print pb-6">
           <div className="flex flex-wrap justify-center gap-3">
-            {/* Print */}
             <button type="button" onClick={() => window.print()} className={btnClass}>
               {isRtl ? "طباعة الاختبار" : "Print Report"}
             </button>
-
-            {/* Email toggle */}
-            <button
-              type="button"
-              onClick={() => { setShowEmailInput(v => !v); setEmailDone(false); setEmailError(""); }}
-              className={btnClass}
-            >
-              {isRtl ? "ارسال الاختبار عبر الايميل" : "Send Report via Email"}
-            </button>
-
-            {/* Services / signup — guests only */}
             {!user && (
               <Link href="/auth/signup" className={btnClass}>
                 {isRtl ? "للحصول على المزيد من الخدمات" : "Get More Services"}
               </Link>
             )}
           </div>
-
-          {/* Email section */}
-          {showEmailInput && (
-            <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-              {emailDone ? (
-                <p className="text-center text-green-600 font-semibold text-sm">
-                  {isRtl ? "تم إرسال التقرير بنجاح ✓" : "Report sent successfully ✓"}
-                </p>
-              ) : (
-                <div className="flex gap-2">
-                  <input
-                    type="email"
-                    value={emailTo}
-                    onChange={e => setEmailTo(e.target.value)}
-                    placeholder={isRtl ? "البريد الإلكتروني" : "Email address"}
-                    dir="ltr"
-                    className="flex-1 border border-gray-300 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black"
-                  />
-                  <button
-                    onClick={handleSendEmail}
-                    disabled={emailSending || !emailTo}
-                    className="rounded-xl bg-black text-white px-5 py-2.5 text-sm font-bold disabled:opacity-50 hover:bg-gray-800 transition"
-                  >
-                    {emailSending ? (isRtl ? "جاري الإرسال..." : "Sending...") : (isRtl ? "إرسال" : "Send")}
-                  </button>
-                </div>
-              )}
-              {emailError && <p className="text-red-500 text-xs mt-2 text-center">{emailError}</p>}
-            </div>
-          )}
         </div>
 
       </div>

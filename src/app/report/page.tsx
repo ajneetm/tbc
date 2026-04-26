@@ -105,6 +105,7 @@ export default function ReportPage() {
   const [emailSent, setEmailSent] = useState(false);
   const [emailSending, setEmailSending] = useState(false);
   const [autoSentTo, setAutoSentTo] = useState<string | null>(null);
+  const [showEmailSection, setShowEmailSection] = useState(false);
   const sentRef = useRef(false);
   const { push } = useRouter();
   const { user } = useSupabaseAuth();
@@ -260,9 +261,9 @@ export default function ReportPage() {
       {!isLoading && aiAnalysis && (
         <div dir={isAr ? "rtl" : "ltr"} className="max-w-lg mx-auto px-4 pb-20">
 
-          {/* كارد تأكيد الإرسال */}
-          {autoSentTo && (
-            <div className="bg-white border border-green-100 rounded-3xl p-8 text-center shadow-sm mb-4">
+          {/* كارد تأكيد الإرسال التلقائي */}
+          {autoSentTo && !showEmailSection && (
+            <div className="bg-white border border-green-100 rounded-3xl p-8 text-center shadow-sm">
               <div className="flex justify-center mb-4">
                 <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
                   <CheckCircle2 className="w-9 h-9 text-green-500" />
@@ -274,34 +275,62 @@ export default function ReportPage() {
               <p className="text-gray-500 text-sm mb-1">
                 {isAr ? "أُرسل تقريرك إلى" : "Your report was sent to"}
               </p>
-              <p className="font-bold text-gray-800 text-sm" dir="ltr">{autoSentTo}</p>
+              <p className="font-bold text-gray-800 text-sm mb-5" dir="ltr">{autoSentTo}</p>
+              <button
+                onClick={() => setShowEmailSection(true)}
+                className="text-sm text-gray-500 hover:text-black underline transition"
+              >
+                {isAr ? "إرسال إلى بريد آخر" : "Send to another email"}
+              </button>
             </div>
           )}
 
-          {/* إرسال لبريد آخر / إرسال إذا ما كان عنده أوتوسند */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <p className="text-sm font-medium text-gray-700 mb-3">
-              {autoSentTo
-                ? (isAr ? "إرسال إلى بريد آخر" : "Send to another email")
-                : (isAr ? "أرسل التقرير على بريدك" : "Send report to your email")}
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                value={emailInput}
-                onChange={(e) => { setEmailInput(e.target.value); setEmailSent(false); }}
-                placeholder={isAr ? "البريد الإلكتروني" : "email@example.com"}
-                className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black min-w-0"
-              />
+          {/* زر إرسال للزوار + قسم الإيميل */}
+          {!autoSentTo && !showEmailSection && (
+            <div className="text-center">
               <button
-                onClick={handleManualSend}
-                disabled={emailSending || !emailInput.trim()}
-                className="px-4 py-2.5 bg-black text-white text-sm font-bold rounded-xl disabled:opacity-40 hover:bg-gray-800 transition flex items-center gap-1.5 flex-shrink-0"
+                onClick={() => setShowEmailSection(true)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-sm font-bold rounded-2xl hover:bg-gray-800 transition"
               >
-                {emailSending ? "..." : emailSent ? "✓" : <><Send className="w-3.5 h-3.5" />{isAr ? "إرسال" : "Send"}</>}
+                <Send className="w-4 h-4" />
+                {isAr ? "إرسال التقرير بالبريد" : "Send Report by Email"}
               </button>
             </div>
-          </div>
+          )}
+
+          {showEmailSection && (
+            <div className="space-y-3">
+              {autoSentTo && (
+                <div className="bg-green-50 border border-green-100 rounded-2xl px-5 py-4 flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                  <p className="text-sm text-green-800">
+                    {isAr ? "أُرسل تلقائياً إلى" : "Auto-sent to"} <span className="font-bold" dir="ltr">{autoSentTo}</span>
+                  </p>
+                </div>
+              )}
+              <div className="bg-white border border-gray-200 rounded-2xl p-5">
+                <p className="text-sm font-medium text-gray-700 mb-3">
+                  {isAr ? "إرسال إلى بريد آخر" : "Send to another email"}
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="email"
+                    value={emailInput}
+                    onChange={(e) => { setEmailInput(e.target.value); setEmailSent(false); }}
+                    placeholder={isAr ? "البريد الإلكتروني" : "email@example.com"}
+                    className="flex-1 border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-black min-w-0"
+                  />
+                  <button
+                    onClick={handleManualSend}
+                    disabled={emailSending || !emailInput.trim()}
+                    className="px-4 py-2.5 bg-black text-white text-sm font-bold rounded-xl disabled:opacity-40 hover:bg-gray-800 transition flex items-center gap-1.5 flex-shrink-0"
+                  >
+                    {emailSending ? "..." : emailSent ? "✓" : <><Send className="w-3.5 h-3.5" />{isAr ? "إرسال" : "Send"}</>}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
       )}
