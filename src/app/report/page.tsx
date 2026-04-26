@@ -183,17 +183,30 @@ export default function ReportPage() {
     if (!toEmail) return;
     sentRef.current = true;
     setAutoSentTo(toEmail);
+
+    const payload = {
+      totalScore: Number(survey.score),
+      percentage: ((Number(survey.score) / 360) * 100).toFixed(1),
+      language,
+      aiContent: aiAnalysis,
+    };
+
+    // إرسال للمستخدم
     fetch("/api/send-report", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: toEmail,
-        totalScore: Number(survey.score),
-        percentage: ((Number(survey.score) / 360) * 100).toFixed(1),
-        language,
-        aiContent: aiAnalysis,
-      }),
+      body: JSON.stringify({ ...payload, to: toEmail }),
     }).catch(() => {});
+
+    // نسخة للأدمن
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    if (adminEmail && adminEmail !== toEmail) {
+      fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, to: adminEmail }),
+      }).catch(() => {});
+    }
   }, [aiAnalysis, user, survey, language]);
 
   const handleManualSend = async () => {
