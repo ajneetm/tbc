@@ -38,6 +38,10 @@ export default function AdminPage() {
   const [selectedSurvey, setSelectedSurvey] = useState<any>(null);
   const [loadingData, setLoadingData] = useState(false);
 
+  // Quiz day reset confirm
+  const [confirmReset, setConfirmReset] = useState<{ progressId: string; dayIndex: number } | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
+
   // Quiz day control
   const [quizCurrentDay, setQuizCurrentDay] = useState(1);
   const [dayLoading, setDayLoading] = useState(false);
@@ -411,19 +415,22 @@ export default function AdminPage() {
     setQuizProgress(prev => prev.filter(p => p.id !== id));
   };
 
-  const resetQuizDay = async (progressId: string, dayIndex: number) => {
-    const progress = quizProgress.find(p => p.id === progressId);
-    if (!progress) return;
-    const submitted = [...(progress.submitted || [false, false, false, false, false])];
-    const scores = [...(progress.scores || [null, null, null, null, null])];
-    submitted[dayIndex] = false;
-    scores[dayIndex] = null;
-    const { error } = await supabase
-      .from("quiz_progress")
-      .update({ submitted, scores, updated_at: new Date().toISOString() })
-      .eq("id", progressId);
-    if (error) { alert("فشل الحذف: " + error.message); return; }
-    setQuizProgress(prev => prev.map(p => p.id === progressId ? { ...p, submitted, scores } : p));
+  const resetQuizDay = async () => {
+    if (!confirmReset) return;
+    const { progressId, dayIndex } = confirmReset;
+    setResetLoading(true);
+    const res = await fetch("/api/admin/reset-quiz-day", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ progressId, dayIndex }),
+    });
+    const body = await res.json();
+    setResetLoading(false);
+    setConfirmReset(null);
+    if (!res.ok) { alert("فشل الحذف: " + body.error); return; }
+    setQuizProgress(prev => prev.map(p =>
+      p.id === progressId ? { ...p, submitted: body.submitted, scores: body.scores } : p
+    ));
   };
 
   const deleteConsultation = async (id: string) => {
@@ -1012,7 +1019,7 @@ export default function AdminPage() {
                                     {sc[i] !== null ? `${sc[i]}/10` : "✓"}
                                   </span>
                                   <button
-                                    onClick={() => resetQuizDay(p.id, i)}
+                                    onClick={() => setConfirmReset({ progressId: p.id, dayIndex: i })}
                                     title={`حذف نتيجة اليوم ${i + 1}`}
                                     className="text-xs text-red-400 hover:text-red-600 leading-none"
                                   >× حذف</button>
@@ -1651,6 +1658,46 @@ export default function AdminPage() {
       </main>
 
       {/* QR Modal */}
+      {/* Confirm reset quiz day */}
+      {confirmReset && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+          onClick={() => !resetLoading && setConfirmReset(null)}
+        >
+          <div
+            className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl text-right"
+            dir="rtl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 bg-red-50 rounded-2xl flex items-center justify-center mb-5">
+              <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            <h3 className="font-bold text-gray-900 text-lg mb-1">حذف نتيجة اليوم {confirmReset.dayIndex + 1}؟</h3>
+            <p className="text-gray-400 text-sm mb-7">سيتم حذف نتيجة هذا اليوم وسيتمكن المستخدم من إعادة حله من جديد.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={resetQuizDay}
+                disabled={resetLoading}
+                className="flex-1 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-2xl text-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {resetLoading
+                  ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  : "نعم، احذف"}
+              </button>
+              <button
+                onClick={() => setConfirmReset(null)}
+                disabled={resetLoading}
+                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-2xl text-sm transition"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {qrProject && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => setQrProject(null)}>
           <div className="bg-white rounded-3xl p-10 text-center max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
