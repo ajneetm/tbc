@@ -333,26 +333,15 @@ export default function UserDashboard() {
                               <p className="text-xs text-gray-400">{r.total_score}/360</p>
                             </div>
                             {r.ai_analysis && (
-                              <button
-                                onClick={() => {
-                                  const el = document.getElementById(`report-${r.id}`);
-                                  if (el) el.classList.toggle("hidden");
-                                }}
-                                className="text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium text-gray-600 transition"
+                              <a
+                                href={`/my-report/${r.id}`}
+                                className="text-xs px-3 py-1.5 bg-black text-white hover:bg-gray-800 rounded-lg font-medium transition"
                               >
-                                التقرير
-                              </button>
+                                عرض التقرير ←
+                              </a>
                             )}
                           </div>
                         </div>
-                        {r.ai_analysis && (
-                          <div id={`report-${r.id}`} className="hidden px-5 pb-5">
-                            <div
-                              className="prose prose-sm max-w-none text-gray-700 bg-gray-50 rounded-xl p-4 text-sm leading-relaxed"
-                              dangerouslySetInnerHTML={{ __html: r.ai_analysis }}
-                            />
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>

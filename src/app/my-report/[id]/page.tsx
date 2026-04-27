@@ -1,0 +1,86 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import SurveyReport from "@/app/report";
+
+export default function MyReportPage() {
+  const { id } = useParams<{ id: string }>();
+  const router = useRouter();
+  const [survey, setSurvey] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) { router.replace("/auth/signin"); return; }
+
+      const { data } = await supabase
+        .from("survey_results")
+        .select("*")
+        .eq("id", id)
+        .eq("user_id", session.user.id)
+        .single();
+
+      setSurvey(data);
+      setLoading(false);
+    };
+    load();
+  }, [id]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+    </div>
+  );
+
+  if (!survey) return (
+    <div className="min-h-screen flex items-center justify-center text-gray-400">
+      التقرير غير متاح
+    </div>
+  );
+
+  const surveyObj = {
+    id: survey.id,
+    score: String(survey.total_score),
+    photo: "",
+    name: survey.name || "",
+    email: survey.email || "",
+    phone: survey.phone || "",
+    type: survey.survey_type || "explorers",
+    business_type: survey.business_type || "",
+    age: survey.age || "",
+    capital: survey.capital || "",
+    project_age: survey.project_age || "",
+    staff_count: survey.staff_count || "",
+    data: (survey.answers || []).map((a: any, i: number) => ({
+      id: String(i),
+      question: a.question || "",
+      score: String(a.score),
+      rate: "1",
+      answerId: "",
+      modalId: a.modalId || "",
+      questionId: String(i),
+    })),
+  };
+
+  return (
+    <div>
+      <div className="no-print fixed top-4 right-4 z-50">
+        <button
+          onClick={() => router.back()}
+          className="bg-white border border-gray-200 rounded-xl px-4 py-2 text-sm font-medium shadow-sm hover:bg-gray-50 transition"
+        >
+          ← رجوع
+        </button>
+      </div>
+      <SurveyReport
+        survey={surveyObj}
+        language={survey.language || "ar"}
+        aiAnalysis={survey.ai_analysis || ""}
+        isLoading={false}
+      />
+    </div>
+  );
+}
