@@ -77,7 +77,7 @@ export default function MyReportsPage() {
           <div className="text-center py-20">
             <p className="text-4xl mb-4">📊</p>
             <p className="font-bold text-gray-700 text-lg mb-2">ما في تقارير بعد</p>
-            <p className="text-gray-400 text-sm mb-6">أكمل اختبار "اختبر عملك" لتظهر تقاريرك هنا</p>
+            <p className="text-gray-400 text-sm mb-6">أكمل اختبار &quot;اختبر عملك&quot; لتظهر تقاريرك هنا</p>
             <Link
               href="/dashboard/chatbot"
               className="inline-block bg-black text-white text-sm font-bold px-6 py-3 rounded-2xl hover:bg-gray-800 transition"
