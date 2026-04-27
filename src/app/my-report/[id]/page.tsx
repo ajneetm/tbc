@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SurveyReport from "@/app/report";
+import { remark } from "remark";
+import remarkHtml from "remark-html";
 
 export default function MyReportPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [survey, setSurvey] = useState<any>(null);
+  const [aiAnalysis, setAiAnalysis] = useState("");
   const [loading, setLoading] = useState(true);
+  const [aiLoading, setAiLoading] = useState(false);
+  const generatedRef = useRef(false);
 
   useEffect(() => {
     const load = async () => {
@@ -24,10 +29,50 @@ export default function MyReportPage() {
         .single();
 
       setSurvey(data);
+      if (data?.ai_analysis) setAiAnalysis(data.ai_analysis);
       setLoading(false);
     };
     load();
   }, [id]);
+
+  // إذا ما في تقرير AI — ولّده واحفظه
+  useEffect(() => {
+    if (!survey || survey.ai_analysis || generatedRef.current) return;
+    generatedRef.current = true;
+    setAiLoading(true);
+
+    const modalScores = (survey.modal_scores || []).map((m: any) => ({
+      modalId: m.modalId,
+      score: m.modalScore ?? 0,
+    }));
+
+    fetch("/api/generate-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        surveyType: survey.survey_type,
+        totalScore: Number(survey.total_score),
+        modalScores,
+        language: survey.language || "ar",
+      }),
+    })
+      .then((r) => r.json())
+      .then(async (res) => {
+        if (res.content) {
+          const html = (await remark().use(remarkHtml).process(res.content)).toString();
+          setAiAnalysis(html);
+          supabase
+            .from("survey_results")
+            .update({ ai_analysis: html })
+            .eq("id", survey.id)
+            .then(({ error }) => {
+              if (error) console.error("[save-ai]", error.message);
+            });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setAiLoading(false));
+  }, [survey]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -78,8 +123,8 @@ export default function MyReportPage() {
       <SurveyReport
         survey={surveyObj}
         language={survey.language || "ar"}
-        aiAnalysis={survey.ai_analysis || ""}
-        isLoading={false}
+        aiAnalysis={aiAnalysis}
+        isLoading={aiLoading}
       />
     </div>
   );

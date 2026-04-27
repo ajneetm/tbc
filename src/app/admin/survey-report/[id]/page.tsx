@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import SurveyReport from "@/app/report";
+import { remark } from "remark";
+import remarkHtml from "remark-html";
 
 export default function AdminSurveyReportPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [survey, setSurvey] = useState<any>(null);
+  const [aiAnalysis, setAiAnalysis] = useState("");
   const [loading, setLoading] = useState(true);
+  const [aiLoading, setAiLoading] = useState(false);
+  const generatedRef = useRef(false);
 
   useEffect(() => {
     supabase
@@ -19,25 +24,64 @@ export default function AdminSurveyReportPage() {
       .single()
       .then(({ data }) => {
         setSurvey(data);
+        if (data?.ai_analysis) {
+          setAiAnalysis(data.ai_analysis);
+        }
         setLoading(false);
       });
   }, [id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
-      </div>
-    );
-  }
+  // إذا ما في تقرير AI — ولّده واحفظه
+  useEffect(() => {
+    if (!survey || survey.ai_analysis || generatedRef.current) return;
+    generatedRef.current = true;
+    setAiLoading(true);
 
-  if (!survey) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">
-        لم يتم العثور على التقرير
-      </div>
-    );
-  }
+    const modalScores = (survey.modal_scores || []).map((m: any) => ({
+      modalId: m.modalId,
+      score: m.modalScore ?? 0,
+    }));
+
+    fetch("/api/generate-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        surveyType: survey.survey_type,
+        totalScore: Number(survey.total_score),
+        modalScores,
+        language: survey.language || "ar",
+      }),
+    })
+      .then((r) => r.json())
+      .then(async (res) => {
+        if (res.content) {
+          const html = (await remark().use(remarkHtml).process(res.content)).toString();
+          setAiAnalysis(html);
+          // احفظ في Supabase
+          supabase
+            .from("survey_results")
+            .update({ ai_analysis: html })
+            .eq("id", survey.id)
+            .then(({ error }) => {
+              if (error) console.error("[save-ai]", error.message);
+            });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setAiLoading(false));
+  }, [survey]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+    </div>
+  );
+
+  if (!survey) return (
+    <div className="min-h-screen flex items-center justify-center text-gray-400">
+      لم يتم العثور على التقرير
+    </div>
+  );
 
   const surveyObj = {
     id: survey.id,
@@ -76,8 +120,8 @@ export default function AdminSurveyReportPage() {
       <SurveyReport
         survey={surveyObj}
         language={survey.language || "ar"}
-        aiAnalysis={survey.ai_analysis || ""}
-        isLoading={false}
+        aiAnalysis={aiAnalysis}
+        isLoading={aiLoading}
       />
     </div>
   );
