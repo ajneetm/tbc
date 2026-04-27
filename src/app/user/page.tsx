@@ -229,6 +229,16 @@ export default function UserDashboard() {
               )}
             </button>
           ))}
+          {surveyResults.length > 0 && (
+            <Link
+              href="/my-reports"
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all text-right text-gray-400 hover:bg-white/10 hover:text-white"
+            >
+              <span className="flex-shrink-0">📊</span>
+              <span>تقاريري</span>
+              <span className="mr-auto bg-white/20 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{surveyResults.length}</span>
+            </Link>
+          )}
         </nav>
 
         <div className="px-3 py-4 border-t border-white/10">
