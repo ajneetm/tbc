@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 type EmailPayload = {
   to: string;
@@ -8,23 +8,31 @@ type EmailPayload = {
   attachments?: { filename: string; content: string; encoding: "base64" }[];
 };
 
-export const sendEmail = async (data: EmailPayload) => {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_SERVER_HOST,
+  port: Number(process.env.EMAIL_SERVER_PORT) || 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_SERVER_USER,
+    pass: process.env.EMAIL_SERVER_PASSWORD,
+  },
+});
 
-  const payload: Parameters<typeof resend.emails.send>[0] = {
-    from: data.from ?? "The Business Clock <noreply@thebusinessclock.com>",
+export const sendEmail = async (data: EmailPayload) => {
+  const from = data.from ?? (process.env.EMAIL_FROM || `"The Business Clock" <noreply@thebusinessclock.com>`);
+
+  const attachments = data.attachments?.length
+    ? data.attachments.map((a) => ({
+        filename: a.filename,
+        content: Buffer.from(a.content, "base64"),
+      }))
+    : undefined;
+
+  await transporter.sendMail({
+    from,
     to: data.to,
     subject: data.subject,
     html: data.html,
-  };
-
-  if (data.attachments?.length) {
-    payload.attachments = data.attachments.map((a) => ({
-      filename: a.filename,
-      content: Buffer.from(a.content, "base64"),
-    }));
-  }
-
-  const { error } = await resend.emails.send(payload);
-  if (error) throw new Error(JSON.stringify(error));
+    attachments,
+  });
 };

@@ -7,6 +7,11 @@ export async function POST(req: NextRequest) {
 
     if (!to) return NextResponse.json({ error: "Email required" }, { status: 400 });
 
+    if (!process.env.EMAIL_SERVER_USER || !process.env.EMAIL_SERVER_PASSWORD) {
+      console.error("send-report: SMTP credentials not configured");
+      return NextResponse.json({ error: "Email service not configured" }, { status: 500 });
+    }
+
     const isAdminCopy = !!userEmail;
     const isAr = language === "ar";
     const subject = isAdminCopy
