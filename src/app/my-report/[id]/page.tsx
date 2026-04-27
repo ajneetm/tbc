@@ -20,7 +20,7 @@ export default function MyReportPage() {
         .from("survey_results")
         .select("*")
         .eq("id", id)
-        .eq("user_id", session.user.id)
+        .or(`user_id.eq.${session.user.id},email.ilike.${session.user.email}`)
         .single();
 
       setSurvey(data);

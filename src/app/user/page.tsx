@@ -332,14 +332,12 @@ export default function UserDashboard() {
                               <p className="font-bold text-base">{r.percentage}%</p>
                               <p className="text-xs text-gray-400">{r.total_score}/360</p>
                             </div>
-                            {r.ai_analysis && (
-                              <a
-                                href={`/my-report/${r.id}`}
-                                className="text-xs px-3 py-1.5 bg-black text-white hover:bg-gray-800 rounded-lg font-medium transition"
-                              >
-                                عرض التقرير ←
-                              </a>
-                            )}
+                            <a
+                              href={`/my-report/${r.id}`}
+                              className="text-xs px-3 py-1.5 bg-black text-white hover:bg-gray-800 rounded-lg font-medium transition"
+                            >
+                              عرض التقرير ←
+                            </a>
                           </div>
                         </div>
                       </div>
