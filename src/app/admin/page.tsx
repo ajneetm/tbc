@@ -405,10 +405,25 @@ export default function AdminPage() {
   };
 
   const deleteQuizProgress = async (id: string) => {
-    if (!confirm("حذف تقدم هذا المستخدم؟ سيتمكن من إعادة الاختبار من البداية.")) return;
+    if (!confirm("حذف كامل تقدم هذا المستخدم؟ سيتمكن من إعادة الاختبار من البداية.")) return;
     const { error } = await supabase.from("quiz_progress").delete().eq("id", id);
     if (error) { alert("فشل الحذف: " + error.message); return; }
     setQuizProgress(prev => prev.filter(p => p.id !== id));
+  };
+
+  const resetQuizDay = async (progressId: string, dayIndex: number) => {
+    const progress = quizProgress.find(p => p.id === progressId);
+    if (!progress) return;
+    const submitted = [...(progress.submitted || [false, false, false, false, false])];
+    const scores = [...(progress.scores || [null, null, null, null, null])];
+    submitted[dayIndex] = false;
+    scores[dayIndex] = null;
+    const { error } = await supabase
+      .from("quiz_progress")
+      .update({ submitted, scores, updated_at: new Date().toISOString() })
+      .eq("id", progressId);
+    if (error) { alert("فشل الحذف: " + error.message); return; }
+    setQuizProgress(prev => prev.map(p => p.id === progressId ? { ...p, submitted, scores } : p));
   };
 
   const deleteConsultation = async (id: string) => {
@@ -992,13 +1007,16 @@ export default function AdminPage() {
                           {[0, 1, 2, 3, 4].map((i) => (
                             <td key={i} className="px-4 py-3 text-center">
                               {p.submitted?.[i] ? (
-                                sc[i] !== null ? (
-                                  <span className={`inline-block font-bold text-sm px-2 py-0.5 rounded-lg ${sc[i]! >= 7 ? "bg-green-100 text-green-700" : sc[i]! >= 5 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-600"}`}>
-                                    {sc[i]}/10
+                                <div className="flex flex-col items-center gap-1">
+                                  <span className={`inline-block font-bold text-sm px-2 py-0.5 rounded-lg ${sc[i] !== null ? (sc[i]! >= 7 ? "bg-green-100 text-green-700" : sc[i]! >= 5 ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-600") : "bg-gray-100 text-gray-500"}`}>
+                                    {sc[i] !== null ? `${sc[i]}/10` : "✓"}
                                   </span>
-                                ) : (
-                                  <span className="text-gray-300 text-sm">—</span>
-                                )
+                                  <button
+                                    onClick={() => resetQuizDay(p.id, i)}
+                                    title={`حذف نتيجة اليوم ${i + 1}`}
+                                    className="text-xs text-red-400 hover:text-red-600 leading-none"
+                                  >× حذف</button>
+                                </div>
                               ) : (
                                 <span className="text-gray-300 text-sm">—</span>
                               )}
