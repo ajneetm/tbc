@@ -195,22 +195,22 @@ export default function ReportPage() {
       aiContent: aiAnalysis,
     };
 
-    // إرسال للمستخدم
-    fetch("/api/send-report", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, to: toEmail }),
-    }).catch(() => {});
-
-    // نسخة للأدمن
-    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
-    if (adminEmail && adminEmail !== toEmail) {
+    const sendReport = (to: string) =>
       fetch("/api/send-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, to: adminEmail }),
-      }).catch(() => {});
-    }
+        body: JSON.stringify({ ...payload, to }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          console.error("[send-report]", to, res.status, body.error);
+        }
+      }).catch((e) => console.error("[send-report]", to, e?.message || e));
+
+    sendReport(toEmail);
+
+    const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+    if (adminEmail && adminEmail !== toEmail) sendReport(adminEmail);
 
     // حفظ التقرير في Supabase
     if (user) {
