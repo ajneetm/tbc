@@ -104,6 +104,7 @@ export default function ReportPage() {
   const [emailInput, setEmailInput] = useState("");
   const [emailSent, setEmailSent] = useState(false);
   const [emailSending, setEmailSending] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const [autoSentTo, setAutoSentTo] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const sentRef = useRef(false);
@@ -258,20 +259,30 @@ export default function ReportPage() {
   const handleManualSend = async () => {
     if (!emailInput.trim() || !survey || !aiAnalysis) return;
     setEmailSending(true);
-    const pdfBase64 = await generatePdfBase64();
-    await fetch("/api/send-report", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: emailInput.trim(),
-        totalScore: Number(survey.score),
-        percentage: ((Number(survey.score) / 360) * 100).toFixed(1),
-        language,
-        aiContent: aiAnalysis,
-        pdfBase64,
-      }),
-    }).catch(() => {});
-    setEmailSent(true);
+    setEmailError("");
+    try {
+      const pdfBase64 = await generatePdfBase64();
+      const res = await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: emailInput.trim(),
+          totalScore: Number(survey.score),
+          percentage: ((Number(survey.score) / 360) * 100).toFixed(1),
+          language,
+          aiContent: aiAnalysis,
+          pdfBase64,
+        }),
+      });
+      if (res.ok) {
+        setEmailSent(true);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        console.error("[send-report]", body.error);
+      }
+    } catch (e: any) {
+      console.error("[send-report]", e?.message || e);
+    }
     setEmailSending(false);
   };
 

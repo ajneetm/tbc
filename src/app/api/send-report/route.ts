@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
     await sendEmail({ to, subject, html, attachments });
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("send-report error:", error);
-    return NextResponse.json({ error: error?.message || "Failed to send" }, { status: 500 });
+    const msg = error?.message || String(error);
+    console.error("send-report error:", msg);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
