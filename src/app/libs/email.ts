@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 type EmailPayload = {
   to: string;
@@ -8,18 +8,8 @@ type EmailPayload = {
   attachments?: { filename: string; content: string; encoding: "base64" }[];
 };
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_SERVER_HOST,
-  port: Number(process.env.EMAIL_SERVER_PORT) || 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_SERVER_USER,
-    pass: process.env.EMAIL_SERVER_PASSWORD,
-  },
-});
-
 export const sendEmail = async (data: EmailPayload) => {
-  const from = data.from ?? (process.env.EMAIL_FROM || `"The Business Clock" <noreply@thebusinessclock.com>`);
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const attachments = data.attachments?.length
     ? data.attachments.map((a) => ({
@@ -28,11 +18,13 @@ export const sendEmail = async (data: EmailPayload) => {
       }))
     : undefined;
 
-  await transporter.sendMail({
-    from,
+  const { error } = await resend.emails.send({
+    from: data.from ?? "The Business Clock <noreply@thebusinessclock.com>",
     to: data.to,
     subject: data.subject,
     html: data.html,
-    attachments,
+    ...(attachments ? { attachments } : {}),
   });
+
+  if (error) throw new Error(JSON.stringify(error));
 };
