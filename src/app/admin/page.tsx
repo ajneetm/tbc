@@ -692,6 +692,9 @@ export default function AdminPage() {
                           <td className="px-4 py-3">
                             <div className="flex items-center gap-2">
                               <button onClick={() => setSelectedSurvey(r)} className="text-xs text-primary hover:underline">تفاصيل</button>
+                              {r.ai_analysis && (
+                                <a href={`/admin/survey-report/${r.id}`} target="_blank" className="text-xs text-green-600 hover:underline font-medium">التقرير</a>
+                              )}
                               <button onClick={() => deleteSurvey(r.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">حذف</button>
                             </div>
                           </td>
