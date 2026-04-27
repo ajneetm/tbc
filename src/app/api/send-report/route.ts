@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { to, totalScore, percentage, language, aiContent, userName, userEmail } = await req.json();
+    const { to, totalScore, percentage, language, aiContent, userName, userEmail, pdfBase64 } = await req.json();
 
     if (!to) return NextResponse.json({ error: "Email required" }, { status: 400 });
 
@@ -62,7 +62,10 @@ export async function POST(req: NextRequest) {
 </body>
 </html>`;
 
-    await sendEmail({ to, subject, html });
+    const attachments = pdfBase64
+      ? [{ filename: "report.pdf", content: pdfBase64, encoding: "base64" as const }]
+      : undefined;
+    await sendEmail({ to, subject, html, attachments });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("send-report error:", error);

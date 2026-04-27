@@ -5,6 +5,7 @@ type EmailPayload = {
   subject: string;
   html: string;
   from?: string;
+  attachments?: { filename: string; content: string; encoding: "base64" }[];
 };
 
 export const sendEmail = async (data: EmailPayload) => {
@@ -14,6 +15,10 @@ export const sendEmail = async (data: EmailPayload) => {
     to: data.to,
     subject: data.subject,
     html: data.html,
+    attachments: data.attachments?.map((a) => ({
+      filename: a.filename,
+      content: Buffer.from(a.content, "base64"),
+    })),
   });
   if (error) throw new Error(error.message);
 };
