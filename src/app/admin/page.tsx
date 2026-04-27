@@ -647,6 +647,17 @@ export default function AdminPage() {
                       </div>
                     ))}
                   </div>
+
+                  {selectedSurvey.ai_analysis && (
+                    <div className="mt-6 border-t border-gray-100 pt-6">
+                      <h3 className="font-bold mb-4">تقرير الذكاء الاصطناعي</h3>
+                      <div
+                        className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+                        style={{ direction: selectedSurvey.language === "ar" ? "rtl" : "ltr" }}
+                        dangerouslySetInnerHTML={{ __html: selectedSurvey.ai_analysis }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
