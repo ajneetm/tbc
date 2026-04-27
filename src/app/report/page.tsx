@@ -108,6 +108,7 @@ export default function ReportPage() {
   const [autoSentTo, setAutoSentTo] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const sentRef = useRef(false);
+  const savedRef = useRef(false);
   const { push } = useRouter();
   const { user } = useSupabaseAuth();
 
@@ -211,27 +212,32 @@ export default function ReportPage() {
 
     const adminEmail = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
     if (adminEmail && adminEmail !== toEmail) sendReport(adminEmail);
-
-    // حفظ التقرير في Supabase
-    if (user) {
-      supabase
-        .from("survey_results")
-        .select("id")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single()
-        .then(({ data }) => {
-          if (data?.id) {
-            supabase
-              .from("survey_results")
-              .update({ ai_analysis: aiAnalysis })
-              .eq("id", data.id)
-              .then(() => {});
-          }
-        });
-    }
   }, [aiAnalysis, user, survey, language]);
+
+  // حفظ AI في Supabase — منفصل حتى يشتغل حتى لو user تأخر
+  useEffect(() => {
+    if (!aiAnalysis || !user || savedRef.current) return;
+    savedRef.current = true;
+
+    supabase
+      .from("survey_results")
+      .select("id")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single()
+      .then(({ data }) => {
+        if (data?.id) {
+          supabase
+            .from("survey_results")
+            .update({ ai_analysis: aiAnalysis })
+            .eq("id", data.id)
+            .then(({ error }) => {
+              if (error) console.error("[save-ai]", error.message);
+            });
+        }
+      });
+  }, [aiAnalysis, user]);
 
   const handleManualSend = async () => {
     if (!emailInput.trim() || !survey || !aiAnalysis) return;
