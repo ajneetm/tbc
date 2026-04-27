@@ -281,20 +281,13 @@ export default function ReportPage() {
 
   return (
     <div>
-      <SurveyReport survey={survey} language={language} aiAnalysis={aiAnalysis} isLoading={isLoading} />
-
-      {/* زر فتح المودال */}
-      {!isLoading && aiAnalysis && (
-        <div className="flex justify-center pb-20">
-          <button
-            onClick={() => { setShowModal(true); setEmailSent(false); setEmailInput(autoSentTo ? "" : (user?.email || "")); }}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white text-sm font-bold rounded-2xl hover:bg-gray-800 transition"
-          >
-            <FileText className="w-4 h-4" />
-            {isAr ? "إرسال التقرير PDF" : "Send Report as PDF"}
-          </button>
-        </div>
-      )}
+      <SurveyReport
+        survey={survey}
+        language={language}
+        aiAnalysis={aiAnalysis}
+        isLoading={isLoading}
+        onSendPdf={() => { setShowModal(true); setEmailSent(false); setEmailInput(autoSentTo ? "" : (user?.email || "")); }}
+      />
 
       {/* المودال */}
       {showModal && (

@@ -44,11 +44,13 @@ function SurveyReport({
   language,
   aiAnalysis,
   isLoading,
+  onSendPdf,
 }: {
   survey: Survey;
   language?: "ar" | "en";
   aiAnalysis?: string;
   isLoading?: boolean;
+  onSendPdf?: () => void;
 }) {
   const { score, data } = survey;
   const { user } = useSupabaseAuth();
@@ -218,6 +220,11 @@ function SurveyReport({
             <button type="button" onClick={() => window.print()} className={btnClass}>
               {isRtl ? "طباعة الاختبار" : "Print Report"}
             </button>
+            {onSendPdf && aiAnalysis && (
+              <button type="button" onClick={onSendPdf} className={btnClass}>
+                {isRtl ? "إرسال PDF بالبريد" : "Send PDF by Email"}
+              </button>
+            )}
             {!user && (
               <Link href="/auth/signup" className={btnClass}>
                 {isRtl ? "للحصول على المزيد من الخدمات" : "Get More Services"}
