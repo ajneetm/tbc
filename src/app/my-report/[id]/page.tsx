@@ -61,13 +61,11 @@ export default function MyReportPage() {
         if (res.content) {
           const html = (await remark().use(remarkHtml).process(res.content)).toString();
           setAiAnalysis(html);
-          supabase
-            .from("survey_results")
-            .update({ ai_analysis: html })
-            .eq("id", survey.id)
-            .then(({ error }) => {
-              if (error) console.error("[save-ai]", error.message);
-            });
+          fetch("/api/admin/save-ai-analysis", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: survey.id, ai_analysis: html }),
+          }).catch(() => {});
         }
       })
       .catch(() => {})
