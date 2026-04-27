@@ -222,7 +222,7 @@ function SurveyReport({
             </button>
             {onSendPdf && aiAnalysis && (
               <button type="button" onClick={onSendPdf} className={btnClass}>
-                {isRtl ? "إرسال PDF بالبريد" : "Send PDF by Email"}
+                {isRtl ? "إرسال التقرير بالبريد" : "Send Report by Email"}
               </button>
             )}
             {!user && (

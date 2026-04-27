@@ -233,35 +233,10 @@ export default function ReportPage() {
     }
   }, [aiAnalysis, user, survey, language]);
 
-  const generatePdfBase64 = async (): Promise<string | null> => {
-    try {
-      const el = document.getElementById("report-area");
-      if (!el) return null;
-      const html2canvas = (await import("html2canvas")).default;
-      const { jsPDF } = await import("jspdf");
-      const canvas = await html2canvas(el, { scale: 1.5, useCORS: true, backgroundColor: "#f9fafb" });
-      const imgData = canvas.toDataURL("image/jpeg", 0.85);
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-      const imgW = pageW;
-      const imgH = (canvas.height * pageW) / canvas.width;
-      let y = 0;
-      while (y < imgH) {
-        if (y > 0) pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, -y, imgW, imgH);
-        y += pageH;
-      }
-      return pdf.output("datauristring").split(",")[1];
-    } catch { return null; }
-  };
-
   const handleManualSend = async () => {
     if (!emailInput.trim() || !survey || !aiAnalysis) return;
     setEmailSending(true);
-    setEmailError("");
     try {
-      const pdfBase64 = await generatePdfBase64();
       const res = await fetch("/api/send-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -271,7 +246,6 @@ export default function ReportPage() {
           percentage: ((Number(survey.score) / 360) * 100).toFixed(1),
           language,
           aiContent: aiAnalysis,
-          pdfBase64,
         }),
       });
       if (res.ok) {
@@ -365,8 +339,8 @@ export default function ReportPage() {
                     className="w-full bg-black text-white text-sm font-bold py-3 rounded-xl disabled:opacity-40 hover:bg-gray-800 transition flex items-center justify-center gap-2"
                   >
                     {emailSending
-                      ? <><span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> {isAr ? "جاري التجهيز..." : "Preparing..."}</>
-                      : <><Send className="w-4 h-4" /> {isAr ? "إرسال PDF" : "Send PDF"}</>}
+                      ? <><span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> {isAr ? "جاري الإرسال..." : "Sending..."}</>
+                      : <><Send className="w-4 h-4" /> {isAr ? "إرسال التقرير" : "Send Report"}</>}
                   </button>
                 </div>
               </>
