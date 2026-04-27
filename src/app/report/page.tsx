@@ -214,7 +214,7 @@ export default function ReportPage() {
     if (adminEmail && adminEmail !== toEmail) sendReport(adminEmail);
   }, [aiAnalysis, user, survey, language]);
 
-  // حفظ AI في Supabase — منفصل حتى يشتغل حتى لو user تأخر
+  // حفظ AI في Supabase عبر service role لتجاوز RLS
   useEffect(() => {
     if (!aiAnalysis || !user || savedRef.current) return;
     savedRef.current = true;
@@ -228,13 +228,11 @@ export default function ReportPage() {
       .single()
       .then(({ data }) => {
         if (data?.id) {
-          supabase
-            .from("survey_results")
-            .update({ ai_analysis: aiAnalysis })
-            .eq("id", data.id)
-            .then(({ error }) => {
-              if (error) console.error("[save-ai]", error.message);
-            });
+          fetch("/api/admin/save-ai-analysis", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: data.id, ai_analysis: aiAnalysis }),
+          }).catch(() => {});
         }
       });
   }, [aiAnalysis, user]);
