@@ -63,19 +63,28 @@ export default function EvaluationPage() {
     if (!userId || !allRated) return;
     setSubmitting(true);
 
-    await supabase.from("workshop_evaluations").insert({
-      user_id: userId,
-      user_name: userName || null,
-      trainer_rating:     ratings["trainer_rating"],
-      interaction_rating: ratings["interaction_rating"],
-      content_rating:     ratings["content_rating"],
-      facilities_rating:  ratings["facilities_rating"],
-      benefit_rating:     ratings["benefit_rating"],
-      comments: comments.trim() || null,
+    const res = await fetch("/api/submit-evaluation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: userId,
+        user_name: userName || null,
+        trainer_rating:     ratings["trainer_rating"],
+        interaction_rating: ratings["interaction_rating"],
+        content_rating:     ratings["content_rating"],
+        facilities_rating:  ratings["facilities_rating"],
+        benefit_rating:     ratings["benefit_rating"],
+        comments: comments.trim() || null,
+      }),
     });
 
-    setDone(true);
     setSubmitting(false);
+    if (res.ok) {
+      setDone(true);
+    } else {
+      const { error } = await res.json().catch(() => ({}));
+      alert("حدث خطأ أثناء الإرسال: " + (error || "يرجى المحاولة مجدداً"));
+    }
   };
 
   if (loading) return (
