@@ -120,7 +120,7 @@ export default function AdminPage() {
       supabase.from("workshops").select("*, workshop_materials(count), workshop_enrollments(count)").order("created_at", { ascending: false }),
       supabase.from("consultations").select("*").order("created_at", { ascending: false }),
       supabase.from("evaluation_settings").select("is_open").eq("id", 1).maybeSingle(),
-      supabase.from("workshop_evaluations").select("*").order("created_at", { ascending: false }),
+      fetch("/api/submit-evaluation").then((r) => r.json()).catch(() => ({ evaluations: [] })),
       supabase.from("projects").select("*").order("created_at", { ascending: false }),
     ]);
     if (usersRes.users) setSiteUsers(usersRes.users);
@@ -131,7 +131,7 @@ export default function AdminPage() {
     if (workshopsRes.data) setWorkshops(workshopsRes.data);
     if (consultRes.data) setConsultations(consultRes.data);
     setEvaluationOpen(evalSettingsRes.data?.is_open ?? false);
-    if (evalsRes.data) setEvaluations(evalsRes.data);
+    if (evalsRes.evaluations) setEvaluations(evalsRes.evaluations);
     if (projectsRes.data) setAdminProjects(projectsRes.data);
     setLoadingData(false);
   };

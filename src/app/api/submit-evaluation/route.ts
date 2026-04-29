@@ -7,6 +7,16 @@ const supabaseAdmin = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
+export async function GET() {
+  const { data, error } = await supabaseAdmin
+    .from("workshop_evaluations")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ evaluations: data });
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { user_id, user_name, trainer_rating, interaction_rating, content_rating, facilities_rating, benefit_rating, comments } = body;
