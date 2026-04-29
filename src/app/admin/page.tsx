@@ -441,7 +441,12 @@ export default function AdminPage() {
 
   const deleteEvaluation = async (id: string) => {
     if (!confirm("حذف هذا التقييم؟")) return;
-    await supabase.from("workshop_evaluations").delete().eq("id", id);
+    const res = await fetch("/api/submit-evaluation", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) { alert("فشل الحذف"); return; }
     setEvaluations(prev => prev.filter(e => e.id !== id));
   };
 

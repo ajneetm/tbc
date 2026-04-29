@@ -17,6 +17,15 @@ export async function GET() {
   return NextResponse.json({ evaluations: data });
 }
 
+export async function DELETE(req: NextRequest) {
+  const { id } = await req.json();
+  if (!id) return NextResponse.json({ error: "missing id" }, { status: 400 });
+
+  const { error } = await supabaseAdmin.from("workshop_evaluations").delete().eq("id", id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true });
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { user_id, user_name, trainer_rating, interaction_rating, content_rating, facilities_rating, benefit_rating, comments } = body;
