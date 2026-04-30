@@ -388,15 +388,24 @@ export default function AdminPage() {
 
   // ── Projects ──
   const toggleProjectActive = async (id: string, isActive: boolean) => {
-    await supabase.from("projects").update({ is_active: !isActive }).eq("id", id);
+    const res = await fetch("/api/admin/projects", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, is_active: !isActive }),
+    });
+    if (!res.ok) return;
     setAdminProjects((prev) => prev.map((p) => p.id === id ? { ...p, is_active: !isActive } : p));
     if (selectedProject?.id === id) setSelectedProject((p: any) => ({ ...p, is_active: !isActive }));
   };
 
   const deleteProject = async (id: string) => {
     if (!confirm("حذف المشروع وجميع تقييماته؟")) return;
-    const { error: projError } = await supabase.from("projects").delete().eq("id", id);
-    if (projError) { alert("فشل حذف المشروع: " + projError.message); return; }
+    const res = await fetch("/api/admin/projects", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
+    if (!res.ok) { alert("فشل حذف المشروع"); return; }
     setAdminProjects((prev) => prev.filter((p) => p.id !== id));
     setSelectedProject(null);
   };
