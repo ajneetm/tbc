@@ -214,7 +214,6 @@ export default function ResultsPage() {
                           )}
                         </div>
                         <ScoreBar value={proj.overall} color="#111" />
-                        <CriteriaGrid byCategory={proj.byCategory} accent="#111" />
                       </div>
                     </div>
                   </div>
